@@ -16,6 +16,8 @@ body {
     background-color: #fdfdfd;
     margin: 0;
     position: relative;
+    min-width: 320px;
+    min-height: 320px;
 }
 
 ul,
@@ -103,9 +105,8 @@ nav h1 {
 
 nav h1 a {
     color: #fff;
-    font-size: 4vw;
+    font-size: 1em;
     font-weight: 200;
-    letter-spacing: 5px;
     text-transform: uppercase;
 }
 
@@ -154,7 +155,7 @@ nav h1 a {
 /* ====================== Map ====================== */
 
 #map {
-    height: 400px;
+    height: 40vh;
     width: 100%;
     background-color: #ccc;
 }
@@ -211,11 +212,7 @@ nav h1 a {
 }
 
 #restaurants-list .restaurant-img {
-    background-color: #ccc;
-    display: block;
-    margin: 0;
-    max-width: 100%;
-    min-width: 100%;
+    display: none;
 }
 
 #restaurants-list li h1 {
@@ -354,4 +351,58 @@ nav h1 a {
 
 #restaurant-hours td {
     color: #666;
+}
+
+@media screen and (min-width: 400px) {
+    .filter-options h2 {
+        display: block;
+    }
+    .filter-options select {
+        width: 33%;
+    }
+    #restaurants-list .restaurant-img {
+        background-color: #ccc;
+        display: block;
+        margin: 0;
+        max-width: 100%;
+        min-width: 100%;
+    }
+}
+
+@media screen and (min-width: 600px) {
+    nav h1 a {
+        font-size: 1.5em;
+        letter-spacing: 5px;
+    }
+    #restaurants-list {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    #restaurants-list li {
+        width: calc((100% / 2) - 84px);
+    }
+}
+
+@media screen and (min-width: 850px) and (max-width: 1280px) {
+    #restaurants-list li {
+        width: calc((100% / 3) - 84px);
+    }
+}
+
+@media screen and (min-width: 1281px) {
+    #restaurants-list li {
+        width: calc((100% / 4) - 84px);
+    }
+}
+
+@media screen and (min-width: 1600px) {
+    body {
+        max-width: 1920px;
+        margin-right: auto;
+        margin-left: auto;
+    }
+    #restaurants-list li {
+        width: calc((100% / 5) - 84px);
+    }
 }
