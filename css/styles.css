@@ -68,15 +68,12 @@ section {
 #maincontent {
     background-color: #f3f3f3;
     min-height: 100%;
-<<<<<<< HEAD
     display: flex;
     flex-wrap: nowrap;
     justify-content: center;
     /* Set column to show Maps wrapper in the flex mode  */
     flex-direction: column;
     margin: auto;
-=======
->>>>>>> 68f3d688344a8cd8c5bfdc5ea850591b8a626aaa
 }
 
 #footer {
@@ -167,15 +164,9 @@ nav h1 a {
 
 .filter-options {
     width: 100%;
-<<<<<<< HEAD
     background-color: #3397DB;
     align-items: center;
     display: flex;
-=======
-    height: 50px;
-    background-color: #3397DB;
-    align-items: center;
->>>>>>> 68f3d688344a8cd8c5bfdc5ea850591b8a626aaa
 }
 
 .filter-options h2 {
@@ -184,10 +175,7 @@ nav h1 a {
     font-weight: normal;
     line-height: 1;
     margin: 0 20px;
-<<<<<<< HEAD
     display: none;
-=======
->>>>>>> 68f3d688344a8cd8c5bfdc5ea850591b8a626aaa
 }
 
 .filter-options select {
@@ -209,11 +197,7 @@ nav h1 a {
     background-color: #f3f3f3;
     list-style: outside none none;
     margin: 0;
-<<<<<<< HEAD
     padding: 0px 7px;
-=======
-    padding: 30px 15px 60px;
->>>>>>> 68f3d688344a8cd8c5bfdc5ea850591b8a626aaa
     text-align: center;
 }
 
@@ -221,17 +205,9 @@ nav h1 a {
     background-color: #fff;
     border: 2px solid #ccc;
     font-family: Arial, sans-serif;
-<<<<<<< HEAD
     margin: 10px;
     padding: 0 30px 15px;
     text-align: left;
-=======
-    margin: 15px;
-    min-height: 380px;
-    padding: 0 30px 25px;
-    text-align: left;
-    width: 270px;
->>>>>>> 68f3d688344a8cd8c5bfdc5ea850591b8a626aaa
 }
 
 #restaurants-list .restaurant-img {
@@ -239,10 +215,6 @@ nav h1 a {
     display: block;
     margin: 0;
     max-width: 100%;
-<<<<<<< HEAD
-=======
-    min-height: 248px;
->>>>>>> 68f3d688344a8cd8c5bfdc5ea850591b8a626aaa
     min-width: 100%;
 }
 
