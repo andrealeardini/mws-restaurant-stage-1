@@ -69,8 +69,6 @@ body {
     background-color: #fdfdfd;
     margin: 0;
     position: relative;
-    min-width: 320px;
-    min-height: 320px;
 }
 
 #maincontent {
@@ -80,7 +78,7 @@ body {
     flex-direction: column;
     flex: 1;
     position: relative;
-    overflow: scroll;
+    overflow-y: scroll;
 }
 
 #footer {
@@ -124,7 +122,6 @@ nav h1 a {
     background-color: #eee;
     font-size: 17px;
     margin: 0;
-    width: calc(50% - 80px);
 }
 
 
@@ -165,6 +162,8 @@ nav h1 a {
 #map-container {
     position: relative;
     height: 40vh;
+    /* trick for Firefox */
+    min-height: 40vh;
 }
 
 #map {
@@ -182,6 +181,7 @@ nav h1 a {
     background-color: #3397DB;
     align-items: center;
     display: flex;
+    flex-wrap: wrap;
     position: relative;
 }
 
@@ -190,8 +190,9 @@ nav h1 a {
     font-size: 1rem;
     font-weight: normal;
     line-height: 1;
-    margin: 0 20px;
-    display: none;
+    margin: 0 10px;
+    display: block;
+    flex: 1;
 }
 
 .filter-options select {
@@ -204,13 +205,14 @@ nav h1 a {
     margin: 10px;
     padding: 0 10px;
     width: 200px;
+    flex: 1 50%;
 }
 
 
 /* ====================== Restaurant Listing ====================== */
 
 .restaurants {
-    overflow: scroll;
+    width: 100%;
 }
 
 #restaurants-list {
@@ -226,14 +228,18 @@ nav h1 a {
     border: 2px solid #ccc;
     font-family: Arial, sans-serif;
     margin: 10px;
-    padding: 0 30px 15px;
+    padding: 0 30px 65px;
     text-align: left;
     /* set the position relative to align the button on the bottom */
     position: relative;
 }
 
 #restaurants-list .restaurant-img {
-    display: none;
+    background-color: #ccc;
+    display: block;
+    margin: 5px auto;
+    width: 80%;
+    height: auto;
 }
 
 #restaurants-list li h1 {
@@ -252,20 +258,12 @@ nav h1 a {
     font-size: 11pt;
 }
 
-
-/* add a space beetween the last paragraph and the button*/
-
-#restaurants-list p:last-of-type {
-    margin-bottom: 50px;
-}
-
-#restaurants-list li a {
+#restaurants-list li button {
     background-color: orange;
     border-bottom: 3px solid #eee;
     color: #fff;
-    display: inline-block;
+    display: block;
     font-size: 10pt;
-    margin: 15px 0 0;
     padding: 8px 30px 10px;
     text-align: center;
     text-decoration: none;
@@ -279,19 +277,15 @@ nav h1 a {
 /* ====================== Restaurant Details ====================== */
 
 .inside header {
-    position: fixed;
-    top: 0;
     width: 100%;
     z-index: 1000;
 }
 
 .inside #map-container {
     background: blue none repeat scroll 0 0;
-    height: 87%;
-    position: fixed;
-    right: 0;
-    top: 80px;
-    width: 50%;
+    height: 40%;
+    position: relative;
+    width: 100%;
 }
 
 .inside #map {
@@ -303,7 +297,7 @@ nav h1 a {
 .inside #footer {
     bottom: 0;
     position: absolute;
-    width: 50%;
+    width: 100%;
 }
 
 #restaurant-name {
@@ -343,8 +337,7 @@ nav h1 a {
 #reviews-container {
     border-bottom: 1px solid #d9d9d9;
     border-top: 1px solid #fff;
-    padding: 140px 40px 30px;
-    width: 50%;
+    width: 100%;
 }
 
 #reviews-container {
@@ -370,7 +363,7 @@ nav h1 a {
     display: block;
     list-style-type: none;
     margin: 0 0 30px;
-    overflow: hidden;
+    overflow-y: hidden;
     padding: 0 20px 20px;
     position: relative;
     width: 85%;
@@ -384,23 +377,14 @@ nav h1 a {
     color: #666;
 }
 
-@media screen and (min-width: 400px) {
-    .filter-options h2 {
-        display: block;
-    }
-    .filter-options select {
-        width: 33%;
-    }
-    #restaurants-list .restaurant-img {
-        background-color: #ccc;
-        display: block;
-        margin: 0;
-        max-width: 100%;
-        min-width: 100%;
+@media screen and (min-width: 420px) {
+    .filter-options {
+        /* width: 33%; */
+        flex-wrap: nowrap;
     }
 }
 
-@media screen and (min-width: 600px) {
+@media screen and (min-width: 500px) {
     nav h1 a {
         font-size: 1.5em;
         letter-spacing: 5px;
@@ -424,9 +408,13 @@ nav h1 a {
 @media screen and (min-width: 850px) {
     #maincontent {
         flex-direction: row;
+        overflow-y: hidden;
     }
     #map-container {
         height: 100%;
+    }
+    .restaurants {
+        overflow-y: scroll;
     }
     #restaurants-list li {
         width: calc((100% / 2) - 84px);
