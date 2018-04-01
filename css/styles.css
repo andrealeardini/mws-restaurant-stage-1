@@ -278,7 +278,7 @@ nav h1 a {
 /* ====================== Restaurant Details ====================== */
 
 .inside #maincontent {
-    flex: 1 0 auto;
+    flex: 1 1 auto;
 }
 
 .inside #map-container {
