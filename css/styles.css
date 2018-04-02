@@ -294,6 +294,7 @@ nav h1 a {
     display: flex;
     flex-flow: column nowrap;
     flex: 1 0;
+    align-content: flex-start;
 }
 
 #restaurant-name {
