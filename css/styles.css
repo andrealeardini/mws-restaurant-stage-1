@@ -499,20 +499,6 @@ nav h1 a {
         display: flex;
         flex-flow: row wrap;
     }
-}
-
-@media screen and (min-width: 850px) {
-    #maincontent {
-        flex-direction: row;
-        overflow-y: hidden;
-    }
-    #map-container {
-        width: 50%;
-        height: 100%;
-    }
-    .restaurants {
-        overflow-y: scroll;
-    }
     /* ============== Font =============== */
     #breadcrumb li {
         font-size: 1.7vw;
@@ -532,6 +518,41 @@ nav h1 a {
     #reviews-list .reviews-date,
     #reviews-list li p {
         font-size: 1.5vw;
+    }
+    /* ==================================== */
+}
+
+@media screen and (min-width: 850px) {
+    #maincontent {
+        flex-direction: row;
+        overflow-y: hidden;
+    }
+    #map-container {
+        width: 40%;
+        height: 100%;
+    }
+    .restaurants {
+        overflow-y: scroll;
+    }
+    /* ============== Font =============== */
+    #breadcrumb li {
+        font-size: 1.6vw;
+    }
+    #footer {
+        font-size: 1.1vw;
+    }
+    #restaurant-cuisine,
+    #reviews-container h2 {
+        font-size: 1.8vw;
+    }
+    #restaurant-address,
+    #reviews-list .reviews-name {
+        font-size: 1.7vw
+    }
+    #restaurant-hours td,
+    #reviews-list .reviews-date,
+    #reviews-list li p {
+        font-size: 1.4vw;
     }
     /* ==================================== */
     /* ============== Details =============== */
@@ -572,15 +593,13 @@ nav h1 a {
     /* ==================================== */
 }
 
-
-}
 @media screen and (min-width: 1600px) {
     /* ============== Details =============== */
-    
     #reviews-list li {
         width: calc((100% /2) - 42px);
     }
 }
+
 @media screen and (min-width: 1920px) {
     #restaurants-list li {
         width: calc((100% / 4) - 86px);
