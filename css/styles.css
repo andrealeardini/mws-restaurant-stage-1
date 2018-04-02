@@ -424,7 +424,7 @@ nav h1 a {
 
 #reviews-list .reviews-rating {
     display: block;
-    width: 100px;
+    width: 80px;
     margin: 15px;
     padding: 5px 10px;
     border-radius: 5%;
@@ -474,6 +474,9 @@ nav h1 a {
     #footer {
         font-size: 1.5vw;
     }
+    #restaurant-name {
+        font-size: 3vw;
+    }
     #restaurant-cuisine,
     #reviews-container h2 {
         font-size: 2.8vw;
@@ -494,6 +497,9 @@ nav h1 a {
     }
     #restaurant-info {
         border-right: 1px solid #d9d9d9;
+    }
+    #reviews-list .reviews-rating {
+        width: calc(2.2vw * 8);
     }
 }
 
