@@ -271,6 +271,8 @@ nav h1 a {
     /* set the position absolute to align the button on the bottom */
     position: absolute;
     bottom: 10px;
+    /* center the button */
+    left: calc(50% - 78.17px);
 }
 
 
