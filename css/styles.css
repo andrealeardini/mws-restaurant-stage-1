@@ -343,6 +343,11 @@ nav h1 a {
     text-transform: uppercase;
 }
 
+.restaurant-day {
+    font-weight: bold;
+    padding: 0 15px 0 0;
+}
+
 #restaurant-hours {
     margin: 0 15px;
 }

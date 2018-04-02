@@ -80,6 +80,7 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 
         const day = document.createElement('td');
         day.innerHTML = key;
+        day.className = "restaurant-day";
         row.appendChild(day);
 
         const time = document.createElement('td');
