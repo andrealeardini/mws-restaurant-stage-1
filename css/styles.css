@@ -423,8 +423,7 @@ nav h1 a {
 }
 
 #reviews-list .reviews-rating {
-    display: block;
-    width: 80px;
+    display: inline;
     margin: 15px;
     padding: 5px 10px;
     border-radius: 5%;
@@ -504,9 +503,6 @@ nav h1 a {
     #restaurant-info {
         border-right: 1px solid #d9d9d9;
     }
-    #reviews-list .reviews-rating {
-        width: calc(2.2vw * 8);
-    }
 }
 
 @media screen and (min-width: 700px) {
@@ -542,9 +538,6 @@ nav h1 a {
         font-size: 1.7vw;
     }
     /* ==================================== */
-    #reviews-list .reviews-rating {
-        width: calc(1.5vw * 8);
-    }
 }
 
 @media screen and (min-width: 850px) {
@@ -595,9 +588,6 @@ nav h1 a {
         width: 100%;
         overflow-y: scroll;
     }
-    #reviews-list .reviews-rating {
-        width: calc(1.4vw * 8);
-    }
 }
 
 @media screen and (min-width: 1280px) {
@@ -631,9 +621,6 @@ nav h1 a {
     #restaurants-list li button {
         width: calc((1.2vw * 8) + 30px);
         left: calc(50% - ((1.2vw * 8)/2) - 15px)
-    }
-    #reviews-list .reviews-rating {
-        width: calc(1.2vw * 8);
     }
 }
 
