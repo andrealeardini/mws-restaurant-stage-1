@@ -136,10 +136,24 @@ fillRestaurantsHTML = (restaurants = self.restaurants) => {
  * Create restaurant HTML.
  */
 createRestaurantHTML = (restaurant) => {
+    // Please note that I used Google Translate. Translations can be a little fun... 
+    const altImg = [
+        "Inside view of the Mission Chinese Food restaurant. The place is crowded. Conversational atmosphere, many people talk to each other",
+        "A pizza cut into six slices",
+        "Inside view of Kang Ho Dong Baekjeong restaurant. You can see various modern style tables and chairs",
+        "Panoramic photo of the entrance to the Katz's Delicatessen restaurant. You can see the two streets on which the restaurant overlooks",
+        "Inside view of the Roberto's Pizza. In the background, see the kitchen and some pizza makers",
+        "Inside view of the Hometown BBQ restaurant. The place is crowded. Conversational atmosphere. Many people are seen lining up for the cash desk. On the wall a huge US flag",
+        "Exterior of the entrance to the Superiority Burger restaurant. You see two people walking around and some customers inside",
+        "Detail of the The Dutch banner",
+        "Interior view of the Mu Ramen restaurant. Some customers eat using the typical oriental chopsticks",
+        "Inside view of the Casa Enrique restaurant. You see the counter with the window and several bottles. On the right of the counter a row of tables"
+    ];
     const li = document.createElement('li');
 
     const image = document.createElement('img');
     image.className = 'restaurant-img';
+    image.alt = altImg[restaurant.id - 1]
     image.src = DBHelper.imageUrlForRestaurant(restaurant);
     li.append(image);
 
