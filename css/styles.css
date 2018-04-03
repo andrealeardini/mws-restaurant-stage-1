@@ -468,6 +468,12 @@ nav h1 a {
         width: calc((100% / 2) - 86px);
     }
     /* ============== Font =============== */
+    #restaurants-list li h1 {
+        font-size: 2.4vw;
+    }
+    #restaurants-list li p {
+        font-size: 2.2vw;
+    }
     #breadcrumb li {
         font-size: 2.4vw;
     }
@@ -510,6 +516,12 @@ nav h1 a {
         flex-flow: row wrap;
     }
     /* ============== Font =============== */
+    #restaurants-list li h1 {
+        font-size: 2.2vw;
+    }
+    #restaurants-list li p {
+        font-size: 2vw;
+    }
     #breadcrumb li {
         font-size: 1.7vw;
     }
@@ -522,14 +534,17 @@ nav h1 a {
     }
     #restaurant-address,
     #reviews-list .reviews-name {
-        font-size: 1.8vw
+        font-size: 1.9vw
     }
     #restaurant-hours td,
     #reviews-list .reviews-date,
     #reviews-list li p {
-        font-size: 1.5vw;
+        font-size: 1.7vw;
     }
     /* ==================================== */
+    #reviews-list .reviews-rating {
+        width: calc(1.5vw * 8);
+    }
 }
 
 @media screen and (min-width: 850px) {
@@ -545,6 +560,12 @@ nav h1 a {
         overflow-y: scroll;
     }
     /* ============== Font =============== */
+    #restaurants-list li h1 {
+        font-size: 1.5vw;
+    }
+    #restaurants-list li p {
+        font-size: 1.3vw;
+    }
     #breadcrumb li {
         font-size: 1.6vw;
     }
@@ -574,6 +595,9 @@ nav h1 a {
         width: 100%;
         overflow-y: scroll;
     }
+    #reviews-list .reviews-rating {
+        width: calc(1.4vw * 8);
+    }
 }
 
 @media screen and (min-width: 1280px) {
@@ -600,7 +624,17 @@ nav h1 a {
     #reviews-list li p {
         font-size: 1.2vw;
     }
+    #restaurants-list li button {
+        font-size: 1vw;
+    }
     /* ==================================== */
+    #restaurants-list li button {
+        width: calc((1.2vw * 8) + 30px);
+        left: calc(50% - ((1.2vw * 8)/2) - 15px)
+    }
+    #reviews-list .reviews-rating {
+        width: calc(1.2vw * 8);
+    }
 }
 
 @media screen and (min-width: 1600px) {
