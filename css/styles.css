@@ -169,14 +169,12 @@ nav h1 a {
     height: 100%;
     width: 100%;
     background-color: #ccc;
-    min-width: 320px;
 }
 
 
 /* ====================== Restaurant Filtering ====================== */
 
 .filter-options {
-    width: 100%;
     background-color: #3397DB;
     align-items: center;
     display: flex;
@@ -189,9 +187,9 @@ nav h1 a {
     font-size: 1rem;
     font-weight: normal;
     line-height: 1;
-    margin: 0 10px;
+    margin: 10px 15px;
     display: block;
-    flex: 1;
+    flex: 2 100%;
 }
 
 .filter-options select {
@@ -199,12 +197,12 @@ nav h1 a {
     border: 1px solid #fff;
     font-family: Arial, sans-serif;
     font-size: 11pt;
-    height: 35px;
+    height: auto;
     letter-spacing: 0;
     margin: 10px;
     padding: 0 10px;
     width: 200px;
-    flex: 1 50%;
+    flex: 1;
 }
 
 
@@ -441,6 +439,9 @@ nav h1 a {
     .filter-options {
         flex-wrap: nowrap;
     }
+    .filter-options h2 {
+        margin: auto 15px;
+    }
     #restaurant-name {
         font-size: 1.7em;
     }
@@ -595,6 +596,16 @@ nav h1 a {
         width: calc((100% / 3) - 86px);
     }
     /* ============== Font =============== */
+    .filtero-option {
+        padding: 10px;
+    }
+    .filter-options h2 {
+        font-size: 1.4vw;
+        flex: 2;
+    }
+    .filter-options select {
+        font-size: 1.2vw;
+    }
     #breadcrumb li {
         font-size: 1.3vw;
     }
