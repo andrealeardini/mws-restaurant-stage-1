@@ -154,6 +154,28 @@ class DBHelper {
     }
 
     /**
+     * Restaurant image description.
+     */
+    static imageDescriptionForRestaurant(restaurant) {
+        // Please note that I used Google Translate. Translations can be a little fun... 
+        const altImg = [
+            "Inside view of the Mission Chinese Food restaurant. Many people talk to each other",
+            "A pizza cut into six slices",
+            "Inside view of Kang Ho Dong Baekjeong restaurant. You can see various modern style tables and chairs",
+            "Panoramic photo of the entrance. You can see the two streets on which the restaurant overlooks",
+            "Inside view of the Roberto's Pizza. In the background, see the kitchen and some pizza makers",
+            "Inside view of the Hometown BBQ restaurant. On the wall a huge US flag",
+            "Two people walking around the restaurand. You can see some customers inside",
+            "Detail of the The Dutch banner",
+            "Inside view of the Mu Ramen restaurant. Some customers eat using the typical oriental chopsticks",
+            "Inside view of restaurant. You see the counter with the window and several bottles."
+        ];
+        return (altImg[restaurant.id - 1]);
+    }
+
+
+
+    /**
      * Map marker for a restaurant.
      */
     static mapMarkerForRestaurant(restaurant, map) {
