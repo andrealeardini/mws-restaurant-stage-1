@@ -1,25 +1,22 @@
 const CACHE_NAME = 'MWS-restaurant-cache-v1';
 const urlsToCache = [
-    'index.html',
-    'restaurant.html',
-    'js/dbhelper.js',
-    'js/main.js',
-    'js/restaurant_info.js',
-    'css/styles.css',
-    'data/restaurants.json',
-    'img/1.jpg',
-    'img/2.jpg',
-    'img/3.jpg',
-    'img/4.jpg',
-    'img/5.jpg',
-    'img/6.jpg',
-    'img/7.jpg',
-    'img/8.jpg',
-    'img/9.jpg',
-    'img/10.jpg',
-    'https://fonts.gstatic.com/s/roboto/v18/KFOlCnqEu92Fr1MmEU9fBBc4.woff2',
-    'https://fonts.gstatic.com/s/roboto/v18/KFOmCnqEu92Fr1Mu4mxK.woff2',
-    'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700'
+    '/',
+    '/restaurant.html',
+    '/js/dbhelper.js',
+    '/js/main.js',
+    '/js/restaurant_info.js',
+    '/css/styles.css',
+    '/data/restaurants.json',
+    '/img/1.jpg',
+    '/img/2.jpg',
+    '/img/3.jpg',
+    '/img/4.jpg',
+    '/img/5.jpg',
+    '/img/6.jpg',
+    '/img/7.jpg',
+    '/img/8.jpg',
+    '/img/9.jpg',
+    '/img/10.jpg'
 ];
 
 self.addEventListener('install', function(event) {
