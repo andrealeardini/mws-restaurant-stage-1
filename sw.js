@@ -6,7 +6,6 @@ const urlsToCache = [
     '/js/main.js',
     '/js/restaurant_info.js',
     '/css/styles.css',
-    '/data/restaurants.json',
     '/img/1.jpg',
     '/img/2.jpg',
     '/img/3.jpg',
@@ -19,25 +18,25 @@ const urlsToCache = [
     '/img/10.jpg'
 ];
 
-self.addEventListener('install', function(event) {
+self.addEventListener('install', function (event) {
     // Perform install steps
     event.waitUntil(
         caches.open(CACHE_NAME)
-        .then(function(cache) {
+        .then(function (cache) {
             console.log('Opened cache');
             return cache.addAll(urlsToCache);
         })
     );
 });
 
-self.addEventListener('activate', function(event) {
+self.addEventListener('activate', function (event) {
 
     const cacheWhitelist = [CACHE_NAME];
 
     event.waitUntil(
-        caches.keys().then(function(cacheNames) {
+        caches.keys().then(function (cacheNames) {
             return Promise.all(
-                cacheNames.map(function(cacheName) {
+                cacheNames.map(function (cacheName) {
                     if (cacheWhitelist.indexOf(cacheName) === -1) {
                         return caches.delete(cacheName);
                     }
@@ -47,16 +46,20 @@ self.addEventListener('activate', function(event) {
     );
 })
 
-self.addEventListener('fetch', function(event) {
+self.addEventListener('fetch', function (event) {
     const requestUrl = new URL(event.request.url);
     if (requestUrl.origin === location.origin) {
-        let option = { 'ignoreSearch': false };
+        let option = {
+            'ignoreSearch': false
+        };
         if (requestUrl.search.startsWith("?id=")) {
-            option = { 'ignoreSearch': true };
+            option = {
+                'ignoreSearch': true
+            };
         };
         event.respondWith(
             caches.match(event.request, option)
-            .then(function(response) {
+            .then(function (response) {
                 // Cache hit - return response
                 if (response) {
                     return response;
