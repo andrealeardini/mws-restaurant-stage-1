@@ -189,3 +189,9 @@ class DBHelper {
     }
 
 }
+
+if ('serviceWorker' in navigator) {
+    const dbPromise = idb.open('restaurants-reviews', 1, upgradeDB => {
+        upgradeDB.createObjectStore('restaurants');
+    });
+}
