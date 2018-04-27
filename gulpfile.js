@@ -1,10 +1,13 @@
 const gulp = require('gulp');
-const autoprefixer = require('gulp-autoprefixer');
+// const autoprefixer = require('gulp-autoprefixer');
 const sourcemaps = require('gulp-sourcemaps');
 const concat = require('gulp-concat');
 const uglify = require('gulp-uglify-es').default;
 const babel = require('gulp-babel');
 const htmlmin = require('gulp-htmlmin');
+const postcss = require('gulp-postcss');
+const autoprefixer = require('autoprefixer');
+const cssnano = require('cssnano');
 
 gulp.task('default', ['copy-html', 'copy-images', 'styles', 'scripts'], () => {
     gulp.watch('./css', ['styles']);
@@ -19,9 +22,11 @@ gulp.task('copy-html', () =>
 
 gulp.task('styles', () =>
     gulp.src('./css/**/*.css')
-    .pipe(autoprefixer({
-        browsers: ['last 2 versions']
-    }))
+    .pipe(sourcemaps.init())
+    .pipe(postcss([autoprefixer({
+        browsers: ['last 2 version']
+    })]))
+    .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest('./dist/css'))
 );
 
@@ -76,5 +81,18 @@ gulp.task('minify-html', () =>
     }))
     .pipe(gulp.dest('./dist'))
 );
+
+gulp.task('minify-css', () => {
+    var plugins = [
+        autoprefixer({
+            browsers: ['last 2 version']
+        }),
+        cssnano()
+    ];
+    gulp.src(['./css/**/*.css'])
+        .pipe(postcss(plugins))
+        .pipe(gulp.dest('./dist/css'))
+});
+
 
 gulp.task('build-dist', ['minify-html', 'scripts-dist']);
