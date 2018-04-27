@@ -29,23 +29,39 @@ gulp.task('scripts', () => {
     gulp.src(['js/idb.js', 'js/dbHelper.js'])
         .pipe(concat('all.js'))
         .pipe(gulp.dest('./dist/js'));
-    gulp.src(['sw.js', 'js/main.js', 'js/restaurant_info.js'])
+    gulp.src('sw.js')
         .pipe(gulp.dest('./dist'));
     gulp.src(['js/main.js', 'js/restaurant_info.js'])
-        .pipe(gulp.dest('./dist'))
+        .pipe(gulp.dest('./dist/js'))
 });
 
-gulp.task('scripts-dist', () =>
-    gulp.src('./js/**/*.js')
-    .pipe(sourcemaps.init())
-    .pipe(babel({
-        presets: ['env']
-    }))
-    .pipe(concat('all.js'))
-    .pipe(uglify())
-    .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest('./dist/js'))
-);
+gulp.task('scripts-dist', () => {
+    gulp.src(['js/idb.js', 'js/dbHelper.js'])
+        .pipe(sourcemaps.init())
+        .pipe(babel({
+            presets: ['env']
+        }))
+        .pipe(concat('all.js'))
+        .pipe(uglify())
+        .pipe(sourcemaps.write('.'))
+        .pipe(gulp.dest('./dist/js'));
+    gulp.src('sw.js')
+        .pipe(sourcemaps.init())
+        .pipe(babel({
+            presets: ['env']
+        }))
+        .pipe(uglify())
+        .pipe(sourcemaps.write('.'))
+        .pipe(gulp.dest('./dist'));
+    gulp.src(['js/main.js', 'js/restaurant_info.js'])
+        .pipe(sourcemaps.init())
+        .pipe(babel({
+            presets: ['env']
+        }))
+        .pipe(uglify())
+        .pipe(sourcemaps.write('.'))
+        .pipe(gulp.dest('./dist/js'))
+});
 
 // TODO Optimize images (next stage)
 gulp.task('copy-images', () =>
