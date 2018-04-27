@@ -95,4 +95,4 @@ gulp.task('minify-css', () => {
 });
 
 
-gulp.task('build-dist', ['minify-html', 'scripts-dist']);
+gulp.task('build', ['minify-html', 'minify-css', 'scripts-dist']);
