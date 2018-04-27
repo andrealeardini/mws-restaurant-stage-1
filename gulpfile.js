@@ -4,6 +4,7 @@ const sourcemaps = require('gulp-sourcemaps');
 const concat = require('gulp-concat');
 const uglify = require('gulp-uglify-es').default;
 const babel = require('gulp-babel');
+const htmlmin = require('gulp-htmlmin');
 
 gulp.task('default', ['copy-html', 'copy-images', 'styles', 'scripts'], () => {
     gulp.watch('./css', ['styles']);
@@ -67,3 +68,13 @@ gulp.task('copy-images', () =>
     gulp.src('./img/*')
     .pipe(gulp.dest('./dist/img'))
 );
+
+gulp.task('minify-html', () =>
+    gulp.src(['index.html', 'restaurant.html'])
+    .pipe(htmlmin({
+        collapseWhitespace: true
+    }))
+    .pipe(gulp.dest('./dist'))
+);
+
+gulp.task('build-dist', ['minify-html', 'scripts-dist']);
