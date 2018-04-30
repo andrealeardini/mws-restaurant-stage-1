@@ -149,7 +149,8 @@ class DBHelper {
      * Restaurant image URL.
      */
     static imageUrlForRestaurant(restaurant) {
-        return (`/img/${restaurant.photograph}.jpg`);
+        // use id instead photograph to avoid an error with Casa Enrique (a bug?)
+        return (`/img/${restaurant.id}.jpg`);
     }
 
     /**
