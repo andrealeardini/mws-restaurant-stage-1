@@ -8,10 +8,12 @@ const htmlmin = require('gulp-htmlmin');
 const postcss = require('gulp-postcss');
 const autoprefixer = require('autoprefixer');
 const cssnano = require('cssnano');
+const webp = require('gulp-webp');
+const imagemin = require('gulp-imagemin');
 
 gulp.task('default', ['copy-html', 'copy-images', 'styles', 'scripts'], () => {
     gulp.watch('./css', ['styles']);
-    gulp.watch('./jw', ['scripts']);
+    gulp.watch('./js', ['scripts']);
     gulp.watch('./**/*.html', ['copy-html']);
 });
 
@@ -68,9 +70,9 @@ gulp.task('scripts-dist', () => {
         .pipe(gulp.dest('./dist'));
 });
 
-// TODO Optimize images (next stage)
 gulp.task('copy-images', () =>
     gulp.src('./img/*')
+    .pipe(imagemin())
     .pipe(gulp.dest('./dist/img'))
 );
 

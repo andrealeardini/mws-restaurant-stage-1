@@ -155,11 +155,20 @@ const createRestaurantHTML = (restaurant) => {
 
     const li = document.createElement('li');
 
+    const picture = document.createElement('picture');
+    picture.className = 'restaurant-img';
+    const picture_source = document.createElement('source');
+    picture_source.setAttribute('type', 'image/webp');
+    picture_source.setAttribute('srcset', `${DBHelper.imageUrlForRestaurant(restaurant)}.webp`);
+    picture.append(picture_source);
     const image = document.createElement('img');
     image.className = 'restaurant-img';
     image.alt = DBHelper.imageDescriptionForRestaurant(restaurant);
-    image.src = DBHelper.imageUrlForRestaurant(restaurant);
-    li.append(image);
+    image.src = `${DBHelper.imageUrlForRestaurant(restaurant)}.jpg`;
+    picture.append(image);
+    li.append(picture);
+
+
 
     const name = document.createElement('h1');
     name.innerHTML = restaurant.name;

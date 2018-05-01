@@ -30,8 +30,10 @@
     "gulp-babel": "^7.0.1",
     "gulp-concat": "^2.6.1",
     "gulp-htmlmin": "^4.0.0",
+    "gulp-imagemin": "^4.1.0",
     "gulp-postcss": "^7.0.1",
     "gulp-sourcemaps": "^2.6.4",
-    "gulp-uglify-es": "^1.0.1"
+    "gulp-uglify-es": "^1.0.1",
+    "gulp-webp": "^3.0.0"
   }
 }
