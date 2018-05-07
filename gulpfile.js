@@ -66,9 +66,6 @@ gulp.task('scripts-dist', () => {
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('./dist/js'));
     gulp.src('sw.js')
-        .pipe(sourcemaps.init())
-        .pipe(uglify())
-        .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('./dist'));
 });
 
@@ -103,4 +100,4 @@ gulp.task('minify-css', () => {
 });
 
 
-gulp.task('build', ['minify-html', 'minify-css', 'scripts-dist']);
+gulp.task('build', ['styles', 'copy-images', 'minify-html', 'minify-css', 'scripts-dist']);
