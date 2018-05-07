@@ -34,7 +34,9 @@ gulp.task('styles', () =>
 
 gulp.task('scripts', () => {
     gulp.src(['js/idb.js', 'js/dbHelper.js'])
+        .pipe(sourcemaps.init())
         .pipe(concat('all.js'))
+        .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('./dist/js'));
     gulp.src('sw.js')
         .pipe(gulp.dest('./dist'));
