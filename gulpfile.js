@@ -12,8 +12,8 @@ const webp = require('gulp-webp');
 const imagemin = require('gulp-imagemin');
 
 gulp.task('default', ['copy-html', 'copy-images', 'styles', 'scripts'], () => {
-    gulp.watch('./css', ['styles']);
-    gulp.watch('./js', ['scripts']);
+    gulp.watch('./css/**/*.css', ['styles']);
+    gulp.watch('./js/**/*.js', ['scripts']);
     gulp.watch('./**/*.html', ['copy-html']);
 });
 
