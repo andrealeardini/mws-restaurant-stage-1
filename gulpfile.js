@@ -70,11 +70,15 @@ gulp.task('scripts-dist', () => {
         .pipe(gulp.dest('./dist'));
 });
 
-gulp.task('copy-images', () =>
+gulp.task('copy-images', () => {
     gulp.src('./img/*')
-    .pipe(imagemin())
-    .pipe(gulp.dest('./dist/img'))
-);
+        .pipe(imagemin())
+        .pipe(gulp.dest('./dist/img'));
+    gulp.src('./img/*')
+        .pipe(imagemin())
+        .pipe(webp())
+        .pipe(gulp.dest('./dist/img'));
+});
 
 gulp.task('minify-html', () =>
     gulp.src(['index.html', 'restaurant.html'])
