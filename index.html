@@ -55,6 +55,7 @@
         function loadMap() {
             var script = document.createElement("script");
             script.async = true;
+            script.defer = true;
             script.src =
                 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBc_T2Nzol-Ujnwtu82M29yL7Df3TmVxbs&libraries=places&callback=initMap';
             document.body.appendChild(script);
