@@ -18,15 +18,16 @@ if ('serviceWorker' in navigator) {
             console.log('ServiceWorker registration failed: ', err);
         });
     });
+    DBHelper.InitIDB();
 }
 
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
  */
-/* document.addEventListener('DOMContentLoaded', (event) => {
+document.addEventListener('DOMContentLoaded', (event) => {
     fetchNeighborhoods();
     fetchCuisines();
-}); */
+});
 
 /**
  * Fetch all neighborhoods and set their HTML.
@@ -94,10 +95,8 @@ window.initMap = () => {
     self.map = new google.maps.Map(document.getElementById('map'), {
         zoom: 12,
         center: loc,
-        scrollwheel: false
+        gestureHandling: 'cooperative'
     });
-    fetchNeighborhoods();
-    fetchCuisines();
     updateRestaurants();
 }
 
@@ -142,7 +141,7 @@ const resetRestaurants = (restaurants) => {
 /**
  * Create all restaurants HTML and add them to the webpage.
  */
-fillRestaurantsHTML = (restaurants = self.restaurants) => {
+const fillRestaurantsHTML = (restaurants = self.restaurants) => {
     const ul = document.getElementById('restaurants-list');
     restaurants.forEach(restaurant => {
         ul.append(createRestaurantHTML(restaurant));
@@ -207,12 +206,3 @@ const addMarkersToMap = (restaurants = self.restaurants) => {
         self.markers.push(marker);
     });
 }
-
-/* window.addEventListener('load', function () {
-    var script = document.createElement("script");
-    script.async = true;
-    script.src =
-        'https://maps.googleapis.com/maps/api/js?key=AIzaSyBc_T2Nzol-Ujnwtu82M29yL7Df3TmVxbs&libraries=places&callback=initMap';
-    document.body.appendChild(script);
-    // alert('Mappa caricata');
-}, false); */

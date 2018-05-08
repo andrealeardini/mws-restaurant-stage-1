@@ -11,7 +11,7 @@
     <title>Restaurant Reviews</title>
 </head>
 
-<body onload="loadMap()">
+<body>
     <div id="skip-link">
         <a href="#restaurants">Skip to main content</a>
     </div>
@@ -41,9 +41,8 @@
         </section>
     </main>
 
-    <script async charset="utf-8" src="js/all.js"></script>
-    <script async type="application/javascript" charset="utf-8" src="js/main.js"></script>
-    <!-- <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBc_T2Nzol-Ujnwtu82M29yL7Df3TmVxbs&libraries=places&callback=initMap"></script> -->
+    <script charset="utf-8" src="js/main_all.js"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBc_T2Nzol-Ujnwtu82M29yL7Df3TmVxbs&libraries=places&callback=initMap"></script>
 
     <footer id="footer">
         Copyright (c) 2018
@@ -51,18 +50,6 @@
             <strong>Restaurant Reviews</strong>
         </a> All Rights Reserved.
     </footer>
-    <script>
-        function loadMap() {
-            var script = document.createElement("script");
-            script.async = true;
-            script.defer = true;
-            script.src =
-                'https://maps.googleapis.com/maps/api/js?key=AIzaSyBc_T2Nzol-Ujnwtu82M29yL7Df3TmVxbs&libraries=places&callback=initMap';
-            document.body.appendChild(script);
-            // alert('Mappa caricata'); 
-        }
-    </script>
-
 </body>
 
 </html>

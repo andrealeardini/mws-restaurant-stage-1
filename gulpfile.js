@@ -33,19 +33,22 @@ gulp.task('styles', () =>
 );
 
 gulp.task('scripts', () => {
-    gulp.src(['js/idb.js', 'js/dbHelper.js'])
+    gulp.src(['js/idb.js', 'js/dbHelper.js', 'js/main.js'])
         .pipe(sourcemaps.init())
-        .pipe(concat('all.js'))
+        .pipe(concat('main_all.js'))
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('./dist/js'));
     gulp.src('sw.js')
         .pipe(gulp.dest('./dist'));
-    gulp.src(['js/main.js', 'js/restaurant_info.js'])
-        .pipe(gulp.dest('./dist/js'))
+    gulp.src(['js/idb.js', 'js/dbHelper.js', 'js/restaurant_info.js'])
+        .pipe(sourcemaps.init())
+        .pipe(concat('restaurant_all.js'))
+        .pipe(sourcemaps.write('.'))
+        .pipe(gulp.dest('./dist/js'));
 });
 
 gulp.task('scripts-dist', () => {
-    gulp.src(['js/idb.js', 'js/dbHelper.js'])
+    gulp.src(['js/idb.js', 'js/dbHelper.js', 'js/main.js'])
         .pipe(sourcemaps.init())
         .pipe(babel({
             presets: [
@@ -56,12 +59,22 @@ gulp.task('scripts-dist', () => {
                 }]
             ]
         }))
-        .pipe(concat('all.js'))
+        .pipe(concat('main_all.js'))
         .pipe(uglify())
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('./dist/js'));
-    gulp.src(['js/main.js', 'js/restaurant_info.js'])
+    gulp.src(['js/idb.js', 'js/dbHelper.js', 'js/restaurant_info.js'])
         .pipe(sourcemaps.init())
+        .pipe(babel({
+            presets: [
+                ['env', {
+                    "targets": {
+                        "browsers": ["last 2 versions"]
+                    }
+                }]
+            ]
+        }))
+        .pipe(concat('restaurant_all.js'))
         .pipe(uglify())
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('./dist/js'));
