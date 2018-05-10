@@ -5,7 +5,7 @@ var map;
 /**
  * checks to see if the service worker API is available, and if it is, the service worker at /sw.js is registered
  */
-/* if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
         navigator.serviceWorker.register('/sw.js').then(function (registration) {
             // Registration was successful
@@ -15,8 +15,7 @@ var map;
             console.log('ServiceWorker registration failed: ', err);
         });
     });
-    DBHelper.InitIDB();
-} */
+}
 
 /**
  * Initialize Google map, called from HTML.
@@ -36,8 +35,6 @@ window.initMap = () => {
         }
     });
 }
-
-DBHelper.InitIDB();
 
 
 /**
@@ -75,12 +72,13 @@ const fillRestaurantHTML = (restaurant = self.restaurant) => {
     const address = document.getElementById('restaurant-address');
     address.innerHTML = restaurant.address;
 
-    const picture = document.getElementById('restaurant-img');
+    const picture = document.getElementById('restaurant-picture');
     const picture_source = document.createElement('source');
     picture_source.setAttribute('type', 'image/webp');
     picture_source.setAttribute('srcset', `${DBHelper.imageUrlForRestaurant(restaurant)}.webp`);
     picture.append(picture_source);
     const image = document.createElement('img');
+    image.id = "restaurant-img";
     image.alt = DBHelper.imageDescriptionForRestaurant(restaurant);
     image.src = `${DBHelper.imageUrlForRestaurant(restaurant)}.jpg`;
     picture.append(image);

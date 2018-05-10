@@ -158,6 +158,10 @@ nav h1 a {
     background-color: #ccc;
 }
 
+.inactive {
+    display: none;
+}
+
 /* ====================== Restaurant Filtering ====================== */
 
 .filter-options {
