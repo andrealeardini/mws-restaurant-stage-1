@@ -252,5 +252,6 @@ window.initMap = () => {
 function showMap() {
     setTimeout(function () {
         document.getElementById('map').classList = '';
+        // document.getElementById('map-container').classList = '';
     }, 0);
 }

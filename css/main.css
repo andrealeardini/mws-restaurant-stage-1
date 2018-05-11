@@ -148,6 +148,24 @@ nav h1 a {
     display: none;
 }
 
+.blur {
+    background: url('/img/Google_Maps_Picture.JPG') 100%;
+    background-size: cover;
+    height: 100%;
+    overflow: hidden;
+    filter: blur(2px);
+}
+
+.center {
+    position: absolute;
+    top: 50%;
+    height: 100%;
+    width: 100%;
+    padding-bottom: 50%;
+    text-align: center;
+    color: gray;
+}
+
 /* ====================== Restaurant Filtering ====================== */
 
 .filter-options {
