@@ -180,12 +180,18 @@ const createRestaurantHTML = (restaurant) => {
     const picture = document.createElement('picture');
     const picture_source = document.createElement('source');
     picture_source.setAttribute('type', 'image/webp');
-    picture_source.setAttribute('data-src', `${DBHelper.imageUrlForRestaurant(restaurant)}.webp`);
     picture.append(picture_source);
     const image = document.createElement('img');
     image.className = 'restaurant-img';
     image.alt = DBHelper.imageDescriptionForRestaurant(restaurant);
-    image.setAttribute('data-src', `${DBHelper.imageUrlForRestaurant(restaurant)}.jpg`);
+    // lazy load images only if the browser support Intersection Observer
+    if (!('IntersectionObserver' in window)) {
+        picture_source.setAttribute('data-src', `${DBHelper.imageUrlForRestaurant(restaurant)}.webp`);
+        image.setAttribute('data-src', `${DBHelper.imageUrlForRestaurant(restaurant)}.jpg`);
+    } else {
+        picture_source.setAttribute('srcset', `${DBHelper.imageUrlForRestaurant(restaurant)}.webp`);
+        image.src = `${DBHelper.imageUrlForRestaurant(restaurant)}.jpg`;
+    }
     picture.append(image);
     li.append(picture);
     observer.observe(picture);
