@@ -108,9 +108,11 @@ gulp.task('minify-css', () => {
         cssnano()
     ];
     gulp.src(['./css/**/*.css'])
+        .pipe(sourcemaps.init())
         .pipe(postcss(plugins))
+        .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('./dist/css'))
 });
 
 
-gulp.task('build', ['styles', 'copy-images', 'minify-html', 'minify-css', 'scripts-dist']);
+gulp.task('build', ['copy-images', 'minify-html', 'minify-css', 'scripts-dist']);

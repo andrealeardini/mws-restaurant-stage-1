@@ -32,6 +32,7 @@ window.initMap = () => {
             });
             fillBreadcrumb();
             DBHelper.mapMarkerForRestaurant(self.restaurant, self.map);
+            document.getElementById('map-container').addEventListener("click", showMap);
         }
     });
 }
@@ -197,4 +198,12 @@ const getParameterByName = (name, url) => {
     if (!results[2])
         return '';
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
+function showMap() {
+    setTimeout(function () {
+        document.getElementById('map').classList.remove('inactive');
+        document.getElementById('image-blurred').classList.remove('blur');
+        document.getElementById('image-blurred-text').hidden = true;
+    }, 0);
 }
