@@ -185,7 +185,7 @@ const createRestaurantHTML = (restaurant) => {
     image.className = 'restaurant-img';
     image.alt = DBHelper.imageDescriptionForRestaurant(restaurant);
     // lazy load images only if the browser support Intersection Observer
-    if (!('IntersectionObserver' in window)) {
+    if ('IntersectionObserver' in window) {
         picture_source.setAttribute('data-src', `${DBHelper.imageUrlForRestaurant(restaurant)}.webp`);
         image.setAttribute('data-src', `${DBHelper.imageUrlForRestaurant(restaurant)}.jpg`);
     } else {
