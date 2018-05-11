@@ -251,7 +251,8 @@ window.initMap = () => {
 
 function showMap() {
     setTimeout(function () {
-        document.getElementById('map').classList = '';
-        // document.getElementById('map-container').classList = '';
+        document.getElementById('map').classList.remove('inactive');
+        document.getElementById('image-blurred').classList.remove('blur');
+        document.getElementById('image-blurred-text').hidden = true;
     }, 0);
 }
