@@ -30,13 +30,18 @@ let observer = new IntersectionObserver(showImage, options);
  * loads the picture
  */
 function loadPicture(picture) {
-    const source = picture.getElementsByTagName('source')[0]
+    const source_webp = picture.getElementsByTagName('source')[0]
+    const source_jpg = picture.getElementsByTagName('source')[1]
     const img = picture.getElementsByTagName('img')[0]
-    const src = source.dataset.src;
+
+    const src_webp = source_webp.dataset.src;
+    const src_jpg = source_jpg.dataset.src;
+    const src = img.dataset.src;
     if (!src) {
         return;
     }
-    source.srcset = src;
+    source_webp.srcset = src_webp;
+    source_jpg.srcset = src_jpg;
     img.src = src;
 }
 
@@ -180,18 +185,26 @@ const createRestaurantHTML = (restaurant) => {
     const li = document.createElement('li');
 
     const picture = document.createElement('picture');
-    const picture_source = document.createElement('source');
-    picture_source.setAttribute('type', 'image/webp');
-    picture.append(picture_source);
+
+    const picture_source_webp = document.createElement('source');
+    picture_source_webp.setAttribute('type', 'image/webp');
+    picture.append(picture_source_webp);
+
+    const picture_source_jpg = document.createElement('source');
+    picture_source_jpg.setAttribute('type', 'image/jpeg');
+    picture.append(picture_source_jpg);
+
     const image = document.createElement('img');
     image.className = 'restaurant-img';
     image.alt = DBHelper.imageDescriptionForRestaurant(restaurant);
     // lazy load images only if the browser support Intersection Observer
     if ('IntersectionObserver' in window) {
-        picture_source.setAttribute('data-src', `${DBHelper.imageUrlForRestaurant(restaurant)}.webp`);
+        picture_source_webp.setAttribute('data-src', `${DBHelper.imageUrlForRestaurant(restaurant)}.webp`);
+        picture_source_jpg.setAttribute('data-src', `${DBHelper.imageUrlForRestaurant(restaurant)}.jpg`);
         image.setAttribute('data-src', `${DBHelper.imageUrlForRestaurant(restaurant)}.jpg`);
     } else {
-        picture_source.setAttribute('srcset', `${DBHelper.imageUrlForRestaurant(restaurant)}.webp`);
+        picture_source_webp.setAttribute('srcset', `${DBHelper.imageUrlForRestaurant(restaurant)}.webp`);
+        picture_source_jpg.setAttribute('srcset', `${DBHelper.imageUrlForRestaurant(restaurant)}.jpg`);
         image.src = `${DBHelper.imageUrlForRestaurant(restaurant)}.jpg`;
     }
     picture.append(image);
