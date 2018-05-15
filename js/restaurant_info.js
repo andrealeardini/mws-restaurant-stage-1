@@ -30,9 +30,10 @@ window.initMap = () => {
                 center: restaurant.latlng,
                 gestureHandling: 'cooperative'
             });
-            fillBreadcrumb();
             DBHelper.mapMarkerForRestaurant(self.restaurant, self.map);
-            document.getElementById('map-container').addEventListener("click", showMap);
+            document.getElementById('map').classList.remove('inactive');
+            document.getElementById('image-blurred').classList.remove('blur');
+            document.getElementById('image-blurred-text').hidden = true;
         }
     });
 }
@@ -202,8 +203,21 @@ const getParameterByName = (name, url) => {
 
 function showMap() {
     setTimeout(function () {
-        document.getElementById('map').classList.remove('inactive');
-        document.getElementById('image-blurred').classList.remove('blur');
-        document.getElementById('image-blurred-text').hidden = true;
+        const scriptMaps = document.createElement("script");
+        scriptMaps.async = true;
+        scriptMaps.defer = true;
+        scriptMaps.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyBc_T2Nzol-Ujnwtu82M29yL7Df3TmVxbs&libraries=places&callback=initMap";
+        document.body.append(scriptMaps);
     }, 0);
 }
+
+window.addEventListener('load', (event) => {
+    fetchRestaurantFromURL((error, restaurant) => {
+        if (error) { // Got an error!
+            console.error(error);
+        } else {
+            fillBreadcrumb();
+            document.getElementById('map-container').addEventListener("click", showMap);
+        }
+    });
+});
