@@ -167,7 +167,9 @@ const fillRestaurantsHTML = (restaurants = self.restaurants) => {
     restaurants.forEach(restaurant => {
         ul.append(createRestaurantHTML(restaurant));
     });
-    addMarkersToMap();
+    if (document.getElementById('image-blurred-text').hidden) {
+        addMarkersToMap();
+    }
 }
 
 /**
@@ -246,13 +248,22 @@ window.initMap = () => {
         gestureHandling: 'cooperative'
     });
     updateRestaurants();
-    document.getElementById('map-container').addEventListener("click", showMap);
+    document.getElementById('map').classList.remove('inactive');
+    document.getElementById('image-blurred').classList.remove('blur');
+    document.getElementById('image-blurred-text').hidden = true;
 }
 
 function showMap() {
     setTimeout(function () {
-        document.getElementById('map').classList.remove('inactive');
-        document.getElementById('image-blurred').classList.remove('blur');
-        document.getElementById('image-blurred-text').hidden = true;
+        const scriptMaps = document.createElement("script");
+        scriptMaps.async = true;
+        scriptMaps.defer = true;
+        scriptMaps.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyBc_T2Nzol-Ujnwtu82M29yL7Df3TmVxbs&libraries=places&callback=initMap";
+        document.body.append(scriptMaps);
     }, 0);
 }
+
+window.addEventListener('load', (event) => {
+    updateRestaurants();
+    document.getElementById('map-container').addEventListener("click", showMap);
+});
