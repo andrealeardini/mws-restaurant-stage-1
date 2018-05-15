@@ -18,7 +18,7 @@ gulp.task('default', ['copy-html', 'copy-images', 'styles', 'scripts'], () => {
 });
 
 gulp.task('copy-html', () =>
-    gulp.src(['index.html', 'restaurant.html'])
+    gulp.src(['index.html', 'restaurant.html', 'manifest.json'])
     .pipe(gulp.dest('./dist'))
 );
 
