@@ -27,7 +27,12 @@ const urlsToCache = ['/index.html',
     '/img/7.webp',
     '/img/8.webp',
     '/img/9.webp',
-    '/img/10.webp'
+    '/img/10.webp',
+    '/img/icons-192.png',
+    'img/icons-512.png',
+    '/favicon.ico',
+    '/favicon.png',
+    '/manifest.json'
 ];
 
 self.addEventListener('install', function (event) {
