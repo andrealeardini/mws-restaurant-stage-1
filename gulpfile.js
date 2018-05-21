@@ -11,14 +11,20 @@ const cssnano = require('cssnano');
 const webp = require('gulp-webp');
 const imagemin = require('gulp-imagemin');
 
-gulp.task('default', ['copy-html', 'copy-images', 'styles', 'scripts'], () => {
+gulp.task('default', ['copy-manifest', 'copy-html', 'copy-images', 'styles', 'scripts'], () => {
     gulp.watch('./css/**/*.css', ['styles']);
     gulp.watch('./js/**/*.js', ['scripts']);
     gulp.watch('./**/*.html', ['copy-html']);
+    gulp.watch('./manifest.json', ['copy-manifest']);
 });
 
 gulp.task('copy-html', () =>
-    gulp.src(['index.html', 'restaurant.html', 'manifest.json'])
+    gulp.src(['index.html', 'restaurant.html'])
+    .pipe(gulp.dest('./dist'))
+);
+
+gulp.task('copy-manifest', () =>
+    gulp.src(['manifest.json'])
     .pipe(gulp.dest('./dist'))
 );
 
@@ -118,4 +124,4 @@ gulp.task('minify-css', () => {
 });
 
 
-gulp.task('build', ['copy-images', 'minify-html', 'minify-css', 'scripts-dist']);
+gulp.task('build', ['copy-manifest', 'copy-images', 'minify-html', 'minify-css', 'scripts-dist']);
