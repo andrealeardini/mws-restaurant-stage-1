@@ -86,6 +86,9 @@ gulp.task('copy-images', () => {
     gulp.src('./img/*')
         .pipe(imagemin())
         .pipe(gulp.dest('./dist/img'));
+    gulp.src('./favicon.*')
+        .pipe(imagemin())
+        .pipe(gulp.dest('./dist'));
     gulp.src('./img/*')
         .pipe(imagemin())
         .pipe(webp())

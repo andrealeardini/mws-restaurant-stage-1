@@ -3,6 +3,14 @@
  */
 class DBHelper {
 
+    set dbPromise(value) {
+        this._dbPromise = value;
+    }
+
+    get dbPromise() {
+        return this._dbPromise;
+    }
+
     /**
      * Database URL.
      * Change this to restaurants.json file location on your server.
@@ -16,12 +24,39 @@ class DBHelper {
      * Fetch all restaurants.
      */
     static fetchRestaurants(callback) {
+        // open DB and set dbPromise
+        return DBHelper.openDB().then(function (db) {
+            if (db) {
+                DBHelper.dbPromise = db;
+                console.log(DBHelper.dbPromise);
+                // Read restaurants from DB;
+                return DBHelper.getRestaurantsFromDB().then(restaurants => {
+                    if (restaurants.length) {
+                        return callback(null, restaurants);
+                    } else {
+                        DBHelper.fetchRestaurantsFromNetwork(callback);
+                    }
+                });
+            } else {
+                DBHelper.fetchRestaurantsFromNetwork(callback);
+            }
+        });
+        DBHelper.fetchRestaurantsFromNetwork(callback);
+    }
+
+    /**
+     * Fetch all restaurants from network.
+     */
+    static fetchRestaurantsFromNetwork(callback) {
         let xhr = new XMLHttpRequest();
         xhr.open('GET', DBHelper.DATABASE_URL);
         xhr.onload = () => {
             if (xhr.status === 200) { // Got a success response from server!
                 const restaurants = JSON.parse(xhr.responseText);
+                console.log('Ristoranti letti dal server');
                 callback(null, restaurants);
+                // write restaurants to db
+                DBHelper.saveRestaurantsToDB(restaurants);
             } else { // Oops!. Got an error from server.
                 const error = (`Request failed. Returned status of ${xhr.status}`);
                 callback(error, null);
@@ -29,6 +64,7 @@ class DBHelper {
         };
         xhr.send();
     }
+
 
     /**
      * Fetch a restaurant by its ID.
@@ -189,10 +225,53 @@ class DBHelper {
         return marker;
     }
 
-}
+    static openDB() {
+        //check for support
+        if (!('indexedDB' in window)) {
+            console.log('This browser doesn\'t support IndexedDB');
+            return Promise.resolve();
+        }
 
-if ('serviceWorker' in navigator) {
-    const dbPromise = idb.open('restaurants-reviews', 1, upgradeDB => {
-        upgradeDB.createObjectStore('restaurants');
-    });
+        return idb.open('restaurants-reviews', 1, upgradeDb => {
+            switch (upgradeDb.oldVersion) {
+                case 0:
+                    upgradeDb.createObjectStore('restaurants', {
+                        keyPath: 'id'
+                    });
+                case 1:
+                    // const restaurantsStore = upgradeDb.transaction.objectStore('restaurants');
+                    // restaurantsStore.createIndex('indexName', 'property');
+            }
+        });
+    }
+
+    static addRestaurantToDB(db, data) {
+        if (!db) return;
+        console.log('Adding record');
+        const tx = db.transaction('restaurants', 'readwrite');
+        const restaurantsStore = tx.objectStore('restaurants');
+        restaurantsStore.put(data);
+        console.log("Record added");
+        return tx.complete;
+    }
+
+    static getRestaurantsFromDB() {
+        const tx = DBHelper.dbPromise.transaction('restaurants', 'readonly');
+        const restaurantsStore = tx.objectStore('restaurants');
+        return restaurantsStore.getAll();
+    }
+
+
+    /*
+     * Save data to local database
+     */
+    static saveRestaurantsToDB(data) {
+
+        let tx = DBHelper.dbPromise.transaction('restaurants', 'readwrite');
+        let restaurantsStore = tx.objectStore('restaurants');
+        data.forEach(function (restaurant) {
+            restaurantsStore.put(restaurant);
+        });
+        return tx.complete;
+    }
 }
