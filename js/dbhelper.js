@@ -242,12 +242,13 @@ class DBHelper {
 
     static openDB() {
         //check for support
+        DBHelper.dbOpened = true;
         if (!('indexedDB' in window)) {
             console.log('This browser doesn\'t support IndexedDB');
-            DBHelper.dbOpened = false;
             return Promise.resolve();
         }
 
+        DBHelper.dbOpened = true;
         return idb.open('restaurants-reviews', 1, upgradeDb => {
             switch (upgradeDb.oldVersion) {
                 case 0:
@@ -255,11 +256,10 @@ class DBHelper {
                         keyPath: 'id'
                     });
                 case 1:
-                    // const restaurantsStore = upgradeDb.transaction.objectStore('restaurants');
-                    // restaurantsStore.createIndex('indexName', 'property');
+                    // do something
             }
-            DBHelper.dbOpened = true;
         });
+
     }
 
     static addRestaurantToDB(db, data) {
