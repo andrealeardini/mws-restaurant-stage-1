@@ -87,7 +87,8 @@
 
     <!-- Beginning scripts -->
     <script type="text/javascript" src="js/restaurant_all.js"></script>
-    <!-- <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBc_T2Nzol-Ujnwtu82M29yL7Df3TmVxbs&libraries=places&callback=initMap"></script> -->
+    <script async defer id="GoogleMaps" data-src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBc_T2Nzol-Ujnwtu82M29yL7Df3TmVxbs&libraries=places&callback=initMap"
+        onerror="googleMapsError()"></script>
     <!-- End scripts -->
 
 </body>

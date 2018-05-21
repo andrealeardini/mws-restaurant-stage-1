@@ -1,15 +1,14 @@
 let restaurants,
     neighborhoods,
     cuisines
-let map
-let markers = []
-let google
+// use var to define map to avoid an error with API
+var map
+var markers = []
+var google
 
 /**
  * create observe to show images only when they are in viewport
  */
-
-
 let showImage = function (entries, observer) {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -159,9 +158,13 @@ const resetRestaurants = (restaurants) => {
     ul.innerHTML = '';
 
     // Remove all map markers
+    self.restaurants = restaurants;
+    //exit if Google Maps is disabled
+    if (document.getElementById('map').classList.contains('inactive')) {
+        return;
+    }
     self.markers.forEach(m => m.setMap(null));
     self.markers = [];
-    self.restaurants = restaurants;
 }
 
 /**
@@ -266,14 +269,17 @@ window.initMap = () => {
     document.getElementById('image-blurred-text').hidden = true;
 }
 
+window.googleMapsError = () => {
+    console.log('Google Maps Error to handle');
+}
+
+function gm_authFailure() {
+    console.log('Google Maps Error to handle');
+};
+
 function showMap() {
-    setTimeout(function () {
-        const scriptMaps = document.createElement("script");
-        scriptMaps.async = true;
-        scriptMaps.defer = true;
-        scriptMaps.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyBc_T2Nzol-Ujnwtu82M29yL7Df3TmVxbs&libraries=places&callback=initMap";
-        document.body.append(scriptMaps);
-    }, 0);
+    const scrMaps = document.getElementById('GoogleMaps');
+    scrMaps.src = scrMaps.dataset.src;
 }
 
 window.addEventListener('load', (event) => {

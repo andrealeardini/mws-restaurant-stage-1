@@ -202,14 +202,17 @@ const getParameterByName = (name, url) => {
 }
 
 function showMap() {
-    setTimeout(function () {
-        const scriptMaps = document.createElement("script");
-        scriptMaps.async = true;
-        scriptMaps.defer = true;
-        scriptMaps.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyBc_T2Nzol-Ujnwtu82M29yL7Df3TmVxbs&libraries=places&callback=initMap";
-        document.body.append(scriptMaps);
-    }, 0);
+    const scrMaps = document.getElementById('GoogleMaps');
+    scrMaps.src = scrMaps.dataset.src;
 }
+
+window.googleMapsError = () => {
+    console.log('Google Maps Error to handle');
+}
+
+function gm_authFailure() {
+    console.log('Google Maps Error to handle');
+};
 
 window.addEventListener('load', (event) => {
     fetchRestaurantFromURL((error, restaurant) => {

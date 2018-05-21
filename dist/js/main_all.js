@@ -588,9 +588,10 @@ class DBHelper {
 let restaurants,
     neighborhoods,
     cuisines
-let map
-let markers = []
-let google
+// use var to define map to avoid an error with API
+var map
+var markers = []
+var google
 
 /**
  * create observe to show images only when they are in viewport
@@ -854,6 +855,14 @@ window.initMap = () => {
     document.getElementById('image-blurred').classList.remove('blur');
     document.getElementById('image-blurred-text').hidden = true;
 }
+
+window.googleMapsError = () => {
+    console.log('Google Maps Error to handle');
+}
+
+function gm_authFailure() {
+    console.log('Google Maps Error to handle');
+};
 
 function showMap() {
     const scrMaps = document.getElementById('GoogleMaps');
