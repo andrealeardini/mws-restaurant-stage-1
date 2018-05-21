@@ -11,6 +11,16 @@ class DBHelper {
         return this._dbPromise;
     }
 
+    set dbOpened(value) {
+        this._dbOpened = value;
+    }
+
+    get dbOpened() {
+        return this._dbOpened;
+    }
+
+
+
     /**
      * Database URL.
      * Change this to restaurants.json file location on your server.
@@ -24,6 +34,7 @@ class DBHelper {
      * Fetch all restaurants.
      */
     static fetchRestaurants(callback) {
+
         // open DB and set dbPromise
         return DBHelper.openDB().then(function (db) {
             if (db) {
@@ -34,14 +45,18 @@ class DBHelper {
                     if (restaurants.length) {
                         return callback(null, restaurants);
                     } else {
+                        console.log('No restaurants in db');
                         DBHelper.fetchRestaurantsFromNetwork(callback);
                     }
                 });
             } else {
+                console.log('db not found');
                 DBHelper.fetchRestaurantsFromNetwork(callback);
             }
-        });
-        DBHelper.fetchRestaurantsFromNetwork(callback);
+        }).then(function () {}).catch(function () {
+            console.log('Catch the promise error');
+            DBHelper.fetchRestaurantsFromNetwork(callback);
+        })
     }
 
     /**
@@ -229,6 +244,7 @@ class DBHelper {
         //check for support
         if (!('indexedDB' in window)) {
             console.log('This browser doesn\'t support IndexedDB');
+            DBHelper.dbOpened = false;
             return Promise.resolve();
         }
 
@@ -242,6 +258,7 @@ class DBHelper {
                     // const restaurantsStore = upgradeDb.transaction.objectStore('restaurants');
                     // restaurantsStore.createIndex('indexName', 'property');
             }
+            DBHelper.dbOpened = true;
         });
     }
 
@@ -266,6 +283,9 @@ class DBHelper {
      * Save data to local database
      */
     static saveRestaurantsToDB(data) {
+        if (!(DBHelper.dbOpened)) {
+            return
+        }
 
         let tx = DBHelper.dbPromise.transaction('restaurants', 'readwrite');
         let restaurantsStore = tx.objectStore('restaurants');

@@ -275,7 +275,7 @@ window.googleMapsError = () => {
 
 function gm_authFailure() {
     console.log('Google Maps Error to handle');
-};
+}
 
 function showMap() {
     const scrMaps = document.getElementById('GoogleMaps');

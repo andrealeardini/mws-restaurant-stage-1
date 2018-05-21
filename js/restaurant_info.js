@@ -212,7 +212,7 @@ window.googleMapsError = () => {
 
 function gm_authFailure() {
     console.log('Google Maps Error to handle');
-};
+}
 
 window.addEventListener('load', (event) => {
     fetchRestaurantFromURL((error, restaurant) => {

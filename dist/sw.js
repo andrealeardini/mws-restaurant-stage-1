@@ -84,7 +84,7 @@ self.addEventListener('fetch', function (event) {
                 return fetch(event.request);
             })
         );
-    };
+    }
 });
 
 self.addEventListener('message', function (event) {
