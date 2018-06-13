@@ -4,7 +4,8 @@
 /* ====================== Media screen ====================== */
 
 @media screen and (min-width: 420px) {
-    #restaurant-name {
+    #restaurant-name,
+    .restaurant-name_favorite {
         font-size: 1.7em;
     }
     #restaurant-address,
@@ -29,7 +30,8 @@
     #footer {
         font-size: 1.5vw;
     }
-    #restaurant-name {
+    #restaurant-name,
+    .restaurant-name_favorite {
         font-size: 3vw;
     }
     #restaurant-cuisine,

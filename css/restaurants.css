@@ -234,6 +234,12 @@ nav #breadcrumb [aria-current="page"] {
     align-content: flex-start;
 }
 
+#restaurant-title {
+    flex: 1 1 auto;
+    display: flex;
+    width: 100%;
+}
+
 #restaurant-name {
     color: #9c2900;
     font-family: Arial, sans-serif;
@@ -245,8 +251,14 @@ nav #breadcrumb [aria-current="page"] {
     text-transform: uppercase;
     line-height: 1.1;
     text-align: left;
-    width: calc(100% - 30px);
+}
+
+.restaurant-name_favorite {
+    color: white;
+    font-weight: bold;
+    font-size: 5vw;
     flex: 1 1 auto;
+    margin: 20px 0px 15px;
 }
 
 #restaurant-img {

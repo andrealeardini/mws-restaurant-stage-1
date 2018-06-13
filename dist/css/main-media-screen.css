@@ -1,2 +1,131 @@
-@media screen and (min-width:420px){.filter-options{-ms-flex-wrap:nowrap;flex-wrap:nowrap}.filter-options h2{margin:auto 15px}}@media screen and (min-width:550px){nav h1 a{font-size:1.5em;letter-spacing:5px}#restaurants-list{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:horizontal;-webkit-box-direction:normal;-ms-flex-flow:row wrap;flex-flow:row wrap}#restaurants-list li{width:calc(50% - 86px)}#restaurants-list li h1{font-size:2.4vw}#restaurants-list li p{font-size:2.2vw}#footer{font-size:1.5vw}#restaurant-cuisine,#reviews-container h2{font-size:2.8vw}}@media screen and (min-width:700px){#restaurants-list li h1{font-size:2.2vw}#restaurants-list li p{font-size:2vw}#footer{font-size:1.2vw}}@media screen and (min-width:850px){#maincontent{-webkit-box-orient:horizontal;-webkit-box-direction:normal;-ms-flex-direction:row;flex-direction:row;overflow-y:hidden}#map-container{width:40%;height:100%}.restaurants{overflow-y:scroll}#restaurants-list li h1{font-size:1.5vw}#restaurants-list li p{font-size:1.3vw}#footer{font-size:1.1vw}#restaurant-container{min-height:50vh;width:100%;overflow-y:scroll}}@media screen and (min-width:1280px){#restaurants-list li{width:calc(33.33333% - 86px)}.filter-option{padding:10px}.filter-options h2{font-size:1.4vw;-webkit-box-flex:2;-ms-flex:2;flex:2}.filter-options select{font-size:1.2vw}#footer{font-size:.8vw}#restaurants-list li button{font-size:1vw;width:calc(9.6vw + 30px);left:calc(50% - 4.8vw - 15px)}}@media screen and (min-width:1920px){#restaurants-list li{width:calc(25% - 86px)}}
+@charset "utf-8";
+/* CSS Document */
+
+/* ====================== Media screen ====================== */
+
+@media screen and (min-width: 420px) {
+    .filter-options {
+        -ms-flex-wrap: nowrap;
+            flex-wrap: nowrap;
+    }
+    .filter-options h2 {
+        margin: auto 15px;
+    }
+}
+
+@media screen and (min-width: 550px) {
+    nav h1 a {
+        font-size: 1.5em;
+        letter-spacing: 5px;
+    }
+    #restaurants-list {
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-orient: horizontal;
+        -webkit-box-direction: normal;
+            -ms-flex-flow: row wrap;
+                flex-flow: row wrap;
+    }
+    #restaurants-list li {
+        width: calc((100% / 2) - 86px);
+    }
+    /* ============== Font =============== */
+    #restaurants-list li h1 {
+        font-size: 2.4vw;
+    }
+    #restaurants-list li p {
+        font-size: 2.2vw;
+    }
+    #footer {
+        font-size: 1.5vw;
+    }
+    #restaurant-cuisine,
+    #reviews-container h2 {
+        font-size: 2.8vw;
+    }
+}
+
+@media screen and (min-width: 700px) {
+    /* ============== Font =============== */
+    #restaurants-list li h1 {
+        font-size: 2.2vw;
+    }
+    #restaurants-list li p {
+        font-size: 2vw;
+    }
+    #footer {
+        font-size: 1.2vw;
+    }
+    /* ==================================== */
+}
+
+@media screen and (min-width: 850px) {
+    #maincontent {
+        -webkit-box-orient: horizontal;
+        -webkit-box-direction: normal;
+            -ms-flex-direction: row;
+                flex-direction: row;
+        overflow-y: hidden;
+    }
+    #map-container {
+        width: 40%;
+        height: 100%;
+    }
+    .restaurants {
+        overflow-y: scroll;
+    }
+    /* ============== Font =============== */
+    #restaurants-list li h1 {
+        font-size: 1.5vw;
+    }
+    #restaurants-list li p {
+        font-size: 1.3vw;
+    }
+    #footer {
+        font-size: 1.1vw;
+    }
+    /* ==================================== */
+    #restaurant-container {
+        min-height: 50vh;
+        width: 100%;
+        overflow-y: scroll;
+    }
+}
+
+@media screen and (min-width: 1280px) {
+    #restaurants-list li {
+        width: calc((100% / 3) - 86px);
+    }
+    /* ============== Font =============== */
+    .filter-option {
+        padding: 10px;
+    }
+    .filter-options h2 {
+        font-size: 1.4vw;
+        -webkit-box-flex: 2;
+            -ms-flex: 2;
+                flex: 2;
+    }
+    .filter-options select {
+        font-size: 1.2vw;
+    }
+    #footer {
+        font-size: 0.8vw;
+    }
+    #restaurants-list li button {
+        font-size: 1vw;
+    }
+    /* ==================================== */
+    #restaurants-list li button {
+        width: calc((1.2vw * 8) + 30px);
+        left: calc(50% - ((1.2vw * 8)/2) - 15px)
+    }
+}
+
+@media screen and (min-width: 1920px) {
+    #restaurants-list li {
+        width: calc((100% / 4) - 86px);
+    }
+}
 /*# sourceMappingURL=main-media-screen.css.map */
