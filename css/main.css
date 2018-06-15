@@ -255,6 +255,10 @@ nav h1 a {
     vertical-align: text-bottom;
 }
 
+.restaurant-name_isfavorite {
+    color: red;
+}
+
 #restaurants-list p {
     margin: 0;
     font-size: 11pt;

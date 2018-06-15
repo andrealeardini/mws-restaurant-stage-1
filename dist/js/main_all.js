@@ -602,6 +602,19 @@ class DBHelper {
         data.forEach(function (restaurant) {
             restaurantsStore.put(restaurant);
         });
+        console.log("Local DB Updated from Network");
+        return tx.complete;
+    }
+    /*
+     * Update favorite to local database
+     */
+    static updateRestaurantLocalDB(restaurant) {
+        if (!(DBHelper.dbOpened)) {
+            return
+        }
+        let tx = DBHelper.dbPromise.transaction('restaurants', 'readwrite');
+        let restaurantsStore = tx.objectStore('restaurants');
+        restaurantsStore.put(restaurant);
         return tx.complete;
     }
 }
@@ -827,8 +840,17 @@ const createRestaurantHTML = (restaurant) => {
     favorite_icon.innerHTML = 'favorite';
     favorite_icon.classList.add('material-icons');
     favorite_icon.classList.add('restaurant-name_favorite');
+    if (restaurant.is_favorite) {
+        if ((restaurant.is_favorite == true) || (restaurant.is_favorite == "true")) {
+            favorite_icon.classList.add('restaurant-name_isfavorite');
+        }
+    }
+    // will use restaurant id to set field in DB
+    favorite_icon.id = restaurant.id;
     name.append(favorite_icon);
     li.append(name);
+
+    favorite_icon.addEventListener("click", onFavoriteClick);
 
     const neighborhood = document.createElement('p');
     neighborhood.innerHTML = restaurant.neighborhood;
@@ -898,4 +920,31 @@ window.addEventListener('load', (event) => {
     updateRestaurants();
     document.getElementById('map-container').addEventListener("click", showMap);
 });
+
+function onFavoriteClick(e) {
+
+    const favorite = e.target;
+    console.log("Click on favorite: ", favorite.id);
+    let favoriteParameter = "false"
+    if (!(favorite.classList.contains("restaurant-name_isfavorite"))) {
+        favoriteParameter = "true";
+    };
+    fetch(`http://localhost:1337/restaurants/${favorite.id}/?is_favorite=${favoriteParameter}`, {
+        method: "PUT",
+    }).then(function () {
+        console.log(`Send PUT with favorite=${favoriteParameter}`);
+        DBHelper.fetchRestaurantById(favorite.id, (error, restaurant) => {
+            self.restaurant = restaurant;
+            if (!restaurant) {
+                console.error(error);
+                return;
+            }
+            // console.log(restaurant)
+            restaurant.is_favorite = favoriteParameter;
+            DBHelper.updateRestaurantLocalDB(restaurant).then(function () {
+                favorite.classList.toggle("restaurant-name_isfavorite");
+            });
+        });
+    });
+}
 //# sourceMappingURL=main_all.js.map

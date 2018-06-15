@@ -292,6 +292,19 @@ class DBHelper {
         data.forEach(function (restaurant) {
             restaurantsStore.put(restaurant);
         });
+        console.log("Local DB Updated from Network");
+        return tx.complete;
+    }
+    /*
+     * Update favorite to local database
+     */
+    static updateRestaurantLocalDB(restaurant) {
+        if (!(DBHelper.dbOpened)) {
+            return
+        }
+        let tx = DBHelper.dbPromise.transaction('restaurants', 'readwrite');
+        let restaurantsStore = tx.objectStore('restaurants');
+        restaurantsStore.put(restaurant);
         return tx.complete;
     }
 }

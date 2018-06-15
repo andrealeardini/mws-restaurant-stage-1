@@ -279,6 +279,10 @@ nav #breadcrumb [aria-current="page"] {
     vertical-align: text-bottom;
 }
 
+.restaurant-name_isfavorite {
+    color: red;
+}
+
 #restaurant-img {
     border-radius: 5px;
     width: calc(100% - 20px);

@@ -66,6 +66,8 @@ self.addEventListener('activate', function (event) {
 
 self.addEventListener('fetch', function (event) {
     const requestUrl = new URL(event.request.url);
+    const restaurantsUrl = new URL("http://localhost:1337/restaurants");
+
     if (requestUrl.origin === location.origin) {
         let option = {
             'ignoreSearch': false
@@ -85,6 +87,10 @@ self.addEventListener('fetch', function (event) {
                 return fetch(event.request);
             })
         );
+    } else {
+        if (requestUrl.origin = restaurantsUrl.toString) {
+            console.log('Fetch from/to restaurants DB');
+        }
     }
 });
 
