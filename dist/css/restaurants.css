@@ -259,37 +259,24 @@ nav #breadcrumb [aria-current="page"] {
         align-content: flex-start;
 }
 
-#restaurant-title {
-    -webkit-box-flex: 1;
-        -ms-flex: 1 1 auto;
-            flex: 1 1 auto;
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    width: 100%;
-}
-
 #restaurant-name {
     color: #9c2900;
     font-family: Arial, sans-serif;
     font-size: 5vw;
     font-weight: 200;
     letter-spacing: 0;
-    margin: 20px 0px 15px;
+    margin: 20px 0 15px;
     padding: 0 15px;
     text-transform: uppercase;
     line-height: 1.1;
     text-align: left;
+    width: calc(100% - 30px);
 }
 
 .restaurant-name_favorite {
-    color: white;
+    color: gray;
     font-weight: bold;
-    font-size: 5vw;
-    -webkit-box-flex: 1;
-        -ms-flex: 1 1 auto;
-            flex: 1 1 auto;
-    margin: 20px 0px 15px;
+    vertical-align: text-bottom;
 }
 
 #restaurant-img {

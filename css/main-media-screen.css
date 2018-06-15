@@ -25,7 +25,8 @@
         width: calc((100% / 2) - 86px);
     }
     /* ============== Font =============== */
-    #restaurants-list li h1 {
+    #restaurants-list li h1,
+    .restaurant-name_favorite {
         font-size: 2.4vw;
     }
     #restaurants-list li p {
@@ -42,7 +43,8 @@
 
 @media screen and (min-width: 700px) {
     /* ============== Font =============== */
-    #restaurants-list li h1 {
+    #restaurants-list li h1,
+    .restaurant-name_favorite {
         font-size: 2.2vw;
     }
     #restaurants-list li p {
@@ -67,7 +69,8 @@
         overflow-y: scroll;
     }
     /* ============== Font =============== */
-    #restaurants-list li h1 {
+    #restaurants-list li h1,
+    .restaurant-name_favorite {
         font-size: 1.5vw;
     }
     #restaurants-list li p {

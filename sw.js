@@ -33,7 +33,7 @@ const urlsToCache = ['/index.html',
     '/favicon.ico',
     '/favicon.png',
     '/manifest.json',
-    'https: //fonts.googleapis.com/icon?family=Material+Icons'
+    'https://fonts.googleapis.com/icon?family=Material+Icons'
 ];
 
 self.addEventListener('install', function (event) {

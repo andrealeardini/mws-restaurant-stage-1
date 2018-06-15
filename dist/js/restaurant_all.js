@@ -676,7 +676,12 @@ const fetchRestaurantFromURL = (callback) => {
  */
 const fillRestaurantHTML = (restaurant = self.restaurant) => {
     const name = document.getElementById('restaurant-name');
-    name.innerHTML = restaurant.name;
+    name.innerHTML = restaurant.name + " ";
+    const favorite_icon = document.createElement('i');
+    favorite_icon.innerHTML = 'favorite';
+    favorite_icon.classList.add('material-icons');
+    favorite_icon.classList.add('restaurant-name_favorite');
+    name.append(favorite_icon);
 
     const address = document.getElementById('restaurant-address');
     address.innerHTML = restaurant.address;

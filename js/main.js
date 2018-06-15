@@ -215,7 +215,12 @@ const createRestaurantHTML = (restaurant) => {
     observer.observe(picture);
 
     const name = document.createElement('h1');
-    name.innerHTML = restaurant.name;
+    name.innerHTML = restaurant.name + " ";
+    const favorite_icon = document.createElement('i');
+    favorite_icon.innerHTML = 'favorite';
+    favorite_icon.classList.add('material-icons');
+    favorite_icon.classList.add('restaurant-name_favorite');
+    name.append(favorite_icon);
     li.append(name);
 
     const neighborhood = document.createElement('p');
