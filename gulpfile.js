@@ -14,6 +14,7 @@ const imagemin = require('gulp-imagemin');
 gulp.task('default', ['copy-manifest', 'copy-html', 'copy-images', 'styles', 'scripts'], () => {
     gulp.watch('./css/**/*.css', ['styles']);
     gulp.watch('./js/**/*.js', ['scripts']);
+    gulp.watch('./sw.js', ['scripts']);
     gulp.watch('./**/*.html', ['copy-html']);
     gulp.watch('./manifest.json', ['copy-manifest']);
 });
