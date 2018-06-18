@@ -559,7 +559,7 @@ class DBHelper {
         }
 
         DBHelper.dbOpened = true;
-        return idb.open('restaurants-reviews', 1, upgradeDb => {
+        return idb.open('restaurants-reviews', 2, upgradeDb => {
             switch (upgradeDb.oldVersion) {
                 case 0:
                     upgradeDb.createObjectStore('restaurants', {
@@ -567,6 +567,9 @@ class DBHelper {
                     });
                 case 1:
                     // do something
+                    upgradeDb.createObjectStore('offline-restaurants', {
+                        keyPath: 'id'
+                    });
             }
         });
 
@@ -605,6 +608,7 @@ class DBHelper {
         console.log("Local DB Updated from Network");
         return tx.complete;
     }
+
     /*
      * Update favorite to local database
      */
@@ -616,6 +620,105 @@ class DBHelper {
         let restaurantsStore = tx.objectStore('restaurants');
         restaurantsStore.put(restaurant);
         return tx.complete;
+    }
+
+    /*
+     * add restaurant to offline db (will be synch when online)
+     */
+    static addRestaurantToOfflineDB(restaurant) {
+        if (!(DBHelper.dbOpened)) {
+            return
+        }
+        let tx = DBHelper.dbPromise.transaction('offline-restaurants', 'readwrite');
+        let restaurantsStore = tx.objectStore('offline-restaurants');
+        restaurantsStore.put(restaurant);
+        return tx.complete;
+    }
+
+    /**
+     * Update the favorite status of the restaurant
+     */
+    static updateFavorite(id, value, callback) {
+        return fetch(`http://localhost:1337/restaurants/${id}/?is_favorite=${value}`, {
+            method: "PUT",
+        }).then(function () {
+            console.log(`Send PUT with favorite=${value}`);
+            return DBHelper.fetchRestaurantById(id, (error, restaurant) => {
+                self.restaurant = restaurant;
+                if (!restaurant) {
+                    console.error(error);
+                    callback(error, null);
+                }
+                // console.log(restaurant)
+                restaurant.is_favorite = value;
+                return DBHelper.updateRestaurantLocalDB(restaurant).then(function () {
+                    callback(null, true)
+                });
+            });
+        }).catch(function (error) {
+            console.log("Error when try to fetch data on server... ", error)
+            // save data offline
+            return DBHelper.fetchRestaurantById(id, (error, restaurant) => {
+                self.restaurant = restaurant;
+                if (!restaurant) {
+                    console.error(error);
+                    callback(error, null);
+                }
+                // console.log(restaurant)
+                restaurant.is_favorite = value;
+                return DBHelper.updateRestaurantLocalDB(restaurant).then(function () {
+                    console.log("Restaurant saved on the local DB")
+                    return DBHelper.addRestaurantToOfflineDB(restaurant).then(function () {
+                        console.log("Restaurant marked for offline synch... ");
+                        callback(null, true);
+                    });
+                });
+            });
+        });
+    }
+
+
+    /**
+     * Fetch all restaurants that should be syncronized.
+     */
+    static fetchRestaurantsOffline() {
+        const tx = DBHelper.dbPromise.transaction('offline-restaurants', 'readwrite');
+        const restaurantsStore = tx.objectStore('offline-restaurants');
+        return restaurantsStore.getAll();
+    };
+
+    /**
+     * Delete restaurant from offline-restaurants db.
+     */
+    static deleteRestaurantFromOffline(restaurant) {
+        const tx = DBHelper.dbPromise.transaction('offline-restaurants', 'readwrite');
+        const restaurantsStore = tx.objectStore('offline-restaurants');
+        return restaurantsStore.delete(restaurant.id);
+    };
+
+    /**
+     * Sync all offline restaurants 
+     */
+    static syncRestaurants() {
+        // Fetch all restaurants
+        return DBHelper.fetchRestaurantsOffline().then(function (restaurants) {
+            console.log('Restaurants to sync: ', restaurants);
+            return DBHelper.saveFavoritesToNetwork(restaurants);
+        });
+    }
+
+    /*
+     * Save data to network
+     */
+    static saveFavoritesToNetwork(data) {
+        return data.forEach(function (restaurant) {
+            return DBHelper.updateFavorite(restaurant.id, restaurant.is_favorite, (error, updated) => {
+                if (updated) {
+                    console.log("Favorite Updated from LocalDB");
+                    DBHelper.deleteRestaurantFromOffline(restaurant);
+                }
+            });
+        });
     }
 }
 let restaurants,
@@ -922,29 +1025,27 @@ window.addEventListener('load', (event) => {
 });
 
 function onFavoriteClick(e) {
-
     const favorite = e.target;
     console.log("Click on favorite: ", favorite.id);
-    let favoriteParameter = "false"
+    let value = "false"
     if (!(favorite.classList.contains("restaurant-name_isfavorite"))) {
-        favoriteParameter = "true";
+        value = "true";
     };
-    fetch(`http://localhost:1337/restaurants/${favorite.id}/?is_favorite=${favoriteParameter}`, {
-        method: "PUT",
-    }).then(function () {
-        console.log(`Send PUT with favorite=${favoriteParameter}`);
-        DBHelper.fetchRestaurantById(favorite.id, (error, restaurant) => {
-            self.restaurant = restaurant;
-            if (!restaurant) {
-                console.error(error);
-                return;
-            }
-            // console.log(restaurant)
-            restaurant.is_favorite = favoriteParameter;
-            DBHelper.updateRestaurantLocalDB(restaurant).then(function () {
-                favorite.classList.toggle("restaurant-name_isfavorite");
-            });
-        });
+    DBHelper.updateFavorite(favorite.id, value, (error, toggle) => {
+        if (toggle) {
+            favorite.classList.toggle("restaurant-name_isfavorite");
+        }
     });
 }
+
+
+window.addEventListener('online', (event) => {
+    console.log("You are online")
+    DBHelper.syncRestaurants();
+});
+
+window.addEventListener('offline', (event) => {
+    console.log("You are offline")
+    alert("You are offine. All the changes will be synchronized when you return online.");
+});
 //# sourceMappingURL=main_all.js.map

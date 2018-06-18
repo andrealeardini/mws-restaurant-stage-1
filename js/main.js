@@ -302,28 +302,26 @@ window.addEventListener('load', (event) => {
 });
 
 function onFavoriteClick(e) {
-
     const favorite = e.target;
     console.log("Click on favorite: ", favorite.id);
-    let favoriteParameter = "false"
+    let value = "false"
     if (!(favorite.classList.contains("restaurant-name_isfavorite"))) {
-        favoriteParameter = "true";
+        value = "true";
     };
-    fetch(`http://localhost:1337/restaurants/${favorite.id}/?is_favorite=${favoriteParameter}`, {
-        method: "PUT",
-    }).then(function () {
-        console.log(`Send PUT with favorite=${favoriteParameter}`);
-        DBHelper.fetchRestaurantById(favorite.id, (error, restaurant) => {
-            self.restaurant = restaurant;
-            if (!restaurant) {
-                console.error(error);
-                return;
-            }
-            // console.log(restaurant)
-            restaurant.is_favorite = favoriteParameter;
-            DBHelper.updateRestaurantLocalDB(restaurant).then(function () {
-                favorite.classList.toggle("restaurant-name_isfavorite");
-            });
-        });
+    DBHelper.updateFavorite(favorite.id, value, (error, toggle) => {
+        if (toggle) {
+            favorite.classList.toggle("restaurant-name_isfavorite");
+        }
     });
 }
+
+
+window.addEventListener('online', (event) => {
+    console.log("You are online")
+    DBHelper.syncRestaurants();
+});
+
+window.addEventListener('offline', (event) => {
+    console.log("You are offline")
+    alert("You are offine. All the changes will be synchronized when you return online.");
+});
