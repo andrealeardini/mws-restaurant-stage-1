@@ -395,14 +395,14 @@ class DBHelper {
                         return "No restaurants in local DB"
                     }
                 }).then(function () {
-                    console.log("Restaurant from local DB: ", restaurantsFromLocalDB);
+                    console.log("Restaurants from local DB: ", restaurantsFromLocalDB);
                     return DBHelper.fetchRestaurantsFromNetwork((error, restaurants) => {
                         if (error) {
                             return error;
                         }
                         if (restaurants.length) {
                             restaurantsFromServer = restaurants;
-                            console.log("Restaurant from server: ", restaurantsFromServer);
+                            console.log("Restaurants from server: ", restaurantsFromServer);
                             // 
                             restaurantsFromServer.forEach(function (restaurantFromServer) {
                                 return DBHelper.fetchRestaurantById(restaurantFromServer.id, (error, restaurantFromLocalDB) => {
