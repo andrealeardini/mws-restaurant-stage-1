@@ -392,7 +392,8 @@ class DBHelper {
                     if (restaurants.length) {
                         restaurantsFromLocalDB = restaurants;
                     } else {
-                        return "No restaurants in local DB"
+                        console.log('No restaurants in local DB')
+                        return
                     }
                 }).then(function () {
                     console.log("Restaurants from local DB: ", restaurantsFromLocalDB);
@@ -405,20 +406,25 @@ class DBHelper {
                             console.log("Restaurants from server: ", restaurantsFromServer);
                             // 
                             restaurantsFromServer.forEach(function (restaurantFromServer) {
-                                return DBHelper.fetchRestaurantById(restaurantFromServer.id, (error, restaurantFromLocalDB) => {
-                                    if (error) {
-                                        return error;
-                                    }
+                                const restaurantFromLocalDB = restaurantsFromLocalDB.find(r => r.id == restaurantFromServer.id);
+                                if (restaurantFromLocalDB) { // Got the restaurant
                                     const server_updatedAt = new Date(restaurantFromServer.updatedAt);
                                     const localDB_updatedAt = new Date(restaurantFromLocalDB.updatedAt);
                                     // ignore the record with the same date
                                     if (server_updatedAt > localDB_updatedAt) {
                                         DBHelper.updateRestaurantLocalDB(restaurantFromServer);
+                                        console.log('Update local DB:', restaurantFromServer);
+                                        setFavoriteStatus(restaurantFromServer);
                                     }
                                     if (server_updatedAt < localDB_updatedAt) {
                                         DBHelper.saveFavoriteToNetwork(restaurantFromLocalDB);
+                                        console.log('Update network DB:', restaurantFromLocalDB)
+                                        setFavoriteStatus(restaurantFromLocalDB);
                                     }
-                                });
+                                } else { // Restaurant does not exist in the database
+                                    console.log('Restaurant does not exist');
+                                }
+
                             })
                         }
                     }, false);
@@ -428,6 +434,22 @@ class DBHelper {
             }
         })
     }
+
+    /*
+     * Set favorite status
+     */
+    static setFavoriteStatus(restaurant) {
+        if (restaurant.is_favorite) {
+            const favorite = document.getElementById(restaurant.id)
+            if ((restaurant.is_favorite == true) || (restaurant.is_favorite == "true")) {
+                favorite.classList.add('restaurant-name_isfavorite');
+            } else {
+                favorite.classList.remove('restaurant-name_isfavorite');
+            }
+        }
+    }
+
+
 
     /*
      * Save favorite to network
