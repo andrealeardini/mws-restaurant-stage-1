@@ -76,9 +76,14 @@ const fillRestaurantHTML = (restaurant = self.restaurant) => {
     favorite_icon.classList.add('restaurant-name_favorite');
     // will use restaurant id to set field in DB
     favorite_icon.id = restaurant.id;
+    if (restaurant.is_favorite) {
+        if ((restaurant.is_favorite == true) || (restaurant.is_favorite == "true")) {
+            favorite_icon.classList.add('restaurant-name_isfavorite');
+        }
+    }
     name.append(favorite_icon);
 
-    // favorite_icon.addEventListener("click", onFavoriteClick);
+    favorite_icon.addEventListener("click", onFavoriteClick);
 
     const address = document.getElementById('restaurant-address');
     address.innerHTML = restaurant.address;
@@ -224,6 +229,7 @@ function gm_authFailure() {
 }
 
 window.addEventListener('load', (event) => {
+    DBHelper.syncRestaurants();
     fetchRestaurantFromURL((error, restaurant) => {
         if (error) { // Got an error!
             console.error(error);
@@ -232,4 +238,28 @@ window.addEventListener('load', (event) => {
             document.getElementById('map-container').addEventListener("click", showMap);
         }
     });
+});
+
+function onFavoriteClick(e) {
+    const favorite = e.target;
+    console.log("Click on favorite: ", favorite.id);
+    let value = "false"
+    if (!(favorite.classList.contains("restaurant-name_isfavorite"))) {
+        value = "true";
+    };
+    DBHelper.updateFavorite(favorite.id, value, (error, toggle) => {
+        if (toggle) {
+            favorite.classList.toggle("restaurant-name_isfavorite");
+        }
+    });
+}
+
+window.addEventListener('online', (event) => {
+    console.log("You are online")
+    DBHelper.syncRestaurants();
+});
+
+window.addEventListener('offline', (event) => {
+    console.log("You are offline")
+    alert("You are offine. All the changes will be synchronized when you return online.");
 });

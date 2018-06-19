@@ -1005,4 +1005,14 @@ function onFavoriteClick(e) {
         }
     });
 }
+
+window.addEventListener('online', (event) => {
+    console.log("You are online")
+    DBHelper.syncRestaurants();
+});
+
+window.addEventListener('offline', (event) => {
+    console.log("You are offline")
+    alert("You are offine. All the changes will be synchronized when you return online.");
+});
 //# sourceMappingURL=restaurant_all.js.map
