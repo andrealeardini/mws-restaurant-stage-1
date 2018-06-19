@@ -1,1 +1,76 @@
-<!DOCTYPE html><html lang="en"><head><meta name="theme-color" content="#317EFB"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="X-UA-Compatible" content="ie=edge"><link rel="preconnect" href="http://localhost:1337/restaurants"><link rel="dns-prefetech" href="http://localhost:1337/restaurants"><link rel="preload" href="css/main.css" as="style"><link rel="preload" href="https://fonts.googleapis.com/icon?family=Material+Icons" as="style"><link rel="preload" href="css/main-media-screen.css" as="style"><link rel="preload" href="js/main_all.js" as="script"><link rel="manifest" href="/manifest.json"><link rel="stylesheet" src="//normalize-css.googlecode.com/svn/trunk/normalize.css"><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel="stylesheet" href="css/main.css"><link rel="stylesheet" href="css/main-media-screen.css" media="(min-width: 420px)"><title>Restaurant Reviews</title></head><body><div id="skip-link"><a href="#restaurants">Skip to main content</a></div><header><nav><h1><a href="/">Restaurant Reviews</a></h1></nav></header><main id="maincontent"><section id="map-container"><div id="image-blurred" class="blur"><div class="inactive" id="map" role="application" aria-label="Restaurants map of New York"></div></div><div id="image-blurred-text" class="center"><h3>Click to activate the map</h3></div></section><section class="restaurants" id="restaurants" tabindex="-1"><div class="filter-options" role="search"><h2 id="filterLabel">Filter Results</h2><select id="neighborhoods-select" aria-label="Select the neighborhoods" name="neighborhoods" onchange="updateRestaurants()"><option value="all">All Neighborhoods</option></select> <select id="cuisines-select" aria-label="Select the type of cuisine" name="cuisines" onchange="updateRestaurants()"><option value="all">All Cuisines</option></select></div><ul id="restaurants-list" tabindex="0"></ul></section></main><script charset="utf-8" src="js/main_all.js"></script><script async defer="defer" id="GoogleMaps" data-src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBc_T2Nzol-Ujnwtu82M29yL7Df3TmVxbs&libraries=places&callback=initMap" onerror="googleMapsError()"></script><footer id="footer">Copyright (c) 2018 <a href="/"><strong>Restaurant Reviews</strong> </a>All Rights Reserved.</footer></body></html>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="theme-color" content="#317EFB" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <link rel="preconnect" href="http://localhost:1337/restaurants">
+    <link rel="dns-prefetech" href="http://localhost:1337/restaurants">
+
+    <link rel="preload" href="css/main.css" as="style">
+    <link rel="preload" href="https://fonts.googleapis.com/icon?family=Material+Icons" as="style">
+    <link rel="preload" href="css/main-media-screen.css" as="style">
+    <link rel="preload" href="js/main_all.js" as="script">
+
+    <link rel="manifest" href="/manifest.json">
+
+    <link rel="stylesheet" src="//normalize-css.googlecode.com/svn/trunk/normalize.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/main-media-screen.css" media="(min-width: 420px)">
+    <title>Restaurant Reviews</title>
+
+</head>
+
+<body>
+    <div id="skip-link">
+        <a href="#restaurants">Skip to main content</a>
+    </div>
+    <header>
+        <nav>
+            <h1>
+                <a href="/">Restaurant Reviews</a>
+            </h1>
+        </nav>
+    </header>
+
+    <main id="maincontent">
+        <section id="map-container">
+            <div id="image-blurred" class="blur">
+                <div class="inactive" id="map" role="application" aria-label="Restaurants map of New York"></div>
+            </div>
+            <div id="image-blurred-text" class="center">
+                <h3>Click to activate the map</h3>
+            </div>
+        </section>
+        <section class="restaurants" id="restaurants" tabindex="-1">
+            <div class="filter-options" role="search">
+                <h2 id="filterLabel">Filter Results</h2>
+                <select id="neighborhoods-select" aria-label="Select the neighborhoods" name="neighborhoods" onchange="updateRestaurants()">
+                    <option value="all">All Neighborhoods</option>
+                </select>
+                <select id="cuisines-select" aria-label="Select the type of cuisine" name="cuisines" onchange="updateRestaurants()">
+                    <option value="all">All Cuisines</option>
+                </select>
+            </div>
+            <ul id="restaurants-list" tabindex="0"></ul>
+        </section>
+    </main>
+
+    <script charset="utf-8" src="js/main_all.js"></script>
+    <script async defer id="GoogleMaps" data-src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBc_T2Nzol-Ujnwtu82M29yL7Df3TmVxbs&libraries=places&callback=initMap"
+        onerror="googleMapsError()"></script>
+
+
+    <footer id="footer">
+        Copyright (c) 2018
+        <a href="/ ">
+            <strong>Restaurant Reviews</strong>
+        </a> All Rights Reserved.
+    </footer>
+</body>
+
+</html>
