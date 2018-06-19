@@ -372,7 +372,7 @@ class DBHelper {
     /**
      * Fetch all restaurants from network.
      */
-    static fetchRestaurantsFromNetwork(callback) {
+    static fetchRestaurantsFromNetwork(callback, saveToDB = true) {
         let xhr = new XMLHttpRequest();
         xhr.open('GET', DBHelper.DATABASE_URL);
         xhr.onload = () => {
@@ -381,7 +381,9 @@ class DBHelper {
                 console.log('Ristoranti letti dal server');
                 callback(null, restaurants);
                 // write restaurants to db
-                DBHelper.saveRestaurantsToDB(restaurants);
+                if (saveToDB) {
+                    DBHelper.saveRestaurantsToDB(restaurants);
+                }
             } else { // Oops!. Got an error from server.
                 const error = (`Request failed. Returned status of ${xhr.status}`);
                 callback(error, null);
@@ -558,7 +560,6 @@ class DBHelper {
             return Promise.resolve();
         }
 
-        DBHelper.dbOpened = true;
         return idb.open('restaurants-reviews', 2, upgradeDb => {
             switch (upgradeDb.oldVersion) {
                 case 0:
@@ -586,6 +587,7 @@ class DBHelper {
     }
 
     static getRestaurantsFromDB() {
+        if (!DBHelper.dbPromise) return;
         const tx = DBHelper.dbPromise.transaction('restaurants', 'readonly');
         const restaurantsStore = tx.objectStore('restaurants');
         return restaurantsStore.getAll();
@@ -666,26 +668,15 @@ class DBHelper {
                 }
                 // console.log(restaurant)
                 restaurant.is_favorite = value;
+                // update the date
+                restaurant.updatedAt = new Date();
                 return DBHelper.updateRestaurantLocalDB(restaurant).then(function () {
                     console.log("Restaurant saved on the local DB")
-                    return DBHelper.addRestaurantToOfflineDB(restaurant).then(function () {
-                        console.log("Restaurant marked for offline synch... ");
-                        callback(null, true);
-                    });
+                    callback(null, true);
                 });
             });
         });
     }
-
-
-    /**
-     * Fetch all restaurants that should be syncronized.
-     */
-    static fetchRestaurantsOffline() {
-        const tx = DBHelper.dbPromise.transaction('offline-restaurants', 'readwrite');
-        const restaurantsStore = tx.objectStore('offline-restaurants');
-        return restaurantsStore.getAll();
-    };
 
     /**
      * Delete restaurant from offline-restaurants db.
@@ -697,27 +688,65 @@ class DBHelper {
     };
 
     /**
-     * Sync all offline restaurants 
+     * Sync all changed to the restaurants 
      */
     static syncRestaurants() {
-        // Fetch all restaurants
-        return DBHelper.fetchRestaurantsOffline().then(function (restaurants) {
-            console.log('Restaurants to sync: ', restaurants);
-            return DBHelper.saveFavoritesToNetwork(restaurants);
-        });
+        let restaurantsFromServer = [];
+        let restaurantsFromLocalDB = [];
+
+        return DBHelper.openDB().then(function (db) {
+            if (db) {
+                DBHelper.dbPromise = db;
+                console.log(DBHelper.dbPromise);
+                DBHelper.getRestaurantsFromDB().then(restaurants => {
+                    if (restaurants.length) {
+                        restaurantsFromLocalDB = restaurants;
+                    } else {
+                        return "No restaurants in local DB"
+                    }
+                }).then(function () {
+                    console.log("Restaurant from local DB: ", restaurantsFromLocalDB);
+                    return DBHelper.fetchRestaurantsFromNetwork((error, restaurants) => {
+                        if (error) {
+                            return error;
+                        }
+                        if (restaurants.length) {
+                            restaurantsFromServer = restaurants;
+                            console.log("Restaurant from server: ", restaurantsFromServer);
+                            // 
+                            restaurantsFromServer.forEach(function (restaurantFromServer) {
+                                return DBHelper.fetchRestaurantById(restaurantFromServer.id, (error, restaurantFromLocalDB) => {
+                                    if (error) {
+                                        return error;
+                                    }
+                                    const server_updatedAt = new Date(restaurantFromServer.updatedAt);
+                                    const localDB_updatedAt = new Date(restaurantFromLocalDB.updatedAt);
+                                    // ignore the record with the same date
+                                    if (server_updatedAt > localDB_updatedAt) {
+                                        DBHelper.updateRestaurantLocalDB(restaurantFromServer);
+                                    }
+                                    if (server_updatedAt < localDB_updatedAt) {
+                                        DBHelper.saveFavoriteToNetwork(restaurantFromLocalDB);
+                                    }
+                                });
+                            })
+                        }
+                    }, false);
+                }).catch(function (error) {
+                    console.log("Error in sync");
+                });
+            }
+        })
     }
 
     /*
-     * Save data to network
+     * Save favorite to network
      */
-    static saveFavoritesToNetwork(data) {
-        return data.forEach(function (restaurant) {
-            return DBHelper.updateFavorite(restaurant.id, restaurant.is_favorite, (error, updated) => {
-                if (updated) {
-                    console.log("Favorite Updated from LocalDB");
-                    DBHelper.deleteRestaurantFromOffline(restaurant);
-                }
-            });
+    static saveFavoriteToNetwork(restaurant) {
+        return DBHelper.updateFavorite(restaurant.id, restaurant.is_favorite, (error, updated) => {
+            if (updated) {
+                console.log("Favorite Updated from LocalDB");
+            }
         });
     }
 }
@@ -1020,6 +1049,7 @@ function showMap() {
 }
 
 window.addEventListener('load', (event) => {
+    DBHelper.syncRestaurants();
     updateRestaurants();
     document.getElementById('map-container').addEventListener("click", showMap);
 });

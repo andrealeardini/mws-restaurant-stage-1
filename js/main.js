@@ -297,6 +297,7 @@ function showMap() {
 }
 
 window.addEventListener('load', (event) => {
+    DBHelper.syncRestaurants();
     updateRestaurants();
     document.getElementById('map-container').addEventListener("click", showMap);
 });
