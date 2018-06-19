@@ -218,6 +218,10 @@ nav #breadcrumb [aria-current="page"] {
     height: 100%;
 }
 
+#image-blurred-text {
+    z-index: -1;
+}
+
 .center {
     position: absolute;
     top: 50%;
