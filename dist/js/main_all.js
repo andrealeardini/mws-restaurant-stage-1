@@ -340,6 +340,11 @@ class DBHelper {
         return `http://localhost:${port}/restaurants`;
     }
 
+    static get DATABASE_REVIEWS_URL() {
+        const port = 1337 // Change this to your server port
+        return `http://localhost:${port}/reviews`;
+    }
+
     /**
      * Fetch all restaurants.
      */
@@ -568,9 +573,11 @@ class DBHelper {
                     });
                 case 1:
                     // do something
-                    upgradeDb.createObjectStore('offline-restaurants', {
+                    upgradeDb.createObjectStore('reviews', {
                         keyPath: 'id'
                     });
+                    var reviewsStore = upgradeDb.transaction.objectStore('reviews');
+                    reviewsStore.createIndex('restaurant', 'restaurant_id');
             }
         });
 
@@ -724,12 +731,12 @@ class DBHelper {
                                     if (server_updatedAt > localDB_updatedAt) {
                                         DBHelper.updateRestaurantLocalDB(restaurantFromServer);
                                         console.log('Update local DB:', restaurantFromServer);
-                                        setFavoriteStatus(restaurantFromServer);
+                                        DBHelper.setFavoriteStatus(restaurantFromServer);
                                     }
                                     if (server_updatedAt < localDB_updatedAt) {
                                         DBHelper.saveFavoriteToNetwork(restaurantFromLocalDB);
                                         console.log('Update network DB:', restaurantFromLocalDB)
-                                        setFavoriteStatus(restaurantFromLocalDB);
+                                        DBHelper.setFavoriteStatus(restaurantFromLocalDB);
                                     }
                                 } else { // Restaurant does not exist in the database
                                     console.log('Restaurant does not exist');
@@ -770,6 +777,113 @@ class DBHelper {
                 console.log("Favorite Updated from LocalDB");
             }
         });
+    }
+
+    /**
+     * Fetch all reviews.
+     * @restaurant_id : if specified fetch only the reviews of this restaurants
+     */
+    static fetchReviews(restaurant_id, callback) {
+
+        // open DB and set dbPromise
+        return DBHelper.openDB().then(function (db) {
+            if (db) {
+                DBHelper.dbPromise = db;
+                console.log(DBHelper.dbPromise);
+                // Read reviews from DB;
+                return DBHelper.getReviewsFromDB(restaurant_id).then(reviews => {
+                    if (reviews.length) {
+                        return callback(null, reviews);
+                    } else {
+                        console.log('No reviews in db');
+                        DBHelper.fetchReviewsFromNetwork(callback);
+                    }
+                });
+            } else {
+                console.log('db not found');
+                DBHelper.fetchReviewsFromNetwork(callback);
+            }
+        }).then(function () {}).catch(function () {
+            console.log('Catch the promise error');
+            DBHelper.fetchReviewsFromNetwork(callback);
+        })
+    }
+
+    /**
+     * Fetch a review by its ID.
+     */
+    static fetchReviewById(id, callback) {
+        // fetch all reviews with proper error handling.
+        DBHelper.fetchReviews(null, (error, reviews) => {
+            if (error) {
+                callback(error, null);
+            } else {
+                const review = reviews.find(r => r.id == id);
+                if (review) { // Got the review
+                    callback(null, review);
+                } else { // review does not exist in the database
+                    callback('Review does not exist', null);
+                }
+            }
+        });
+    }
+
+
+
+    /**
+     * Fetch all reviews from network.
+     */
+    static fetchReviewsFromNetwork(callback, saveToDB = true) {
+        let xhr = new XMLHttpRequest();
+        xhr.open('GET', DBHelper.DATABASE_REVIEWS_URL);
+        xhr.onload = () => {
+            if (xhr.status === 200) { // Got a success response from server!
+                const reviews = JSON.parse(xhr.responseText);
+                console.log('Reviews lette dal server');
+                callback(null, reviews);
+                // write reviews to db
+                if (saveToDB) {
+                    DBHelper.saveReviewsToDB(reviews);
+                }
+            } else { // Oops!. Got an error from server.
+                const error = (`Request failed. Returned status of ${xhr.status}`);
+                callback(error, null);
+            }
+        };
+        xhr.send();
+    }
+
+    /*
+     * Save reviews to local database
+     */
+    static saveReviewsToDB(data) {
+        if (!(DBHelper.dbOpened)) {
+            return
+        }
+
+        let tx = DBHelper.dbPromise.transaction('reviews', 'readwrite');
+        let reviewsStore = tx.objectStore('reviews');
+        data.forEach(function (reviews) {
+            reviewsStore.put(reviews);
+        });
+        console.log("Local reviews DB updated from Network");
+        return tx.complete;
+    }
+
+    /**
+     * get all reviews.
+     * @restaurant_id : if specified get only the reviews of this restaurants
+     */
+    static getReviewsFromDB(restaurant_id) {
+        if (!DBHelper.dbPromise) return;
+        const tx = DBHelper.dbPromise.transaction('reviews', 'readonly');
+        const reviewsStore = tx.objectStore('reviews');
+        if (!restaurant_id) {
+            return reviewsStore.getAll();
+        } else {
+            let index = reviewsStore.index('restaurant');
+            return index.getAll(Number(restaurant_id));
+        }
     }
 }
 let restaurants,

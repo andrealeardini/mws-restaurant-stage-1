@@ -1,4 +1,5 @@
 var restaurant;
+var reviews;
 var map;
 
 
@@ -52,6 +53,9 @@ const fetchRestaurantFromURL = (callback) => {
         const error = 'No restaurant id in URL'
         callback(error, null);
     } else {
+        DBHelper.fetchReviews(id, (error, reviews) => {
+            self.reviews = reviews;
+        });
         DBHelper.fetchRestaurantById(id, (error, restaurant) => {
             self.restaurant = restaurant;
             if (!restaurant) {
@@ -134,7 +138,7 @@ const fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hour
 /**
  * Create all reviews HTML and add them to the webpage.
  */
-const fillReviewsHTML = (reviews = self.restaurant.reviews) => {
+const fillReviewsHTML = (reviews = self.reviews) => {
     const container = document.getElementById('reviews-container');
     const title = document.createElement('h2');
     title.innerHTML = 'Reviews';
@@ -167,7 +171,8 @@ const createReviewHTML = (review) => {
     header.appendChild(name);
 
     const date = document.createElement('p');
-    date.innerHTML = review.date;
+    let reviewDate = new Date(review.updatedAt).toLocaleDateString();
+    date.innerHTML = reviewDate;
     date.className = "reviews-date";
     header.appendChild(date);
 
