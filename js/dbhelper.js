@@ -1,3 +1,5 @@
+/*global google idb*/
+
 /**
  * Common database helper functions.
  */

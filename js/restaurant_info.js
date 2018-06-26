@@ -1,3 +1,5 @@
+/*global DBHelper google*/
+
 var restaurant;
 var reviews;
 var map;
@@ -252,7 +254,7 @@ function onFavoriteClick(e) {
   if (!(favorite.classList.contains('restaurant-name_isfavorite'))) {
     value = 'true';
   }
-    DBHelper.updateFavorite(favorite.id, value, (error, toggle) => {
+  DBHelper.updateFavorite(favorite.id, value, (error, toggle) => {
     if (toggle) {
       favorite.classList.toggle('restaurant-name_isfavorite');
     }
