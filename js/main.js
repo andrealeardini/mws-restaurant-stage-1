@@ -1,3 +1,5 @@
+/*global DBHelper*/
+
 // global variables
 let restaurants;
 let neighborhoods;
