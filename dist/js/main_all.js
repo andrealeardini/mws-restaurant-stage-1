@@ -1,312 +1,312 @@
 'use strict';
 
 (function () {
-  function toArray(arr) {
-    return Array.prototype.slice.call(arr);
-  }
-
-  function promisifyRequest(request) {
-    return new Promise(function (resolve, reject) {
-      request.onsuccess = function () {
-        resolve(request.result);
-      };
-
-      request.onerror = function () {
-        reject(request.error);
-      };
-    });
-  }
-
-  function promisifyRequestCall(obj, method, args) {
-    var request;
-    var p = new Promise(function (resolve, reject) {
-      request = obj[method].apply(obj, args);
-      promisifyRequest(request).then(resolve, reject);
-    });
-
-    p.request = request;
-    return p;
-  }
-
-  function promisifyCursorRequestCall(obj, method, args) {
-    var p = promisifyRequestCall(obj, method, args);
-    return p.then(function (value) {
-      if (!value) return;
-      return new Cursor(value, p.request);
-    });
-  }
-
-  function proxyProperties(ProxyClass, targetProp, properties) {
-    properties.forEach(function (prop) {
-      Object.defineProperty(ProxyClass.prototype, prop, {
-        get: function () {
-          return this[targetProp][prop];
-        },
-        set: function (val) {
-          this[targetProp][prop] = val;
-        }
-      });
-    });
-  }
-
-  function proxyRequestMethods(ProxyClass, targetProp, Constructor, properties) {
-    properties.forEach(function (prop) {
-      if (!(prop in Constructor.prototype)) return;
-      ProxyClass.prototype[prop] = function () {
-        return promisifyRequestCall(this[targetProp], prop, arguments);
-      };
-    });
-  }
-
-  function proxyMethods(ProxyClass, targetProp, Constructor, properties) {
-    properties.forEach(function (prop) {
-      if (!(prop in Constructor.prototype)) return;
-      ProxyClass.prototype[prop] = function () {
-        return this[targetProp][prop].apply(this[targetProp], arguments);
-      };
-    });
-  }
-
-  function proxyCursorRequestMethods(ProxyClass, targetProp, Constructor, properties) {
-    properties.forEach(function (prop) {
-      if (!(prop in Constructor.prototype)) return;
-      ProxyClass.prototype[prop] = function () {
-        return promisifyCursorRequestCall(this[targetProp], prop, arguments);
-      };
-    });
-  }
-
-  function Index(index) {
-    this._index = index;
-  }
-
-  proxyProperties(Index, '_index', [
-    'name',
-    'keyPath',
-    'multiEntry',
-    'unique'
-  ]);
-
-  proxyRequestMethods(Index, '_index', IDBIndex, [
-    'get',
-    'getKey',
-    'getAll',
-    'getAllKeys',
-    'count'
-  ]);
-
-  proxyCursorRequestMethods(Index, '_index', IDBIndex, [
-    'openCursor',
-    'openKeyCursor'
-  ]);
-
-  function Cursor(cursor, request) {
-    this._cursor = cursor;
-    this._request = request;
-  }
-
-  proxyProperties(Cursor, '_cursor', [
-    'direction',
-    'key',
-    'primaryKey',
-    'value'
-  ]);
-
-  proxyRequestMethods(Cursor, '_cursor', IDBCursor, [
-    'update',
-    'delete'
-  ]);
-
-  // proxy 'next' methods
-  ['advance', 'continue', 'continuePrimaryKey'].forEach(function (methodName) {
-    if (!(methodName in IDBCursor.prototype)) return;
-    Cursor.prototype[methodName] = function () {
-      var cursor = this;
-      var args = arguments;
-      return Promise.resolve().then(function () {
-        cursor._cursor[methodName].apply(cursor._cursor, args);
-        return promisifyRequest(cursor._request).then(function (value) {
-          if (!value) return;
-          return new Cursor(value, cursor._request);
-        });
-      });
-    };
-  });
-
-  function ObjectStore(store) {
-    this._store = store;
-  }
-
-  ObjectStore.prototype.createIndex = function () {
-    return new Index(this._store.createIndex.apply(this._store, arguments));
-  };
-
-  ObjectStore.prototype.index = function () {
-    return new Index(this._store.index.apply(this._store, arguments));
-  };
-
-  proxyProperties(ObjectStore, '_store', [
-    'name',
-    'keyPath',
-    'indexNames',
-    'autoIncrement'
-  ]);
-
-  proxyRequestMethods(ObjectStore, '_store', IDBObjectStore, [
-    'put',
-    'add',
-    'delete',
-    'clear',
-    'get',
-    'getAll',
-    'getKey',
-    'getAllKeys',
-    'count'
-  ]);
-
-  proxyCursorRequestMethods(ObjectStore, '_store', IDBObjectStore, [
-    'openCursor',
-    'openKeyCursor'
-  ]);
-
-  proxyMethods(ObjectStore, '_store', IDBObjectStore, [
-    'deleteIndex'
-  ]);
-
-  function Transaction(idbTransaction) {
-    this._tx = idbTransaction;
-    this.complete = new Promise(function (resolve, reject) {
-      idbTransaction.oncomplete = function () {
-        resolve();
-      };
-      idbTransaction.onerror = function () {
-        reject(idbTransaction.error);
-      };
-      idbTransaction.onabort = function () {
-        reject(idbTransaction.error);
-      };
-    });
-  }
-
-  Transaction.prototype.objectStore = function () {
-    return new ObjectStore(this._tx.objectStore.apply(this._tx, arguments));
-  };
-
-  proxyProperties(Transaction, '_tx', [
-    'objectStoreNames',
-    'mode'
-  ]);
-
-  proxyMethods(Transaction, '_tx', IDBTransaction, [
-    'abort'
-  ]);
-
-  function UpgradeDB(db, oldVersion, transaction) {
-    this._db = db;
-    this.oldVersion = oldVersion;
-    this.transaction = new Transaction(transaction);
-  }
-
-  UpgradeDB.prototype.createObjectStore = function () {
-    return new ObjectStore(this._db.createObjectStore.apply(this._db, arguments));
-  };
-
-  proxyProperties(UpgradeDB, '_db', [
-    'name',
-    'version',
-    'objectStoreNames'
-  ]);
-
-  proxyMethods(UpgradeDB, '_db', IDBDatabase, [
-    'deleteObjectStore',
-    'close'
-  ]);
-
-  function DB(db) {
-    this._db = db;
-  }
-
-  DB.prototype.transaction = function () {
-    return new Transaction(this._db.transaction.apply(this._db, arguments));
-  };
-
-  proxyProperties(DB, '_db', [
-    'name',
-    'version',
-    'objectStoreNames'
-  ]);
-
-  proxyMethods(DB, '_db', IDBDatabase, [
-    'close'
-  ]);
-
-  // Add cursor iterators
-  // TODO: remove this once browsers do the right thing with promises
-  ['openCursor', 'openKeyCursor'].forEach(function (funcName) {
-    [ObjectStore, Index].forEach(function (Constructor) {
-      Constructor.prototype[funcName.replace('open', 'iterate')] = function () {
-        var args = toArray(arguments);
-        var callback = args[args.length - 1];
-        var nativeObject = this._store || this._index;
-        var request = nativeObject[funcName].apply(nativeObject, args.slice(0, -1));
-        request.onsuccess = function () {
-          callback(request.result);
-        };
-      };
-    });
-  });
-
-  // polyfill getAll
-  [Index, ObjectStore].forEach(function (Constructor) {
-    if (Constructor.prototype.getAll) return;
-    Constructor.prototype.getAll = function (query, count) {
-      var instance = this;
-      var items = [];
-
-      return new Promise(function (resolve) {
-        instance.iterateCursor(query, function (cursor) {
-          if (!cursor) {
-            resolve(items);
-            return;
-          }
-          items.push(cursor.value);
-
-          if (count !== undefined && items.length == count) {
-            resolve(items);
-            return;
-          }
-          cursor.continue();
-        });
-      });
-    };
-  });
-
-  var exp = {
-    open: function (name, version, upgradeCallback) {
-      var p = promisifyRequestCall(indexedDB, 'open', [name, version]);
-      var request = p.request;
-
-      request.onupgradeneeded = function (event) {
-        if (upgradeCallback) {
-          upgradeCallback(new UpgradeDB(request.result, event.oldVersion, request.transaction));
-        }
-      };
-
-      return p.then(function (db) {
-        return new DB(db);
-      });
-    },
-    delete: function (name) {
-      return promisifyRequestCall(indexedDB, 'deleteDatabase', [name]);
+    function toArray(arr) {
+        return Array.prototype.slice.call(arr);
     }
-  };
 
-  if (typeof module !== 'undefined') {
-    module.exports = exp;
-    module.exports.default = module.exports;
-  } else {
-    self.idb = exp;
-  }
+    function promisifyRequest(request) {
+        return new Promise(function (resolve, reject) {
+            request.onsuccess = function () {
+                resolve(request.result);
+            };
+
+            request.onerror = function () {
+                reject(request.error);
+            };
+        });
+    }
+
+    function promisifyRequestCall(obj, method, args) {
+        var request;
+        var p = new Promise(function (resolve, reject) {
+            request = obj[method].apply(obj, args);
+            promisifyRequest(request).then(resolve, reject);
+        });
+
+        p.request = request;
+        return p;
+    }
+
+    function promisifyCursorRequestCall(obj, method, args) {
+        var p = promisifyRequestCall(obj, method, args);
+        return p.then(function (value) {
+            if (!value) return;
+            return new Cursor(value, p.request);
+        });
+    }
+
+    function proxyProperties(ProxyClass, targetProp, properties) {
+        properties.forEach(function (prop) {
+            Object.defineProperty(ProxyClass.prototype, prop, {
+                get: function () {
+                    return this[targetProp][prop];
+                },
+                set: function (val) {
+                    this[targetProp][prop] = val;
+                }
+            });
+        });
+    }
+
+    function proxyRequestMethods(ProxyClass, targetProp, Constructor, properties) {
+        properties.forEach(function (prop) {
+            if (!(prop in Constructor.prototype)) return;
+            ProxyClass.prototype[prop] = function () {
+                return promisifyRequestCall(this[targetProp], prop, arguments);
+            };
+        });
+    }
+
+    function proxyMethods(ProxyClass, targetProp, Constructor, properties) {
+        properties.forEach(function (prop) {
+            if (!(prop in Constructor.prototype)) return;
+            ProxyClass.prototype[prop] = function () {
+                return this[targetProp][prop].apply(this[targetProp], arguments);
+            };
+        });
+    }
+
+    function proxyCursorRequestMethods(ProxyClass, targetProp, Constructor, properties) {
+        properties.forEach(function (prop) {
+            if (!(prop in Constructor.prototype)) return;
+            ProxyClass.prototype[prop] = function () {
+                return promisifyCursorRequestCall(this[targetProp], prop, arguments);
+            };
+        });
+    }
+
+    function Index(index) {
+        this._index = index;
+    }
+
+    proxyProperties(Index, '_index', [
+        'name',
+        'keyPath',
+        'multiEntry',
+        'unique'
+    ]);
+
+    proxyRequestMethods(Index, '_index', IDBIndex, [
+        'get',
+        'getKey',
+        'getAll',
+        'getAllKeys',
+        'count'
+    ]);
+
+    proxyCursorRequestMethods(Index, '_index', IDBIndex, [
+        'openCursor',
+        'openKeyCursor'
+    ]);
+
+    function Cursor(cursor, request) {
+        this._cursor = cursor;
+        this._request = request;
+    }
+
+    proxyProperties(Cursor, '_cursor', [
+        'direction',
+        'key',
+        'primaryKey',
+        'value'
+    ]);
+
+    proxyRequestMethods(Cursor, '_cursor', IDBCursor, [
+        'update',
+        'delete'
+    ]);
+
+    // proxy 'next' methods
+    ['advance', 'continue', 'continuePrimaryKey'].forEach(function (methodName) {
+        if (!(methodName in IDBCursor.prototype)) return;
+        Cursor.prototype[methodName] = function () {
+            var cursor = this;
+            var args = arguments;
+            return Promise.resolve().then(function () {
+                cursor._cursor[methodName].apply(cursor._cursor, args);
+                return promisifyRequest(cursor._request).then(function (value) {
+                    if (!value) return;
+                    return new Cursor(value, cursor._request);
+                });
+            });
+        };
+    });
+
+    function ObjectStore(store) {
+        this._store = store;
+    }
+
+    ObjectStore.prototype.createIndex = function () {
+        return new Index(this._store.createIndex.apply(this._store, arguments));
+    };
+
+    ObjectStore.prototype.index = function () {
+        return new Index(this._store.index.apply(this._store, arguments));
+    };
+
+    proxyProperties(ObjectStore, '_store', [
+        'name',
+        'keyPath',
+        'indexNames',
+        'autoIncrement'
+    ]);
+
+    proxyRequestMethods(ObjectStore, '_store', IDBObjectStore, [
+        'put',
+        'add',
+        'delete',
+        'clear',
+        'get',
+        'getAll',
+        'getKey',
+        'getAllKeys',
+        'count'
+    ]);
+
+    proxyCursorRequestMethods(ObjectStore, '_store', IDBObjectStore, [
+        'openCursor',
+        'openKeyCursor'
+    ]);
+
+    proxyMethods(ObjectStore, '_store', IDBObjectStore, [
+        'deleteIndex'
+    ]);
+
+    function Transaction(idbTransaction) {
+        this._tx = idbTransaction;
+        this.complete = new Promise(function (resolve, reject) {
+            idbTransaction.oncomplete = function () {
+                resolve();
+            };
+            idbTransaction.onerror = function () {
+                reject(idbTransaction.error);
+            };
+            idbTransaction.onabort = function () {
+                reject(idbTransaction.error);
+            };
+        });
+    }
+
+    Transaction.prototype.objectStore = function () {
+        return new ObjectStore(this._tx.objectStore.apply(this._tx, arguments));
+    };
+
+    proxyProperties(Transaction, '_tx', [
+        'objectStoreNames',
+        'mode'
+    ]);
+
+    proxyMethods(Transaction, '_tx', IDBTransaction, [
+        'abort'
+    ]);
+
+    function UpgradeDB(db, oldVersion, transaction) {
+        this._db = db;
+        this.oldVersion = oldVersion;
+        this.transaction = new Transaction(transaction);
+    }
+
+    UpgradeDB.prototype.createObjectStore = function () {
+        return new ObjectStore(this._db.createObjectStore.apply(this._db, arguments));
+    };
+
+    proxyProperties(UpgradeDB, '_db', [
+        'name',
+        'version',
+        'objectStoreNames'
+    ]);
+
+    proxyMethods(UpgradeDB, '_db', IDBDatabase, [
+        'deleteObjectStore',
+        'close'
+    ]);
+
+    function DB(db) {
+        this._db = db;
+    }
+
+    DB.prototype.transaction = function () {
+        return new Transaction(this._db.transaction.apply(this._db, arguments));
+    };
+
+    proxyProperties(DB, '_db', [
+        'name',
+        'version',
+        'objectStoreNames'
+    ]);
+
+    proxyMethods(DB, '_db', IDBDatabase, [
+        'close'
+    ]);
+
+    // Add cursor iterators
+    // TODO: remove this once browsers do the right thing with promises
+    ['openCursor', 'openKeyCursor'].forEach(function (funcName) {
+        [ObjectStore, Index].forEach(function (Constructor) {
+            Constructor.prototype[funcName.replace('open', 'iterate')] = function () {
+                var args = toArray(arguments);
+                var callback = args[args.length - 1];
+                var nativeObject = this._store || this._index;
+                var request = nativeObject[funcName].apply(nativeObject, args.slice(0, -1));
+                request.onsuccess = function () {
+                    callback(request.result);
+                };
+            };
+        });
+    });
+
+    // polyfill getAll
+    [Index, ObjectStore].forEach(function (Constructor) {
+        if (Constructor.prototype.getAll) return;
+        Constructor.prototype.getAll = function (query, count) {
+            var instance = this;
+            var items = [];
+
+            return new Promise(function (resolve) {
+                instance.iterateCursor(query, function (cursor) {
+                    if (!cursor) {
+                        resolve(items);
+                        return;
+                    }
+                    items.push(cursor.value);
+
+                    if (count !== undefined && items.length == count) {
+                        resolve(items);
+                        return;
+                    }
+                    cursor.continue();
+                });
+            });
+        };
+    });
+
+    var exp = {
+        open: function (name, version, upgradeCallback) {
+            var p = promisifyRequestCall(indexedDB, 'open', [name, version]);
+            var request = p.request;
+
+            request.onupgradeneeded = function (event) {
+                if (upgradeCallback) {
+                    upgradeCallback(new UpgradeDB(request.result, event.oldVersion, request.transaction));
+                }
+            };
+
+            return p.then(function (db) {
+                return new DB(db);
+            });
+        },
+        delete: function (name) {
+            return promisifyRequestCall(indexedDB, 'deleteDatabase', [name]);
+        }
+    };
+
+    if (typeof module !== 'undefined') {
+        module.exports = exp;
+        module.exports.default = module.exports;
+    } else {
+        self.idb = exp;
+    }
 }());
 /**
  * Common database helper functions.
@@ -354,22 +354,22 @@ class DBHelper {
         return DBHelper.openDB().then(function (db) {
             if (db) {
                 DBHelper.dbPromise = db;
-                // console.log(DBHelper.dbPromise);
+                console.log(DBHelper.dbPromise);
                 // Read restaurants from DB;
                 return DBHelper.getRestaurantsFromDB().then(restaurants => {
                     if (restaurants.length) {
                         return callback(null, restaurants);
                     } else {
-                        // console.log('No restaurants in db');
+                        console.log('No restaurants in db');
                         DBHelper.fetchRestaurantsFromNetwork(callback);
                     }
                 });
             } else {
-                // console.log('db not found');
+                console.log('db not found');
                 DBHelper.fetchRestaurantsFromNetwork(callback);
             }
-        }).then(function () {}).catch(function () {
-            // console.log('Catch the promise error');
+        }).then(function () { }).catch(function () {
+            console.log('Catch the promise error');
             DBHelper.fetchRestaurantsFromNetwork(callback);
         })
     }
@@ -383,7 +383,7 @@ class DBHelper {
         xhr.onload = () => {
             if (xhr.status === 200) { // Got a success response from server!
                 const restaurants = JSON.parse(xhr.responseText);
-                // console.log('Ristoranti letti dal server');
+                console.log('Ristoranti letti dal server');
                 callback(null, restaurants);
                 // write restaurants to db
                 if (saveToDB) {
@@ -561,7 +561,7 @@ class DBHelper {
         //check for support
         DBHelper.dbOpened = true;
         if (!('indexedDB' in window)) {
-            // console.log('This browser doesn\'t support IndexedDB');
+            console.log('This browser doesn\'t support IndexedDB');
             return Promise.resolve();
         }
 
@@ -585,11 +585,11 @@ class DBHelper {
 
     static addRestaurantToDB(db, data) {
         if (!db) return;
-        // console.log('Adding record');
+        console.log('Adding record');
         const tx = db.transaction('restaurants', 'readwrite');
         const restaurantsStore = tx.objectStore('restaurants');
         restaurantsStore.put(data);
-        // console.log("Record added");
+        console.log("Record added");
         return tx.complete;
     }
 
@@ -614,7 +614,7 @@ class DBHelper {
         data.forEach(function (restaurant) {
             restaurantsStore.put(restaurant);
         });
-        // console.log("Local DB Updated from Network");
+        console.log("Local DB Updated from Network");
         return tx.complete;
     }
 
@@ -651,21 +651,21 @@ class DBHelper {
         return fetch(`http://localhost:1337/restaurants/${id}/?is_favorite=${value}`, {
             method: "PUT",
         }).then(function () {
-            // console.log(`Send PUT with favorite=${value}`);
+            console.log(`Send PUT with favorite=${value}`);
             return DBHelper.fetchRestaurantById(id, (error, restaurant) => {
                 self.restaurant = restaurant;
                 if (!restaurant) {
                     console.error(error);
                     callback(error, null);
                 }
-                // console.log(restaurant)
+                console.log(restaurant)
                 restaurant.is_favorite = value;
                 return DBHelper.updateRestaurantLocalDB(restaurant).then(function () {
                     callback(null, true)
                 });
             });
         }).catch(function (error) {
-            // console.log("Error when try to fetch data on server... ", error)
+            console.log("Error when try to fetch data on server... ", error)
             // save data offline
             return DBHelper.fetchRestaurantById(id, (error, restaurant) => {
                 self.restaurant = restaurant;
@@ -673,12 +673,12 @@ class DBHelper {
                     console.error(error);
                     callback(error, null);
                 }
-                // console.log(restaurant)
+                console.log(restaurant)
                 restaurant.is_favorite = value;
                 // update the date
                 restaurant.updatedAt = new Date();
                 return DBHelper.updateRestaurantLocalDB(restaurant).then(function () {
-                    // console.log("Restaurant saved on the local DB")
+                    console.log("Restaurant saved on the local DB")
                     callback(null, true);
                 });
             });
@@ -704,23 +704,23 @@ class DBHelper {
         return DBHelper.openDB().then(function (db) {
             if (db) {
                 DBHelper.dbPromise = db;
-                // console.log(DBHelper.dbPromise);
+                console.log(DBHelper.dbPromise);
                 DBHelper.getRestaurantsFromDB().then(restaurants => {
                     if (restaurants.length) {
                         restaurantsFromLocalDB = restaurants;
                     } else {
-                        // console.log('No restaurants in local DB')
+                        console.log('No restaurants in local DB')
                         return
                     }
                 }).then(function () {
-                    // console.log("Restaurants from local DB: ", restaurantsFromLocalDB);
+                    console.log("Restaurants from local DB: ", restaurantsFromLocalDB);
                     return DBHelper.fetchRestaurantsFromNetwork((error, restaurants) => {
                         if (error) {
                             return error;
                         }
                         if (restaurants.length) {
                             restaurantsFromServer = restaurants;
-                            // console.log("Restaurants from server: ", restaurantsFromServer);
+                            console.log("Restaurants from server: ", restaurantsFromServer);
                             // 
                             restaurantsFromServer.forEach(function (restaurantFromServer) {
                                 const restaurantFromLocalDB = restaurantsFromLocalDB.find(r => r.id == restaurantFromServer.id);
@@ -730,23 +730,23 @@ class DBHelper {
                                     // ignore the record with the same date
                                     if (server_updatedAt > localDB_updatedAt) {
                                         DBHelper.updateRestaurantLocalDB(restaurantFromServer);
-                                        // console.log('Update local DB:', restaurantFromServer);
+                                        console.log('Update local DB:', restaurantFromServer);
                                         DBHelper.setFavoriteStatus(restaurantFromServer);
                                     }
                                     if (server_updatedAt < localDB_updatedAt) {
                                         DBHelper.saveFavoriteToNetwork(restaurantFromLocalDB);
-                                        // console.log('Update network DB:', restaurantFromLocalDB)
+                                        console.log('Update network DB:', restaurantFromLocalDB)
                                         DBHelper.setFavoriteStatus(restaurantFromLocalDB);
                                     }
                                 } else { // Restaurant does not exist in the database
-                                    // console.log('Restaurant does not exist');
+                                    console.log('Restaurant does not exist');
                                 }
 
                             })
                         }
                     }, false);
                 }).catch(function (error) {
-                    // console.log("Error in sync");
+                    console.log("Error in sync");
                 });
             }
         })
@@ -774,7 +774,7 @@ class DBHelper {
     static saveFavoriteToNetwork(restaurant) {
         return DBHelper.updateFavorite(restaurant.id, restaurant.is_favorite, (error, updated) => {
             if (updated) {
-                // console.log("Favorite Updated from LocalDB");
+                console.log("Favorite Updated from LocalDB");
             }
         });
     }
@@ -789,22 +789,22 @@ class DBHelper {
         return DBHelper.openDB().then(function (db) {
             if (db) {
                 DBHelper.dbPromise = db;
-                // console.log(DBHelper.dbPromise);
+                console.log(DBHelper.dbPromise);
                 // Read reviews from DB;
                 return DBHelper.getReviewsFromDB(restaurant_id).then(reviews => {
                     if (reviews.length) {
                         return callback(null, reviews);
                     } else {
-                        // console.log('No reviews in db');
+                        console.log('No reviews in db');
                         DBHelper.fetchReviewsFromNetwork(callback);
                     }
                 });
             } else {
-                // console.log('db not found');
+                console.log('db not found');
                 DBHelper.fetchReviewsFromNetwork(callback);
             }
-        }).then(function () {}).catch(function () {
-            // console.log('Catch the promise error');
+        }).then(function () { }).catch(function () {
+            console.log('Catch the promise error');
             DBHelper.fetchReviewsFromNetwork(callback);
         })
     }
@@ -839,7 +839,7 @@ class DBHelper {
         xhr.onload = () => {
             if (xhr.status === 200) { // Got a success response from server!
                 const reviews = JSON.parse(xhr.responseText);
-                // console.log('Reviews lette dal server');
+                console.log('Reviews lette dal server');
                 callback(null, reviews);
                 // write reviews to db
                 if (saveToDB) {
@@ -866,7 +866,7 @@ class DBHelper {
         data.forEach(function (reviews) {
             reviewsStore.put(reviews);
         });
-        // console.log("Local reviews DB updated from Network");
+        console.log("Local reviews DB updated from Network");
         return tx.complete;
     }
 
@@ -942,10 +942,10 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
         navigator.serviceWorker.register('/sw.js').then(function (registration) {
             // Registration was successful
-            // // console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
         }, function (err) {
             // registration failed :(
-            // // console.log('ServiceWorker registration failed: ', err);
+            console.log('ServiceWorker registration failed: ', err);
         });
     });
 }
@@ -1172,11 +1172,11 @@ window.initMap = () => {
 }
 
 window.googleMapsError = () => {
-    // // console.log('Google Maps Error to handle');
+    console.log('Google Maps Error to handle');
 }
 
 function gm_authFailure() {
-    // // console.log('Google Maps Error to handle');
+    console.log('Google Maps Error to handle');
 }
 
 function showMap() {
@@ -1192,7 +1192,7 @@ window.addEventListener('load', (event) => {
 
 function onFavoriteClick(e) {
     const favorite = e.target;
-    // // console.log("Click on favorite: ", favorite.id);
+    console.log("Click on favorite: ", favorite.id);
     let value = "false"
     if (!(favorite.classList.contains("restaurant-name_isfavorite"))) {
         value = "true";
@@ -1206,12 +1206,12 @@ function onFavoriteClick(e) {
 
 
 window.addEventListener('online', (event) => {
-    // // console.log("You are online")
+    console.log("You are online")
     DBHelper.syncRestaurants();
 });
 
 window.addEventListener('offline', (event) => {
-    // // console.log("You are offline")
+    console.log("You are offline")
     alert("You are offine. All the changes will be synchronized when you return online.");
 });
 //# sourceMappingURL=main_all.js.map
