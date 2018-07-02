@@ -54,10 +54,10 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {
     navigator.serviceWorker.register('/sw.js').then(function (registration) {
       // Registration was successful
-      // // console.log('ServiceWorker registration successful with scope: ', registration.scope);
+      // console.log('ServiceWorker registration successful with scope: ', registration.scope);
     }, function (err) {
       // registration failed :(
-      // // console.log('ServiceWorker registration failed: ', err);
+      // console.log('ServiceWorker registration failed: ', err);
     });
   });
 }
@@ -297,11 +297,11 @@ window.initMap = () => {
 };
 
 window.googleMapsError = () => {
-  // // console.log('Google Maps Error to handle');
+  // console.log('Google Maps Error to handle');
 };
 
 function gm_authFailure() {
-  // // console.log('Google Maps Error to handle');
+  // console.log('Google Maps Error to handle');
 }
 
 function showMap() {
@@ -317,7 +317,7 @@ window.addEventListener('load', (event) => {
 
 function onFavoriteClick(e) {
   const favorite = e.target.parentElement;
-  // // console.log("Click on favorite: ", favorite.id);
+  // console.log("Click on favorite: ", favorite.id);
   let value = 'false';
   if (!(favorite.classList.contains('app-fab--isfavorite'))) {
     value = 'true';
@@ -336,11 +336,11 @@ function onFavoriteClick(e) {
 
 
 window.addEventListener('online', (event) => {
-  // // console.log("You are online")
+  // console.log("You are online")
   DBHelper.syncRestaurants();
 });
 
 window.addEventListener('offline', (event) => {
-  // // console.log("You are offline")
+  // console.log("You are offline")
   alert('You are offine. All the changes will be synchronized when you return online.');
 });
