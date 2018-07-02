@@ -1,6 +1,7 @@
 @charset "utf-8";
 /* CSS Document */
 
+@import "mdc.fab.css";
 body,
 td,
 th,
@@ -252,16 +253,6 @@ nav #breadcrumb [aria-current="page"] {
     width: calc(100% - 30px);
 }
 
-.restaurant-name_favorite {
-    color: gray;
-    font-weight: bold;
-    vertical-align: text-bottom;
-}
-
-.restaurant-name_isfavorite {
-    color: red;
-}
-
 #restaurant-img {
     border-radius: 5px;
     width: calc(100% - 20px);
@@ -382,4 +373,23 @@ nav #breadcrumb [aria-current="page"] {
     border: 3px groove #eee;
     text-align: center;
     text-transform: uppercase;
+}
+
+.app-fab--favorite {
+    background-color: whitesmoke;
+    color: grey;
+    position: fixed;
+    bottom: 8rem;
+    right: 1.5rem;
+}
+
+.app-fab--isfavorite {
+    color: red;
+}
+
+.app-fab--add {
+    background-color: blue;
+    position: fixed;
+    bottom: 5rem;
+    right: 1.5rem;
 }

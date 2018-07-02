@@ -313,578 +313,578 @@
  */
 class DBHelper {
 
-    set dbPromise(value) {
-        this._dbPromise = value;
-    }
+  set dbPromise(value) {
+    this._dbPromise = value;
+  }
 
-    get dbPromise() {
-        return this._dbPromise;
-    }
+  get dbPromise() {
+    return this._dbPromise;
+  }
 
-    set dbOpened(value) {
-        this._dbOpened = value;
-    }
+  set dbOpened(value) {
+    this._dbOpened = value;
+  }
 
-    get dbOpened() {
-        return this._dbOpened;
-    }
+  get dbOpened() {
+    return this._dbOpened;
+  }
 
 
 
-    /**
+  /**
      * Database URL.
      * Change this to restaurants.json file location on your server.
      */
-    static get DATABASE_URL() {
-        const port = 1337 // Change this to your server port
-        return `http://localhost:${port}/restaurants`;
-    }
+  static get DATABASE_URL() {
+    const port = 1337; // Change this to your server port
+    return `http://localhost:${port}/restaurants`;
+  }
 
-    static get DATABASE_REVIEWS_URL() {
-        const port = 1337 // Change this to your server port
-        return `http://localhost:${port}/reviews`;
-    }
+  static get DATABASE_REVIEWS_URL() {
+    const port = 1337; // Change this to your server port
+    return `http://localhost:${port}/reviews`;
+  }
 
-    /**
+  /**
      * Fetch all restaurants.
      */
-    static fetchRestaurants(callback) {
+  static fetchRestaurants(callback) {
 
-        // open DB and set dbPromise
-        return DBHelper.openDB().then(function (db) {
-            if (db) {
-                DBHelper.dbPromise = db;
-                console.log(DBHelper.dbPromise);
-                // Read restaurants from DB;
-                return DBHelper.getRestaurantsFromDB().then(restaurants => {
-                    if (restaurants.length) {
-                        return callback(null, restaurants);
-                    } else {
-                        console.log('No restaurants in db');
-                        DBHelper.fetchRestaurantsFromNetwork(callback);
-                    }
-                });
-            } else {
-                console.log('db not found');
-                DBHelper.fetchRestaurantsFromNetwork(callback);
-            }
-        }).then(function () {}).catch(function () {
-            console.log('Catch the promise error');
+    // open DB and set dbPromise
+    return DBHelper.openDB().then(function (db) {
+      if (db) {
+        DBHelper.dbPromise = db;
+        // console.log(DBHelper.dbPromise);
+        // Read restaurants from DB;
+        return DBHelper.getRestaurantsFromDB().then(restaurants => {
+          if (restaurants.length) {
+            return callback(null, restaurants);
+          } else {
+            // console.log('No restaurants in db');
             DBHelper.fetchRestaurantsFromNetwork(callback);
-        })
-    }
+          }
+        });
+      } else {
+        // console.log('db not found');
+        DBHelper.fetchRestaurantsFromNetwork(callback);
+      }
+    }).then(function () {}).catch(function () {
+      // console.log('Catch the promise error');
+      DBHelper.fetchRestaurantsFromNetwork(callback);
+    });
+  }
 
-    /**
+  /**
      * Fetch all restaurants from network.
      */
-    static fetchRestaurantsFromNetwork(callback, saveToDB = true) {
-        let xhr = new XMLHttpRequest();
-        xhr.open('GET', DBHelper.DATABASE_URL);
-        xhr.onload = () => {
-            if (xhr.status === 200) { // Got a success response from server!
-                const restaurants = JSON.parse(xhr.responseText);
-                console.log('Ristoranti letti dal server');
-                callback(null, restaurants);
-                // write restaurants to db
-                if (saveToDB) {
-                    DBHelper.saveRestaurantsToDB(restaurants);
-                }
-            } else { // Oops!. Got an error from server.
-                const error = (`Request failed. Returned status of ${xhr.status}`);
-                callback(error, null);
-            }
-        };
-        xhr.send();
-    }
+  static fetchRestaurantsFromNetwork(callback, saveToDB = true) {
+    let xhr = new XMLHttpRequest();
+    xhr.open('GET', DBHelper.DATABASE_URL);
+    xhr.onload = () => {
+      if (xhr.status === 200) { // Got a success response from server!
+        const restaurants = JSON.parse(xhr.responseText);
+        // console.log('Ristoranti letti dal server');
+        callback(null, restaurants);
+        // write restaurants to db
+        if (saveToDB) {
+          DBHelper.saveRestaurantsToDB(restaurants);
+        }
+      } else { // Oops!. Got an error from server.
+        const error = (`Request failed. Returned status of ${xhr.status}`);
+        callback(error, null);
+      }
+    };
+    xhr.send();
+  }
 
 
-    /**
+  /**
      * Fetch a restaurant by its ID.
      */
-    static fetchRestaurantById(id, callback) {
-        // fetch all restaurants with proper error handling.
-        DBHelper.fetchRestaurants((error, restaurants) => {
-            if (error) {
-                callback(error, null);
-            } else {
-                const restaurant = restaurants.find(r => r.id == id);
-                if (restaurant) { // Got the restaurant
-                    callback(null, restaurant);
-                } else { // Restaurant does not exist in the database
-                    callback('Restaurant does not exist', null);
-                }
-            }
-        });
-    }
+  static fetchRestaurantById(id, callback) {
+    // fetch all restaurants with proper error handling.
+    DBHelper.fetchRestaurants((error, restaurants) => {
+      if (error) {
+        callback(error, null);
+      } else {
+        const restaurant = restaurants.find(r => r.id == id);
+        if (restaurant) { // Got the restaurant
+          callback(null, restaurant);
+        } else { // Restaurant does not exist in the database
+          callback('Restaurant does not exist', null);
+        }
+      }
+    });
+  }
 
-    /**
+  /**
      * Fetch restaurants by a cuisine type with proper error handling.
      */
-    static fetchRestaurantByCuisine(cuisine, callback) {
-        // Fetch all restaurants  with proper error handling
-        DBHelper.fetchRestaurants((error, restaurants) => {
-            if (error) {
-                callback(error, null);
-            } else {
-                // Filter restaurants to have only given cuisine type
-                const results = restaurants.filter(r => r.cuisine_type == cuisine);
-                callback(null, results);
-            }
-        });
-    }
+  static fetchRestaurantByCuisine(cuisine, callback) {
+    // Fetch all restaurants  with proper error handling
+    DBHelper.fetchRestaurants((error, restaurants) => {
+      if (error) {
+        callback(error, null);
+      } else {
+        // Filter restaurants to have only given cuisine type
+        const results = restaurants.filter(r => r.cuisine_type == cuisine);
+        callback(null, results);
+      }
+    });
+  }
 
-    /**
+  /**
      * Fetch restaurants by a neighborhood with proper error handling.
      */
-    static fetchRestaurantByNeighborhood(neighborhood, callback) {
-        // Fetch all restaurants
-        DBHelper.fetchRestaurants((error, restaurants) => {
-            if (error) {
-                callback(error, null);
-            } else {
-                // Filter restaurants to have only given neighborhood
-                const results = restaurants.filter(r => r.neighborhood == neighborhood);
-                callback(null, results);
-            }
-        });
-    }
+  static fetchRestaurantByNeighborhood(neighborhood, callback) {
+    // Fetch all restaurants
+    DBHelper.fetchRestaurants((error, restaurants) => {
+      if (error) {
+        callback(error, null);
+      } else {
+        // Filter restaurants to have only given neighborhood
+        const results = restaurants.filter(r => r.neighborhood == neighborhood);
+        callback(null, results);
+      }
+    });
+  }
 
-    /**
+  /**
      * Fetch restaurants by a cuisine and a neighborhood with proper error handling.
      */
-    static fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood, callback) {
-        // Fetch all restaurants
-        DBHelper.fetchRestaurants((error, restaurants) => {
-            if (error) {
-                callback(error, null);
-            } else {
-                let results = restaurants
-                if (cuisine != 'all') { // filter by cuisine
-                    results = results.filter(r => r.cuisine_type == cuisine);
-                }
-                if (neighborhood != 'all') { // filter by neighborhood
-                    results = results.filter(r => r.neighborhood == neighborhood);
-                }
-                callback(null, results);
-            }
-        });
-    }
+  static fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood, callback) {
+    // Fetch all restaurants
+    DBHelper.fetchRestaurants((error, restaurants) => {
+      if (error) {
+        callback(error, null);
+      } else {
+        let results = restaurants;
+        if (cuisine != 'all') { // filter by cuisine
+          results = results.filter(r => r.cuisine_type == cuisine);
+        }
+        if (neighborhood != 'all') { // filter by neighborhood
+          results = results.filter(r => r.neighborhood == neighborhood);
+        }
+        callback(null, results);
+      }
+    });
+  }
 
-    /**
+  /**
      * Fetch all neighborhoods with proper error handling.
      */
-    static fetchNeighborhoods(callback) {
-        // Fetch all restaurants
-        DBHelper.fetchRestaurants((error, restaurants) => {
-            if (error) {
-                callback(error, null);
-            } else {
-                // Get all neighborhoods from all restaurants
-                const neighborhoods = restaurants.map((v, i) => restaurants[i].neighborhood)
-                // Remove duplicates from neighborhoods
-                const uniqueNeighborhoods = neighborhoods.filter((v, i) => neighborhoods.indexOf(v) == i)
-                callback(null, uniqueNeighborhoods);
-            }
-        });
-    }
+  static fetchNeighborhoods(callback) {
+    // Fetch all restaurants
+    DBHelper.fetchRestaurants((error, restaurants) => {
+      if (error) {
+        callback(error, null);
+      } else {
+        // Get all neighborhoods from all restaurants
+        const neighborhoods = restaurants.map((v, i) => restaurants[i].neighborhood);
+        // Remove duplicates from neighborhoods
+        const uniqueNeighborhoods = neighborhoods.filter((v, i) => neighborhoods.indexOf(v) == i);
+        callback(null, uniqueNeighborhoods);
+      }
+    });
+  }
 
-    /**
+  /**
      * Fetch all cuisines with proper error handling.
      */
-    static fetchCuisines(callback) {
-        // Fetch all restaurants
-        DBHelper.fetchRestaurants((error, restaurants) => {
-            if (error) {
-                callback(error, null);
-            } else {
-                // Get all cuisines from all restaurants
-                const cuisines = restaurants.map((v, i) => restaurants[i].cuisine_type)
-                // Remove duplicates from cuisines
-                const uniqueCuisines = cuisines.filter((v, i) => cuisines.indexOf(v) == i)
-                callback(null, uniqueCuisines);
-            }
-        });
-    }
+  static fetchCuisines(callback) {
+    // Fetch all restaurants
+    DBHelper.fetchRestaurants((error, restaurants) => {
+      if (error) {
+        callback(error, null);
+      } else {
+        // Get all cuisines from all restaurants
+        const cuisines = restaurants.map((v, i) => restaurants[i].cuisine_type);
+        // Remove duplicates from cuisines
+        const uniqueCuisines = cuisines.filter((v, i) => cuisines.indexOf(v) == i);
+        callback(null, uniqueCuisines);
+      }
+    });
+  }
 
-    /**
+  /**
      * Restaurant page URL.
      */
-    static urlForRestaurant(restaurant) {
-        return (`./restaurant.html?id=${restaurant.id}`);
-    }
+  static urlForRestaurant(restaurant) {
+    return (`./restaurant.html?id=${restaurant.id}`);
+  }
 
-    /**
+  /**
      * Restaurant image URL.
      */
-    static imageUrlForRestaurant(restaurant) {
-        // use id instead photograph to avoid an error with Casa Enrique (a bug?)
-        return (`/img/${restaurant.id}`);
-    }
+  static imageUrlForRestaurant(restaurant) {
+    // use id instead photograph to avoid an error with Casa Enrique (a bug?)
+    return (`/img/${restaurant.id}`);
+  }
 
-    /**
+  /**
      * Restaurant image description.
      */
-    static imageDescriptionForRestaurant(restaurant) {
-        // Please note that I used Google Translate. Translations can be a little fun... 
-        const altImg = [
-            "Inside view of the Mission Chinese Food restaurant. Many people talk to each other",
-            "A pizza cut into six slices",
-            "Inside view of Kang Ho Dong Baekjeong restaurant. You can see various modern style tables and chairs",
-            "Panoramic photo of the entrance. You can see the two streets on which the restaurant overlooks",
-            "Inside view of the Roberto's Pizza. In the background, see the kitchen and some pizza makers",
-            "Inside view of the Hometown BBQ restaurant. On the wall a huge US flag",
-            "Two people walking around the restaurand. You can see some customers inside",
-            "Detail of the The Dutch banner",
-            "Inside view of the Mu Ramen restaurant. Some customers eat using the typical oriental chopsticks",
-            "Inside view of restaurant. You see the counter with the window and several bottles."
-        ];
-        return (altImg[restaurant.id - 1]);
-    }
+  static imageDescriptionForRestaurant(restaurant) {
+    // Please note that I used Google Translate. Translations can be a little fun... 
+    const altImg = [
+      'Inside view of the Mission Chinese Food restaurant. Many people talk to each other',
+      'A pizza cut into six slices',
+      'Inside view of Kang Ho Dong Baekjeong restaurant. You can see various modern style tables and chairs',
+      'Panoramic photo of the entrance. You can see the two streets on which the restaurant overlooks',
+      'Inside view of the Roberto\'s Pizza. In the background, see the kitchen and some pizza makers',
+      'Inside view of the Hometown BBQ restaurant. On the wall a huge US flag',
+      'Two people walking around the restaurand. You can see some customers inside',
+      'Detail of the The Dutch banner',
+      'Inside view of the Mu Ramen restaurant. Some customers eat using the typical oriental chopsticks',
+      'Inside view of restaurant. You see the counter with the window and several bottles.'
+    ];
+    return (altImg[restaurant.id - 1]);
+  }
 
 
 
-    /**
+  /**
      * Map marker for a restaurant.
      */
-    static mapMarkerForRestaurant(restaurant, map) {
-        const marker = new google.maps.Marker({
-            position: restaurant.latlng,
-            title: restaurant.name,
-            url: DBHelper.urlForRestaurant(restaurant),
-            map: map,
-            animation: google.maps.Animation.DROP
+  static mapMarkerForRestaurant(restaurant, map) {
+    const marker = new google.maps.Marker({
+      position: restaurant.latlng,
+      title: restaurant.name,
+      url: DBHelper.urlForRestaurant(restaurant),
+      map: map,
+      animation: google.maps.Animation.DROP
+    });
+    return marker;
+  }
+
+  static openDB() {
+    //check for support
+    DBHelper.dbOpened = true;
+    if (!('indexedDB' in window)) {
+      // console.log('This browser doesn\'t support IndexedDB');
+      return Promise.resolve();
+    }
+
+    return idb.open('restaurants-reviews', 2, upgradeDb => {
+      switch (upgradeDb.oldVersion) {
+      case 0:
+        upgradeDb.createObjectStore('restaurants', {
+          keyPath: 'id'
         });
-        return marker;
-    }
-
-    static openDB() {
-        //check for support
-        DBHelper.dbOpened = true;
-        if (!('indexedDB' in window)) {
-            console.log('This browser doesn\'t support IndexedDB');
-            return Promise.resolve();
-        }
-
-        return idb.open('restaurants-reviews', 2, upgradeDb => {
-            switch (upgradeDb.oldVersion) {
-                case 0:
-                    upgradeDb.createObjectStore('restaurants', {
-                        keyPath: 'id'
-                    });
-                case 1:
-                    // do something
-                    upgradeDb.createObjectStore('reviews', {
-                        keyPath: 'id'
-                    });
-                    var reviewsStore = upgradeDb.transaction.objectStore('reviews');
-                    reviewsStore.createIndex('restaurant', 'restaurant_id');
-            }
+      case 1:
+        // do something
+        upgradeDb.createObjectStore('reviews', {
+          keyPath: 'id'
         });
+        var reviewsStore = upgradeDb.transaction.objectStore('reviews');
+        reviewsStore.createIndex('restaurant', 'restaurant_id');
+      }
+    });
 
-    }
+  }
 
-    static addRestaurantToDB(db, data) {
-        if (!db) return;
-        console.log('Adding record');
-        const tx = db.transaction('restaurants', 'readwrite');
-        const restaurantsStore = tx.objectStore('restaurants');
-        restaurantsStore.put(data);
-        console.log("Record added");
-        return tx.complete;
-    }
+  static addRestaurantToDB(db, data) {
+    if (!db) return;
+    // console.log('Adding record');
+    const tx = db.transaction('restaurants', 'readwrite');
+    const restaurantsStore = tx.objectStore('restaurants');
+    restaurantsStore.put(data);
+    // console.log("Record added");
+    return tx.complete;
+  }
 
-    static getRestaurantsFromDB() {
-        if (!DBHelper.dbPromise) return;
-        const tx = DBHelper.dbPromise.transaction('restaurants', 'readonly');
-        const restaurantsStore = tx.objectStore('restaurants');
-        return restaurantsStore.getAll();
-    }
+  static getRestaurantsFromDB() {
+    if (!DBHelper.dbPromise) return;
+    const tx = DBHelper.dbPromise.transaction('restaurants', 'readonly');
+    const restaurantsStore = tx.objectStore('restaurants');
+    return restaurantsStore.getAll();
+  }
 
 
-    /*
+  /*
      * Save data to local database
      */
-    static saveRestaurantsToDB(data) {
-        if (!(DBHelper.dbOpened)) {
-            return
-        }
-
-        let tx = DBHelper.dbPromise.transaction('restaurants', 'readwrite');
-        let restaurantsStore = tx.objectStore('restaurants');
-        data.forEach(function (restaurant) {
-            restaurantsStore.put(restaurant);
-        });
-        console.log("Local DB Updated from Network");
-        return tx.complete;
+  static saveRestaurantsToDB(data) {
+    if (!(DBHelper.dbOpened)) {
+      return;
     }
 
-    /*
+    let tx = DBHelper.dbPromise.transaction('restaurants', 'readwrite');
+    let restaurantsStore = tx.objectStore('restaurants');
+    data.forEach(function (restaurant) {
+      restaurantsStore.put(restaurant);
+    });
+    // console.log("Local DB Updated from Network");
+    return tx.complete;
+  }
+
+  /*
      * Update favorite to local database
      */
-    static updateRestaurantLocalDB(restaurant) {
-        if (!(DBHelper.dbOpened)) {
-            return
-        }
-        let tx = DBHelper.dbPromise.transaction('restaurants', 'readwrite');
-        let restaurantsStore = tx.objectStore('restaurants');
-        restaurantsStore.put(restaurant);
-        return tx.complete;
+  static updateRestaurantLocalDB(restaurant) {
+    if (!(DBHelper.dbOpened)) {
+      return;
     }
+    let tx = DBHelper.dbPromise.transaction('restaurants', 'readwrite');
+    let restaurantsStore = tx.objectStore('restaurants');
+    restaurantsStore.put(restaurant);
+    return tx.complete;
+  }
 
-    /*
+  /*
      * add restaurant to offline db (will be synch when online)
      */
-    static addRestaurantToOfflineDB(restaurant) {
-        if (!(DBHelper.dbOpened)) {
-            return
-        }
-        let tx = DBHelper.dbPromise.transaction('offline-restaurants', 'readwrite');
-        let restaurantsStore = tx.objectStore('offline-restaurants');
-        restaurantsStore.put(restaurant);
-        return tx.complete;
+  static addRestaurantToOfflineDB(restaurant) {
+    if (!(DBHelper.dbOpened)) {
+      return;
     }
+    let tx = DBHelper.dbPromise.transaction('offline-restaurants', 'readwrite');
+    let restaurantsStore = tx.objectStore('offline-restaurants');
+    restaurantsStore.put(restaurant);
+    return tx.complete;
+  }
 
-    /**
+  /**
      * Update the favorite status of the restaurant
      */
-    static updateFavorite(id, value, callback) {
-        return fetch(`http://localhost:1337/restaurants/${id}/?is_favorite=${value}`, {
-            method: "PUT",
-        }).then(function () {
-            console.log(`Send PUT with favorite=${value}`);
-            return DBHelper.fetchRestaurantById(id, (error, restaurant) => {
-                self.restaurant = restaurant;
-                if (!restaurant) {
-                    console.error(error);
-                    callback(error, null);
-                }
-                console.log(restaurant)
-                restaurant.is_favorite = value;
-                return DBHelper.updateRestaurantLocalDB(restaurant).then(function () {
-                    callback(null, true)
-                });
-            });
-        }).catch(function (error) {
-            console.log("Error when try to fetch data on server... ", error)
-            // save data offline
-            return DBHelper.fetchRestaurantById(id, (error, restaurant) => {
-                self.restaurant = restaurant;
-                if (!restaurant) {
-                    console.error(error);
-                    callback(error, null);
-                }
-                console.log(restaurant)
-                restaurant.is_favorite = value;
-                // update the date
-                restaurant.updatedAt = new Date();
-                return DBHelper.updateRestaurantLocalDB(restaurant).then(function () {
-                    console.log("Restaurant saved on the local DB")
-                    callback(null, true);
-                });
-            });
+  static updateFavorite(id, value, callback) {
+    return fetch(`http://localhost:1337/restaurants/${id}/?is_favorite=${value}`, {
+      method: 'PUT',
+    }).then(function () {
+      // console.log(`Send PUT with favorite=${value}`);
+      return DBHelper.fetchRestaurantById(id, (error, restaurant) => {
+        self.restaurant = restaurant;
+        if (!restaurant) {
+          console.error(error);
+          callback(error, null);
+        }
+        // console.log(restaurant)
+        restaurant.is_favorite = value;
+        return DBHelper.updateRestaurantLocalDB(restaurant).then(function () {
+          callback(null, true);
         });
-    }
+      });
+    }).catch(function (error) {
+      // console.log("Error when try to fetch data on server... ", error)
+      // save data offline
+      return DBHelper.fetchRestaurantById(id, (error, restaurant) => {
+        self.restaurant = restaurant;
+        if (!restaurant) {
+          console.error(error);
+          callback(error, null);
+        }
+        // console.log(restaurant)
+        restaurant.is_favorite = value;
+        // update the date
+        restaurant.updatedAt = new Date();
+        return DBHelper.updateRestaurantLocalDB(restaurant).then(function () {
+          // console.log("Restaurant saved on the local DB")
+          callback(null, true);
+        });
+      });
+    });
+  }
 
-    /**
+  /**
      * Delete restaurant from offline-restaurants db.
      */
-    static deleteRestaurantFromOffline(restaurant) {
-        const tx = DBHelper.dbPromise.transaction('offline-restaurants', 'readwrite');
-        const restaurantsStore = tx.objectStore('offline-restaurants');
-        return restaurantsStore.delete(restaurant.id);
-    };
+  static deleteRestaurantFromOffline(restaurant) {
+    const tx = DBHelper.dbPromise.transaction('offline-restaurants', 'readwrite');
+    const restaurantsStore = tx.objectStore('offline-restaurants');
+    return restaurantsStore.delete(restaurant.id);
+  }
 
     /**
      * Sync all changed to the restaurants 
      */
     static syncRestaurants() {
-        let restaurantsFromServer = [];
-        let restaurantsFromLocalDB = [];
+    let restaurantsFromServer = [];
+    let restaurantsFromLocalDB = [];
 
-        return DBHelper.openDB().then(function (db) {
-            if (db) {
-                DBHelper.dbPromise = db;
-                console.log(DBHelper.dbPromise);
-                DBHelper.getRestaurantsFromDB().then(restaurants => {
-                    if (restaurants.length) {
-                        restaurantsFromLocalDB = restaurants;
-                    } else {
-                        console.log('No restaurants in local DB')
-                        return
-                    }
-                }).then(function () {
-                    console.log("Restaurants from local DB: ", restaurantsFromLocalDB);
-                    return DBHelper.fetchRestaurantsFromNetwork((error, restaurants) => {
-                        if (error) {
-                            return error;
-                        }
-                        if (restaurants.length) {
-                            restaurantsFromServer = restaurants;
-                            console.log("Restaurants from server: ", restaurantsFromServer);
-                            // 
-                            restaurantsFromServer.forEach(function (restaurantFromServer) {
-                                const restaurantFromLocalDB = restaurantsFromLocalDB.find(r => r.id == restaurantFromServer.id);
-                                if (restaurantFromLocalDB) { // Got the restaurant
-                                    const server_updatedAt = new Date(restaurantFromServer.updatedAt);
-                                    const localDB_updatedAt = new Date(restaurantFromLocalDB.updatedAt);
-                                    // ignore the record with the same date
-                                    if (server_updatedAt > localDB_updatedAt) {
-                                        DBHelper.updateRestaurantLocalDB(restaurantFromServer);
-                                        console.log('Update local DB:', restaurantFromServer);
-                                        DBHelper.setFavoriteStatus(restaurantFromServer);
-                                    }
-                                    if (server_updatedAt < localDB_updatedAt) {
-                                        DBHelper.saveFavoriteToNetwork(restaurantFromLocalDB);
-                                        console.log('Update network DB:', restaurantFromLocalDB)
-                                        DBHelper.setFavoriteStatus(restaurantFromLocalDB);
-                                    }
-                                } else { // Restaurant does not exist in the database
-                                    console.log('Restaurant does not exist');
-                                }
-
-                            })
-                        }
-                    }, false);
-                }).catch(function (error) {
-                    console.log("Error in sync");
-                });
+    return DBHelper.openDB().then(function (db) {
+      if (db) {
+        DBHelper.dbPromise = db;
+        // console.log(DBHelper.dbPromise);
+        DBHelper.getRestaurantsFromDB().then(restaurants => {
+          if (restaurants.length) {
+            restaurantsFromLocalDB = restaurants;
+          } else {
+            // console.log('No restaurants in local DB')
+            return;
+          }
+        }).then(function () {
+          // console.log("Restaurants from local DB: ", restaurantsFromLocalDB);
+          return DBHelper.fetchRestaurantsFromNetwork((error, restaurants) => {
+            if (error) {
+              return error;
             }
-        })
-    }
+            if (restaurants.length) {
+              restaurantsFromServer = restaurants;
+              // console.log("Restaurants from server: ", restaurantsFromServer);
+              // 
+              restaurantsFromServer.forEach(function (restaurantFromServer) {
+                const restaurantFromLocalDB = restaurantsFromLocalDB.find(r => r.id == restaurantFromServer.id);
+                if (restaurantFromLocalDB) { // Got the restaurant
+                  const server_updatedAt = new Date(restaurantFromServer.updatedAt);
+                  const localDB_updatedAt = new Date(restaurantFromLocalDB.updatedAt);
+                  // ignore the record with the same date
+                  if (server_updatedAt > localDB_updatedAt) {
+                    DBHelper.updateRestaurantLocalDB(restaurantFromServer);
+                    // console.log('Update local DB:', restaurantFromServer);
+                    DBHelper.setFavoriteStatus(restaurantFromServer);
+                  }
+                  if (server_updatedAt < localDB_updatedAt) {
+                    DBHelper.saveFavoriteToNetwork(restaurantFromLocalDB);
+                    // console.log('Update network DB:', restaurantFromLocalDB)
+                    DBHelper.setFavoriteStatus(restaurantFromLocalDB);
+                  }
+                } else { // Restaurant does not exist in the database
+                  // console.log('Restaurant does not exist');
+                }
 
-    /*
+              });
+            }
+          }, false);
+        }).catch(function (error) {
+          // console.log("Error in sync");
+        });
+      }
+    });
+  }
+
+  /*
      * Set favorite status
      */
-    static setFavoriteStatus(restaurant) {
-        if (restaurant.is_favorite) {
-            const favorite = document.getElementById(restaurant.id)
-            if ((restaurant.is_favorite == true) || (restaurant.is_favorite == "true")) {
-                favorite.classList.add('restaurant-name_isfavorite');
-            } else {
-                favorite.classList.remove('restaurant-name_isfavorite');
-            }
-        }
+  static setFavoriteStatus(restaurant) {
+    if (restaurant.is_favorite) {
+      const favorite = document.getElementById(restaurant.id);
+      if ((restaurant.is_favorite == true) || (restaurant.is_favorite == 'true')) {
+        favorite.classList.add('restaurant-name_isfavorite');
+      } else {
+        favorite.classList.remove('restaurant-name_isfavorite');
+      }
     }
+  }
 
 
 
-    /*
+  /*
      * Save favorite to network
      */
-    static saveFavoriteToNetwork(restaurant) {
-        return DBHelper.updateFavorite(restaurant.id, restaurant.is_favorite, (error, updated) => {
-            if (updated) {
-                console.log("Favorite Updated from LocalDB");
-            }
-        });
-    }
+  static saveFavoriteToNetwork(restaurant) {
+    return DBHelper.updateFavorite(restaurant.id, restaurant.is_favorite, (error, updated) => {
+      if (updated) {
+        // console.log("Favorite Updated from LocalDB");
+      }
+    });
+  }
 
-    /**
+  /**
      * Fetch all reviews.
      * @restaurant_id : if specified fetch only the reviews of this restaurants
      */
-    static fetchReviews(restaurant_id, callback) {
+  static fetchReviews(restaurant_id, callback) {
 
-        // open DB and set dbPromise
-        return DBHelper.openDB().then(function (db) {
-            if (db) {
-                DBHelper.dbPromise = db;
-                console.log(DBHelper.dbPromise);
-                // Read reviews from DB;
-                return DBHelper.getReviewsFromDB(restaurant_id).then(reviews => {
-                    if (reviews.length) {
-                        return callback(null, reviews);
-                    } else {
-                        console.log('No reviews in db');
-                        DBHelper.fetchReviewsFromNetwork(callback);
-                    }
-                });
-            } else {
-                console.log('db not found');
-                DBHelper.fetchReviewsFromNetwork(callback);
-            }
-        }).then(function () {}).catch(function () {
-            console.log('Catch the promise error');
+    // open DB and set dbPromise
+    return DBHelper.openDB().then(function (db) {
+      if (db) {
+        DBHelper.dbPromise = db;
+        // console.log(DBHelper.dbPromise);
+        // Read reviews from DB;
+        return DBHelper.getReviewsFromDB(restaurant_id).then(reviews => {
+          if (reviews.length) {
+            return callback(null, reviews);
+          } else {
+            // console.log('No reviews in db');
             DBHelper.fetchReviewsFromNetwork(callback);
-        })
-    }
+          }
+        });
+      } else {
+        // console.log('db not found');
+        DBHelper.fetchReviewsFromNetwork(callback);
+      }
+    }).then(function () {}).catch(function () {
+      // console.log('Catch the promise error');
+      DBHelper.fetchReviewsFromNetwork(callback);
+    });
+  }
 
-    /**
+  /**
      * Fetch a review by its ID.
      */
-    static fetchReviewById(id, callback) {
-        // fetch all reviews with proper error handling.
-        DBHelper.fetchReviews(null, (error, reviews) => {
-            if (error) {
-                callback(error, null);
-            } else {
-                const review = reviews.find(r => r.id == id);
-                if (review) { // Got the review
-                    callback(null, review);
-                } else { // review does not exist in the database
-                    callback('Review does not exist', null);
-                }
-            }
-        });
-    }
+  static fetchReviewById(id, callback) {
+    // fetch all reviews with proper error handling.
+    DBHelper.fetchReviews(null, (error, reviews) => {
+      if (error) {
+        callback(error, null);
+      } else {
+        const review = reviews.find(r => r.id == id);
+        if (review) { // Got the review
+          callback(null, review);
+        } else { // review does not exist in the database
+          callback('Review does not exist', null);
+        }
+      }
+    });
+  }
 
 
 
-    /**
+  /**
      * Fetch all reviews from network.
      */
-    static fetchReviewsFromNetwork(callback, saveToDB = true) {
-        let xhr = new XMLHttpRequest();
-        xhr.open('GET', DBHelper.DATABASE_REVIEWS_URL);
-        xhr.onload = () => {
-            if (xhr.status === 200) { // Got a success response from server!
-                const reviews = JSON.parse(xhr.responseText);
-                console.log('Reviews lette dal server');
-                callback(null, reviews);
-                // write reviews to db
-                if (saveToDB) {
-                    DBHelper.saveReviewsToDB(reviews);
-                }
-            } else { // Oops!. Got an error from server.
-                const error = (`Request failed. Returned status of ${xhr.status}`);
-                callback(error, null);
-            }
-        };
-        xhr.send();
-    }
+  static fetchReviewsFromNetwork(callback, saveToDB = true) {
+    let xhr = new XMLHttpRequest();
+    xhr.open('GET', DBHelper.DATABASE_REVIEWS_URL);
+    xhr.onload = () => {
+      if (xhr.status === 200) { // Got a success response from server!
+        const reviews = JSON.parse(xhr.responseText);
+        // console.log('Reviews lette dal server');
+        callback(null, reviews);
+        // write reviews to db
+        if (saveToDB) {
+          DBHelper.saveReviewsToDB(reviews);
+        }
+      } else { // Oops!. Got an error from server.
+        const error = (`Request failed. Returned status of ${xhr.status}`);
+        callback(error, null);
+      }
+    };
+    xhr.send();
+  }
 
-    /*
+  /*
      * Save reviews to local database
      */
-    static saveReviewsToDB(data) {
-        if (!(DBHelper.dbOpened)) {
-            return
-        }
-
-        let tx = DBHelper.dbPromise.transaction('reviews', 'readwrite');
-        let reviewsStore = tx.objectStore('reviews');
-        data.forEach(function (reviews) {
-            reviewsStore.put(reviews);
-        });
-        console.log("Local reviews DB updated from Network");
-        return tx.complete;
+  static saveReviewsToDB(data) {
+    if (!(DBHelper.dbOpened)) {
+      return;
     }
 
-    /**
+    let tx = DBHelper.dbPromise.transaction('reviews', 'readwrite');
+    let reviewsStore = tx.objectStore('reviews');
+    data.forEach(function (reviews) {
+      reviewsStore.put(reviews);
+    });
+    // console.log("Local reviews DB updated from Network");
+    return tx.complete;
+  }
+
+  /**
      * get all reviews.
      * @restaurant_id : if specified get only the reviews of this restaurants
      */
-    static getReviewsFromDB(restaurant_id) {
-        if (!DBHelper.dbPromise) return;
-        const tx = DBHelper.dbPromise.transaction('reviews', 'readonly');
-        const reviewsStore = tx.objectStore('reviews');
-        if (!restaurant_id) {
-            return reviewsStore.getAll();
-        } else {
-            let index = reviewsStore.index('restaurant');
-            return index.getAll(Number(restaurant_id));
-        }
+  static getReviewsFromDB(restaurant_id) {
+    if (!DBHelper.dbPromise) return;
+    const tx = DBHelper.dbPromise.transaction('reviews', 'readonly');
+    const reviewsStore = tx.objectStore('reviews');
+    if (!restaurant_id) {
+      return reviewsStore.getAll();
+    } else {
+      let index = reviewsStore.index('restaurant');
+      return index.getAll(Number(restaurant_id));
     }
+  }
 }
 var restaurant;
 var reviews;
@@ -895,265 +895,267 @@ var map;
  * checks to see if the service worker API is available, and if it is, the service worker at /sw.js is registered
  */
 if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/sw.js').then(function (registration) {
-            // Registration was successful
-            console.log('ServiceWorker registration successful with scope: ', registration.scope);
-        }, function (err) {
-            // registration failed :(
-            console.log('ServiceWorker registration failed: ', err);
-        });
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('/sw.js').then(function (registration) {
+      // Registration was successful
+      // console.log('ServiceWorker registration successful with scope: ', registration.scope);
+    }, function (err) {
+      // registration failed :(
+      // console.log('ServiceWorker registration failed: ', err);
     });
+  });
 }
 
 /**
  * Initialize Google map, called from HTML.
  */
 window.initMap = () => {
-    fetchRestaurantFromURL((error, restaurant) => {
-        if (error) { // Got an error!
-            console.error(error);
-        } else {
-            self.map = new google.maps.Map(document.getElementById('map'), {
-                zoom: 16,
-                center: restaurant.latlng,
-                gestureHandling: 'cooperative'
-            });
-            DBHelper.mapMarkerForRestaurant(self.restaurant, self.map);
-            document.getElementById('map').classList.remove('inactive');
-            document.getElementById('image-blurred').classList.remove('blur');
-            document.getElementById('image-blurred-text').hidden = true;
-        }
-    });
-}
+  fetchRestaurantFromURL((error, restaurant) => {
+    if (error) { // Got an error!
+      console.error(error);
+    } else {
+      self.map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 16,
+        center: restaurant.latlng,
+        gestureHandling: 'cooperative'
+      });
+      DBHelper.mapMarkerForRestaurant(self.restaurant, self.map);
+      document.getElementById('map').classList.remove('inactive');
+      document.getElementById('image-blurred').classList.remove('blur');
+      document.getElementById('image-blurred-text').hidden = true;
+    }
+  });
+};
 
 
 /**
  * Get current restaurant from page URL.
  */
 const fetchRestaurantFromURL = (callback) => {
-    if (self.restaurant) { // restaurant already fetched!
-        callback(null, self.restaurant)
+  if (self.restaurant) { // restaurant already fetched!
+    callback(null, self.restaurant);
+    return;
+  }
+  const id = getParameterByName('id');
+  if (!id) { // no id found in URL
+    const error = 'No restaurant id in URL';
+    callback(error, null);
+  } else {
+    DBHelper.fetchReviews(id, (error, reviews) => {
+      self.reviews = reviews;
+    });
+    DBHelper.fetchRestaurantById(id, (error, restaurant) => {
+      self.restaurant = restaurant;
+      if (!restaurant) {
+        console.error(error);
         return;
-    }
-    const id = getParameterByName('id');
-    if (!id) { // no id found in URL
-        const error = 'No restaurant id in URL'
-        callback(error, null);
-    } else {
-        DBHelper.fetchReviews(id, (error, reviews) => {
-            self.reviews = reviews;
-        });
-        DBHelper.fetchRestaurantById(id, (error, restaurant) => {
-            self.restaurant = restaurant;
-            if (!restaurant) {
-                console.error(error);
-                return;
-            }
-            fillRestaurantHTML();
-            callback(null, restaurant)
-        });
-    }
-}
+      }
+      fillRestaurantHTML();
+      callback(null, restaurant);
+    });
+  }
+};
 
 /**
  * Create restaurant HTML and add it to the webpage
  */
 const fillRestaurantHTML = (restaurant = self.restaurant) => {
-    const name = document.getElementById('restaurant-name');
-    name.innerHTML = restaurant.name + " ";
-    const favorite_icon = document.createElement('i');
-    favorite_icon.innerHTML = 'favorite';
-    favorite_icon.classList.add('material-icons');
-    favorite_icon.classList.add('restaurant-name_favorite');
-    // will use restaurant id to set field in DB
-    favorite_icon.id = restaurant.id;
-    if (restaurant.is_favorite) {
-        if ((restaurant.is_favorite == true) || (restaurant.is_favorite == "true")) {
-            favorite_icon.classList.add('restaurant-name_isfavorite');
-        }
+  const name = document.getElementById('restaurant-name');
+  name.innerHTML = restaurant.name;
+
+  const favorite_fab = document.getElementById('favorite-fab');
+  // will use restaurant id to set field in DB
+  favorite_fab.id = restaurant.id;
+  if (restaurant.is_favorite) {
+    if ((restaurant.is_favorite == true) || (restaurant.is_favorite == 'true')) {
+      favorite_fab.classList.add('restaurant-name_isfavorite');
     }
-    name.append(favorite_icon);
+  }
 
-    favorite_icon.addEventListener("click", onFavoriteClick);
+  favorite_fab.addEventListener('click', onFavoriteClick);
 
-    const address = document.getElementById('restaurant-address');
-    address.innerHTML = restaurant.address;
+  const address = document.getElementById('restaurant-address');
+  address.innerHTML = restaurant.address;
 
-    const picture = document.getElementById('restaurant-picture');
-    const picture_source = document.createElement('source');
-    picture_source.setAttribute('type', 'image/webp');
-    picture_source.setAttribute('srcset', `${DBHelper.imageUrlForRestaurant(restaurant)}.webp`);
-    picture.append(picture_source);
-    const image = document.createElement('img');
-    image.id = "restaurant-img";
-    image.alt = DBHelper.imageDescriptionForRestaurant(restaurant);
-    image.src = `${DBHelper.imageUrlForRestaurant(restaurant)}.jpg`;
-    picture.append(image);
+  const picture = document.getElementById('restaurant-picture');
+  const picture_source = document.createElement('source');
+  picture_source.setAttribute('type', 'image/webp');
+  picture_source.setAttribute('srcset', `${DBHelper.imageUrlForRestaurant(restaurant)}.webp`);
+  picture.append(picture_source);
+  const image = document.createElement('img');
+  image.id = 'restaurant-img';
+  image.alt = DBHelper.imageDescriptionForRestaurant(restaurant);
+  image.src = `${DBHelper.imageUrlForRestaurant(restaurant)}.jpg`;
+  picture.append(image);
 
-    const cuisine = document.getElementById('restaurant-cuisine');
-    cuisine.innerHTML = restaurant.cuisine_type;
+  const cuisine = document.getElementById('restaurant-cuisine');
+  cuisine.innerHTML = restaurant.cuisine_type;
 
-    // fill operating hours
-    if (restaurant.operating_hours) {
-        fillRestaurantHoursHTML();
-    }
-    // fill reviews
-    fillReviewsHTML();
-}
+  // fill operating hours
+  if (restaurant.operating_hours) {
+    fillRestaurantHoursHTML();
+  }
+  // fill reviews
+  fillReviewsHTML();
+};
 
 /**
  * Create restaurant operating hours HTML table and add it to the webpage.
  */
 const fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => {
-    const hours = document.getElementById('restaurant-hours');
-    for (let key in operatingHours) {
-        const row = document.createElement('tr');
+  const hours = document.getElementById('restaurant-hours');
+  for (let key in operatingHours) {
+    const row = document.createElement('tr');
 
-        const day = document.createElement('td');
-        day.innerHTML = key;
-        day.className = "restaurant-day";
-        row.appendChild(day);
+    const day = document.createElement('td');
+    day.innerHTML = key;
+    day.className = 'restaurant-day';
+    row.appendChild(day);
 
-        const time = document.createElement('td');
-        time.innerHTML = operatingHours[key];
-        row.appendChild(time);
+    const time = document.createElement('td');
+    time.innerHTML = operatingHours[key];
+    row.appendChild(time);
 
-        hours.appendChild(row);
-    }
-}
+    hours.appendChild(row);
+  }
+};
 
 /**
  * Create all reviews HTML and add them to the webpage.
  */
 const fillReviewsHTML = (reviews = self.reviews) => {
-    const container = document.getElementById('reviews-container');
-    const title = document.createElement('h2');
-    title.innerHTML = 'Reviews';
-    container.appendChild(title);
+  const container = document.getElementById('reviews-container');
+  const title = document.createElement('h2');
+  title.innerHTML = 'Reviews';
+  container.appendChild(title);
 
-    if (!reviews) {
-        const noReviews = document.createElement('p');
-        noReviews.innerHTML = 'No reviews yet!';
-        container.appendChild(noReviews);
-        return;
-    }
-    const ul = document.getElementById('reviews-list');
-    reviews.forEach(review => {
-        ul.appendChild(createReviewHTML(review));
-    });
-    container.appendChild(ul);
-}
+  if (!reviews) {
+    const noReviews = document.createElement('p');
+    noReviews.innerHTML = 'No reviews yet!';
+    container.appendChild(noReviews);
+    return;
+  }
+  const ul = document.getElementById('reviews-list');
+  reviews.forEach(review => {
+    ul.appendChild(createReviewHTML(review));
+  });
+  container.appendChild(ul);
+};
 
 /**
  * Create review HTML and add it to the webpage.
  */
 const createReviewHTML = (review) => {
-    const li = document.createElement('li');
+  const li = document.createElement('li');
 
-    const header = document.createElement('div')
-    header.className = "reviews-header";
-    const name = document.createElement('p');
-    name.innerHTML = review.name;
-    name.className = "reviews-name";
-    header.appendChild(name);
+  const header = document.createElement('div');
+  header.className = 'reviews-header';
+  const name = document.createElement('p');
+  name.innerHTML = review.name;
+  name.className = 'reviews-name';
+  header.appendChild(name);
 
-    const date = document.createElement('p');
-    let reviewDate = new Date(review.updatedAt).toLocaleDateString();
-    date.innerHTML = reviewDate;
-    date.className = "reviews-date";
-    header.appendChild(date);
+  const date = document.createElement('p');
+  let reviewDate = new Date(review.updatedAt).toLocaleDateString();
+  date.innerHTML = reviewDate;
+  date.className = 'reviews-date';
+  header.appendChild(date);
 
-    li.appendChild(header);
+  li.appendChild(header);
 
-    const rating = document.createElement('p');
-    rating.innerHTML = `Rating: ${review.rating}`;
-    rating.className = "reviews-rating";
-    li.appendChild(rating);
+  const rating = document.createElement('p');
+  rating.innerHTML = `Rating: ${review.rating}`;
+  rating.className = 'reviews-rating';
+  li.appendChild(rating);
 
-    const comments = document.createElement('p');
-    comments.innerHTML = review.comments;
-    li.appendChild(comments);
+  const comments = document.createElement('p');
+  comments.innerHTML = review.comments;
+  li.appendChild(comments);
 
-    return li;
-}
+  return li;
+};
 
 /**
  * Add restaurant name to the breadcrumb navigation menu
  */
 const fillBreadcrumb = (restaurant = self.restaurant) => {
-    const breadcrumb = document.getElementById('breadcrumb');
-    const li = document.createElement('li');
-    const a = document.createElement('a');
-    a.href = DBHelper.urlForRestaurant(restaurant);
-    a.innerHTML = restaurant.name;
-    a.setAttribute("aria-current", "page");
-    li.appendChild(a);
-    breadcrumb.appendChild(li);
-}
+  const breadcrumb = document.getElementById('breadcrumb');
+  const li = document.createElement('li');
+  const a = document.createElement('a');
+  a.href = DBHelper.urlForRestaurant(restaurant);
+  a.innerHTML = restaurant.name;
+  a.setAttribute('aria-current', 'page');
+  li.appendChild(a);
+  breadcrumb.appendChild(li);
+};
 
 /**
  * Get a parameter by name from page URL.
  */
 const getParameterByName = (name, url) => {
-    if (!url)
-        url = window.location.href;
-    name = name.replace(/[\[\]]/g, '\\$&');
-    const regex = new RegExp(`[?&]${name}(=([^&#]*)|&|#|$)`),
-        results = regex.exec(url);
-    if (!results)
-        return null;
-    if (!results[2])
-        return '';
-    return decodeURIComponent(results[2].replace(/\+/g, ' '));
-}
+  if (!url)
+    url = window.location.href;
+  name = name.replace(/[\[\]]/g, '\\$&');
+  const regex = new RegExp(`[?&]${name}(=([^&#]*)|&|#|$)`),
+    results = regex.exec(url);
+  if (!results)
+    return null;
+  if (!results[2])
+    return '';
+  return decodeURIComponent(results[2].replace(/\+/g, ' '));
+};
 
 function showMap() {
-    const scrMaps = document.getElementById('GoogleMaps');
-    scrMaps.src = scrMaps.dataset.src;
+  const scrMaps = document.getElementById('GoogleMaps');
+  scrMaps.src = scrMaps.dataset.src;
 }
 
 window.googleMapsError = () => {
-    console.log('Google Maps Error to handle');
-}
+  // console.log('Google Maps Error to handle');
+};
 
 function gm_authFailure() {
-    console.log('Google Maps Error to handle');
+  // console.log('Google Maps Error to handle');
 }
 
 window.addEventListener('load', (event) => {
-    DBHelper.syncRestaurants();
-    fetchRestaurantFromURL((error, restaurant) => {
-        if (error) { // Got an error!
-            console.error(error);
-        } else {
-            fillBreadcrumb();
-            document.getElementById('map-container').addEventListener("click", showMap);
-        }
-    });
+  DBHelper.syncRestaurants();
+  fetchRestaurantFromURL((error, restaurant) => {
+    if (error) { // Got an error!
+      console.error(error);
+    } else {
+      fillBreadcrumb();
+      document.getElementById('map-container').addEventListener('click', showMap);
+    }
+  });
 });
 
 function onFavoriteClick(e) {
-    const favorite = e.target;
-    console.log("Click on favorite: ", favorite.id);
-    let value = "false"
-    if (!(favorite.classList.contains("restaurant-name_isfavorite"))) {
-        value = "true";
-    };
-    DBHelper.updateFavorite(favorite.id, value, (error, toggle) => {
-        if (toggle) {
-            favorite.classList.toggle("restaurant-name_isfavorite");
-        }
-    });
+  const favorite = e.target.parentElement;
+  // console.log("Click on favorite: ", favorite.id);
+  let value = 'false';
+  if (!(favorite.classList.contains('app-fab--isfavorite'))) {
+    value = 'true';
+  }
+  DBHelper.updateFavorite(favorite.id, value, (error, toggle) => {
+    if (value == 'true') {
+      favorite.setAttribute('aria-label', 'The restaurant is marked as favorite');
+    } else {
+      favorite.setAttribute('aria-label', 'Click to mark the restaurant as favorite');
+    }
+    if (toggle) {
+      favorite.classList.toggle('app-fab--isfavorite');
+    }
+  });
 }
 
 window.addEventListener('online', (event) => {
-    console.log("You are online")
-    DBHelper.syncRestaurants();
+  // console.log("You are online")
+  DBHelper.syncRestaurants();
 });
 
 window.addEventListener('offline', (event) => {
-    console.log("You are offline")
-    alert("You are offine. All the changes will be synchronized when you return online.");
+  // console.log("You are offline")
+  alert('You are offine. All the changes will be synchronized when you return online.');
 });
 //# sourceMappingURL=restaurant_all.js.map

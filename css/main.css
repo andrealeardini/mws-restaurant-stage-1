@@ -1,6 +1,7 @@
 @charset "utf-8";
 /* CSS Document */
 
+@import "mdc.fab.css";
 body,
 td,
 th,
@@ -253,22 +254,12 @@ nav h1 a {
     text-transform: uppercase;
 }
 
-.restaurant-name_favorite {
-    color: gray;
-    font-weight: bold;
-    vertical-align: text-bottom;
-}
-
-.restaurant-name_isfavorite {
-    color: red;
-}
-
 #restaurants-list p {
     margin: 0;
     font-size: 11pt;
 }
 
-#restaurants-list li button {
+#restaurants-list li button.button {
     background-color: #3634c5;
     border-bottom: 3px solid #eee;
     color: #fff;
@@ -283,4 +274,16 @@ nav h1 a {
     bottom: 10px;
     /* center the button */
     left: calc(50% - 78.17px);
+}
+
+.app-fab--favorite {
+    background-color: whitesmoke;
+    color: grey;
+    position: absolute;
+    top: 1rem;
+    right: 0.65rem;
+}
+
+.app-fab--isfavorite {
+    color: red;
 }

@@ -1,5 +1,3 @@
-/*global DBHelper google*/
-
 var restaurant;
 var reviews;
 var map;
@@ -12,10 +10,10 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {
     navigator.serviceWorker.register('/sw.js').then(function (registration) {
       // Registration was successful
-      console.log('ServiceWorker registration successful with scope: ', registration.scope);
+      // console.log('ServiceWorker registration successful with scope: ', registration.scope);
     }, function (err) {
       // registration failed :(
-      console.log('ServiceWorker registration failed: ', err);
+      // console.log('ServiceWorker registration failed: ', err);
     });
   });
 }
@@ -75,21 +73,18 @@ const fetchRestaurantFromURL = (callback) => {
  */
 const fillRestaurantHTML = (restaurant = self.restaurant) => {
   const name = document.getElementById('restaurant-name');
-  name.innerHTML = restaurant.name + ' ';
-  const favorite_icon = document.createElement('i');
-  favorite_icon.innerHTML = 'favorite';
-  favorite_icon.classList.add('material-icons');
-  favorite_icon.classList.add('restaurant-name_favorite');
+  name.innerHTML = restaurant.name;
+
+  const favorite_fab = document.getElementById('favorite-fab');
   // will use restaurant id to set field in DB
-  favorite_icon.id = restaurant.id;
+  favorite_fab.id = restaurant.id;
   if (restaurant.is_favorite) {
     if ((restaurant.is_favorite == true) || (restaurant.is_favorite == 'true')) {
-      favorite_icon.classList.add('restaurant-name_isfavorite');
+      favorite_fab.classList.add('restaurant-name_isfavorite');
     }
   }
-  name.append(favorite_icon);
 
-  favorite_icon.addEventListener('click', onFavoriteClick);
+  favorite_fab.addEventListener('click', onFavoriteClick);
 
   const address = document.getElementById('restaurant-address');
   address.innerHTML = restaurant.address;
@@ -228,11 +223,11 @@ function showMap() {
 }
 
 window.googleMapsError = () => {
-  console.log('Google Maps Error to handle');
+  // console.log('Google Maps Error to handle');
 };
 
 function gm_authFailure() {
-  console.log('Google Maps Error to handle');
+  // console.log('Google Maps Error to handle');
 }
 
 window.addEventListener('load', (event) => {
@@ -248,25 +243,30 @@ window.addEventListener('load', (event) => {
 });
 
 function onFavoriteClick(e) {
-  const favorite = e.target;
-  console.log('Click on favorite: ', favorite.id);
+  const favorite = e.target.parentElement;
+  // console.log("Click on favorite: ", favorite.id);
   let value = 'false';
-  if (!(favorite.classList.contains('restaurant-name_isfavorite'))) {
+  if (!(favorite.classList.contains('app-fab--isfavorite'))) {
     value = 'true';
   }
   DBHelper.updateFavorite(favorite.id, value, (error, toggle) => {
+    if (value == 'true') {
+      favorite.setAttribute('aria-label', 'The restaurant is marked as favorite');
+    } else {
+      favorite.setAttribute('aria-label', 'Click to mark the restaurant as favorite');
+    }
     if (toggle) {
-      favorite.classList.toggle('restaurant-name_isfavorite');
+      favorite.classList.toggle('app-fab--isfavorite');
     }
   });
 }
 
 window.addEventListener('online', (event) => {
-  console.log('You are online');
+  // console.log("You are online")
   DBHelper.syncRestaurants();
 });
 
 window.addEventListener('offline', (event) => {
-  console.log('You are offline');
+  // console.log("You are offline")
   alert('You are offine. All the changes will be synchronized when you return online.');
 });

@@ -1,9 +1,6 @@
-/*global DBHelper*/
-
-// global variables
-let restaurants;
-let neighborhoods;
-let cuisines;
+let restaurants,
+  neighborhoods,
+  cuisines;
 // use var to define map to avoid an error with API
 var map;
 var markers = [];
@@ -47,6 +44,9 @@ function loadPicture(picture) {
   img.src = src;
 }
 
+
+
+
 /**
  * checks to see if the service worker API is available, and if it is, the service worker at /sw.js is registered
  */
@@ -54,10 +54,10 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {
     navigator.serviceWorker.register('/sw.js').then(function (registration) {
       // Registration was successful
-      console.log('ServiceWorker registration successful with scope: ', registration.scope);
+      // // console.log('ServiceWorker registration successful with scope: ', registration.scope);
     }, function (err) {
       // registration failed :(
-      console.log('ServiceWorker registration failed: ', err);
+      // // console.log('ServiceWorker registration failed: ', err);
     });
   });
 }
@@ -159,7 +159,7 @@ const resetRestaurants = (restaurants) => {
 
   // Remove all map markers
   self.restaurants = restaurants;
-  // exit if Google Maps is disabled
+  //exit if Google Maps is disabled
   if (document.getElementById('map').classList.contains('inactive')) {
     return;
   }
@@ -184,6 +184,7 @@ const fillRestaurantsHTML = (restaurants = self.restaurants) => {
  * Create restaurant HTML.
  */
 const createRestaurantHTML = (restaurant) => {
+
   const li = document.createElement('li');
 
   const picture = document.createElement('picture');
@@ -214,22 +215,9 @@ const createRestaurantHTML = (restaurant) => {
   observer.observe(picture);
 
   const name = document.createElement('h1');
-  name.innerHTML = restaurant.name + ' ';
-  const favorite_icon = document.createElement('i');
-  favorite_icon.innerHTML = 'favorite';
-  favorite_icon.classList.add('material-icons');
-  favorite_icon.classList.add('restaurant-name_favorite');
-  if (restaurant.is_favorite) {
-    if ((restaurant.is_favorite == true) || (restaurant.is_favorite == 'true')) {
-      favorite_icon.classList.add('restaurant-name_isfavorite');
-    }
-  }
-  // will use restaurant id to set field in DB
-  favorite_icon.id = restaurant.id;
-  name.append(favorite_icon);
+  name.innerHTML = restaurant.name;
   li.append(name);
 
-  favorite_icon.addEventListener('click', onFavoriteClick);
 
   const neighborhood = document.createElement('p');
   neighborhood.innerHTML = restaurant.neighborhood;
@@ -240,11 +228,37 @@ const createRestaurantHTML = (restaurant) => {
   li.append(address);
 
   const more = document.createElement('button');
+  more.classList.add('button');
   more.innerHTML = 'View Details';
   more.addEventListener('click', function () {
     window.location.href = DBHelper.urlForRestaurant(restaurant);
   });
   li.append(more);
+
+
+  const favorite_btn = document.createElement('button');
+  favorite_btn.classList.add('mdc-fab', 'mdc-fab--mini', 'app-fab--favorite');
+
+  const favorite_fab = document.createElement('span');
+  favorite_fab.classList.add('mdc-fab__icon', 'material-icons');
+  favorite_fab.innerText = 'favorite';
+  favorite_btn.append(favorite_fab);
+  li.append(favorite_btn);
+
+
+  if (restaurant.is_favorite) {
+    if ((restaurant.is_favorite == true) || (restaurant.is_favorite == 'true')) {
+      favorite_btn.classList.add('app-fab--isfavorite');
+      favorite_btn.setAttribute('aria-label', 'The restaurant is marked as favorite');
+    } else {
+      favorite_btn.setAttribute('aria-label', 'Click to mark the restaurant as favorite');
+    }
+  }
+  // will use restaurant id to set field in DB
+  favorite_btn.id = restaurant.id;
+
+
+  favorite_btn.addEventListener('click', onFavoriteClick);
 
   return li;
 };
@@ -283,11 +297,11 @@ window.initMap = () => {
 };
 
 window.googleMapsError = () => {
-  console.log('Google Maps Error to handle');
+  // // console.log('Google Maps Error to handle');
 };
 
 function gm_authFailure() {
-  console.log('Google Maps Error to handle');
+  // // console.log('Google Maps Error to handle');
 }
 
 function showMap() {
@@ -302,25 +316,31 @@ window.addEventListener('load', (event) => {
 });
 
 function onFavoriteClick(e) {
-  const favorite = e.target;
-  console.log('Click on favorite: ', favorite.id);
+  const favorite = e.target.parentElement;
+  // // console.log("Click on favorite: ", favorite.id);
   let value = 'false';
-  if (!(favorite.classList.contains('restaurant-name_isfavorite'))) {
+  if (!(favorite.classList.contains('app-fab--isfavorite'))) {
     value = 'true';
   }
   DBHelper.updateFavorite(favorite.id, value, (error, toggle) => {
+    if (value == 'true') {
+      favorite.setAttribute('aria-label', 'The restaurant is marked as favorite');
+    } else {
+      favorite.setAttribute('aria-label', 'Click to mark the restaurant as favorite');
+    }
     if (toggle) {
-      favorite.classList.toggle('restaurant-name_isfavorite');
+      favorite.classList.toggle('app-fab--isfavorite');
     }
   });
 }
 
+
 window.addEventListener('online', (event) => {
-  console.log('You are online');
+  // // console.log("You are online")
   DBHelper.syncRestaurants();
 });
 
 window.addEventListener('offline', (event) => {
-  console.log('You are offline');
+  // // console.log("You are offline")
   alert('You are offine. All the changes will be synchronized when you return online.');
 });
