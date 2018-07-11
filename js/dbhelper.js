@@ -257,17 +257,17 @@ class DBHelper {
 
     return idb.open('restaurants-reviews', 2, upgradeDb => {
       switch (upgradeDb.oldVersion) {
-        case 0:
-          upgradeDb.createObjectStore('restaurants', {
-            keyPath: 'id'
-          });
-        case 1:
-          // do something
-          upgradeDb.createObjectStore('reviews', {
-            keyPath: 'id'
-          });
-          var reviewsStore = upgradeDb.transaction.objectStore('reviews');
-          reviewsStore.createIndex('restaurant', 'restaurant_id');
+      case 0:
+        upgradeDb.createObjectStore('restaurants', {
+          keyPath: 'id'
+        });
+      case 1:
+        // do something
+        upgradeDb.createObjectStore('reviews', {
+          keyPath: 'id'
+        });
+        var reviewsStore = upgradeDb.transaction.objectStore('reviews');
+        reviewsStore.createIndex('restaurant', 'restaurant_id');
       }
     });
 
@@ -279,7 +279,7 @@ class DBHelper {
     const tx = db.transaction('restaurants', 'readwrite');
     const restaurantsStore = tx.objectStore('restaurants');
     restaurantsStore.put(data);
-    console.log("Record added");
+    console.log('Record added');
     return tx.complete;
   }
 
@@ -304,7 +304,7 @@ class DBHelper {
     data.forEach(function (restaurant) {
       restaurantsStore.put(restaurant);
     });
-    console.log("Local DB Updated from Network");
+    console.log('Local DB Updated from Network');
     return tx.complete;
   }
 
@@ -348,14 +348,14 @@ class DBHelper {
           console.error(error);
           callback(error, null);
         }
-        console.log(restaurant)
+        console.log(restaurant);
         restaurant.is_favorite = value;
         return DBHelper.updateRestaurantLocalDB(restaurant).then(function () {
           callback(null, true);
         });
       });
     }).catch(function (error) {
-      console.log("Error when try to fetch data on server... ", error)
+      console.log('Error when try to fetch data on server... ', error);
       // save data offline
       return DBHelper.fetchRestaurantById(id, (error, restaurant) => {
         self.restaurant = restaurant;
@@ -363,12 +363,12 @@ class DBHelper {
           console.error(error);
           callback(error, null);
         }
-        console.log(restaurant)
+        console.log(restaurant);
         restaurant.is_favorite = value;
         // update the date
         restaurant.updatedAt = new Date();
         return DBHelper.updateRestaurantLocalDB(restaurant).then(function () {
-          console.log("Restaurant saved on the local DB")
+          console.log('Restaurant saved on the local DB');
           callback(null, true);
         });
       });
@@ -399,18 +399,18 @@ class DBHelper {
           if (restaurants.length) {
             restaurantsFromLocalDB = restaurants;
           } else {
-            console.log('No restaurants in local DB')
+            console.log('No restaurants in local DB');
             return;
           }
         }).then(function () {
-          console.log("Restaurants from local DB: ", restaurantsFromLocalDB);
+          console.log('Restaurants from local DB: ', restaurantsFromLocalDB);
           return DBHelper.fetchRestaurantsFromNetwork((error, restaurants) => {
             if (error) {
               return error;
             }
             if (restaurants.length) {
               restaurantsFromServer = restaurants;
-              console.log("Restaurants from server: ", restaurantsFromServer);
+              console.log('Restaurants from server: ', restaurantsFromServer);
               // 
               restaurantsFromServer.forEach(function (restaurantFromServer) {
                 const restaurantFromLocalDB = restaurantsFromLocalDB.find(r => r.id == restaurantFromServer.id);
@@ -425,7 +425,7 @@ class DBHelper {
                   }
                   if (server_updatedAt < localDB_updatedAt) {
                     DBHelper.saveFavoriteToNetwork(restaurantFromLocalDB);
-                    console.log('Update network DB:', restaurantFromLocalDB)
+                    console.log('Update network DB:', restaurantFromLocalDB);
                     DBHelper.setFavoriteStatus(restaurantFromLocalDB);
                   }
                 } else { // Restaurant does not exist in the database
@@ -436,7 +436,7 @@ class DBHelper {
             }
           }, false);
         }).catch(function (error) {
-          console.log("Error in sync");
+          console.log('Error in sync');
         });
       }
     });
@@ -464,7 +464,7 @@ class DBHelper {
   static saveFavoriteToNetwork(restaurant) {
     return DBHelper.updateFavorite(restaurant.id, restaurant.is_favorite, (error, updated) => {
       if (updated) {
-        console.log("Favorite Updated from LocalDB");
+        console.log('Favorite Updated from LocalDB');
       }
     });
   }
@@ -556,7 +556,7 @@ class DBHelper {
     data.forEach(function (reviews) {
       reviewsStore.put(reviews);
     });
-    console.log("Local reviews DB updated from Network");
+    console.log('Local reviews DB updated from Network');
     return tx.complete;
   }
 
