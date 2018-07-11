@@ -337,10 +337,23 @@ function onFavoriteClick(e) {
 
 window.addEventListener('online', (event) => {
   // console.log("You are online")
+  toast('You are online.' + '\n' +
+    'All the changes will be synchronized.', 3000);
   DBHelper.syncRestaurants();
 });
 
 window.addEventListener('offline', (event) => {
   // console.log("You are offline")
-  alert('You are offine. All the changes will be synchronized when you return online.');
+  toast('You are offine.' + '\n' +
+    'All the changes will be synchronized when you return online.', 5000);
 });
+
+function toast(msg, seconds) {
+  let toast = document.getElementById('toast');
+  toast.innerText = msg;
+  toast.classList.add('show');
+  // After 5 seconds hide the toast
+  setTimeout(function () {
+    toast.classList.remove('show');
+  }, seconds);
+}
