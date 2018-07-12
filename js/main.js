@@ -337,6 +337,8 @@ function onFavoriteClick(e) {
 
 window.addEventListener('online', (event) => {
   // console.log("You are online")
+  let offline = document.getElementById('offline');
+  offline.classList.remove('show');
   toast('You are online.' + '\n' +
     'All the changes will be synchronized.', 3000);
   DBHelper.syncRestaurants();
@@ -344,6 +346,8 @@ window.addEventListener('online', (event) => {
 
 window.addEventListener('offline', (event) => {
   // console.log("You are offline")
+  let offline = document.getElementById('offline');
+  offline.classList.add('show');
   toast('You are offine.' + '\n' +
     'All the changes will be synchronized when you return online.', 5000);
 });

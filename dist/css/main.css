@@ -331,4 +331,16 @@ nav h1 a {
 #toast.show {
   visibility: visible;
 }
+
+/* offline icon */
+
+#offline {
+  color: white;
+  padding: 0 0 0 15px;
+  display: none;
+}
+
+#offline.show {
+  display: initial;
+}
 /*# sourceMappingURL=main.css.map */

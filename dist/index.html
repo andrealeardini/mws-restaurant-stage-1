@@ -33,6 +33,7 @@
     <nav>
       <h1>
         <a href="/">Restaurant Reviews</a>
+        <i id="offline" class="material-icons">offline_bolt</i>
       </h1>
     </nav>
   </header>
@@ -58,10 +59,11 @@
       </div>
       <ul id="restaurants-list" tabindex="0"></ul>
     </section>
-    <section>
-      <div id="toast">Toast message...</div>
-    </section>
   </main>
+
+  <section id="toast">
+    <div>Toast message...</div>
+  </section>
 
   <script charset="utf-8" src="js/main_all.js"></script>
   <script async defer id="GoogleMaps" data-src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBc_T2Nzol-Ujnwtu82M29yL7Df3TmVxbs&libraries=places&callback=initMap"
