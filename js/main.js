@@ -361,3 +361,10 @@ function toast(msg, seconds) {
     toast.classList.remove('show');
   }, seconds);
 }
+
+window.addEventListener('DOMContentLoaded', (event) => {
+  if ((!navigator.onLine)) {
+    let offline = document.getElementById('offline');
+    offline.classList.add('show');
+  }
+});
