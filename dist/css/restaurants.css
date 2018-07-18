@@ -423,7 +423,7 @@ nav #breadcrumb [aria-current="page"] {
   margin: 5px 0px 5px 20px;
   padding: 10px 20px 5px;
   font-size: 3.5vw;
-  width: 30%;
+  width: 31%;
   height: calc(90% - 23px);
 }
 
