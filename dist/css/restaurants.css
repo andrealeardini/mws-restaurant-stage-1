@@ -5,7 +5,9 @@
 body,
 td,
 th,
-p {
+p,
+input,
+textarea {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 10pt;
   color: #333;
@@ -68,8 +70,10 @@ figure,
 footer,
 header,
 hgroup,
+input,
 menu,
-section {
+section,
+textarea {
   display: block;
 }
 
@@ -216,17 +220,13 @@ nav #breadcrumb [aria-current="page"] {
 
 #image-blurred {
   position: relative;
-  height: 100%;
-}
-
-#image-blurred-text {
-  z-index: -1;
+  /* don't use height: 100% because cause problem with resolution > 850 (flex) */
 }
 
 .center {
   position: absolute;
   top: 50%;
-  height: 100%;
+  /* don't use height: 100% because cause problem with resolution > 850 (flex) */
   width: 100%;
   padding-bottom: 50%;
   text-align: center;
@@ -397,9 +397,44 @@ nav #breadcrumb [aria-current="page"] {
   font-size: 3.5vw;
 }
 
-#reviews-list .reviews-rating {
-  display: inline;
+#reviews-list li.addReview {
   margin: 15px;
+  width: auto;
+}
+
+#reviews-list li.addReview .reviews-header h3 {
+  color: white;
+  padding: 10px 0 0 20px;
+  display: block;
+  float: left;
+}
+
+#reviews-list li.addReview textarea {
+  margin: 20px 20px 55px;
+  padding: 10px 20px 5px;
+  font-size: 3.5vw;
+  width: calc(100% - 82px);
+  resize: vertical;
+  min-height: 30px;
+}
+
+#reviews-list li.addReview input.reviews-name {
+  color: black;
+  margin: 5px 20px;
+  padding: 10px 20px 5px;
+  font-size: 3.5vw;
+  width: 30%;
+  height: calc(90% - 23px);
+}
+
+#reviews-list .reviews-rating-score {
+  background: #f0ab07;
+  color: #040404;
+}
+
+#reviews-list .reviews-rating {
+  display: inline-block;
+  margin: 3px 15px 0px 20px;
   padding: 5px 10px;
   border-radius: 5%;
   background: #f0ab07;
@@ -421,8 +456,12 @@ nav #breadcrumb [aria-current="page"] {
   color: red;
 }
 
+.app-fab--hide {
+  display: none;
+}
+
 .app-fab--add {
-  background-color: blue;
+  background-color: red;
   position: fixed;
   bottom: 5rem;
   right: 1.5rem;
@@ -458,5 +497,19 @@ nav #breadcrumb [aria-current="page"] {
 
 #offline.show {
   display: initial;
+}
+
+.rew-fab--save {
+  background-color: blue;
+  position: absolute;
+  bottom: 0.5rem;
+  right: 4.5rem;
+}
+
+.rew-fab--delete {
+  background-color: darkgray;
+  position: absolute;
+  bottom: 0.5rem;
+  right: 1.5rem;
 }
 /*# sourceMappingURL=restaurants.css.map */

@@ -33,7 +33,7 @@ window.initMap = () => {
       });
       DBHelper.mapMarkerForRestaurant(self.restaurant, self.map);
       document.getElementById('map').classList.remove('inactive');
-      document.getElementById('image-blurred').classList.remove('blur');
+      document.getElementById('image-blurred').hidden = true;
       document.getElementById('image-blurred-text').hidden = true;
     }
   });
@@ -85,6 +85,9 @@ const fillRestaurantHTML = (restaurant = self.restaurant) => {
   }
 
   favorite_fab.addEventListener('click', onFavoriteClick);
+
+  const add_fab = document.getElementById('add-fab');
+  add_fab.addEventListener('click', onCreateReview);
 
   const address = document.getElementById('restaurant-address');
   address.innerHTML = restaurant.address;
@@ -244,7 +247,7 @@ window.addEventListener('load', (event) => {
 
 function onFavoriteClick(e) {
   const favorite = e.target.parentElement;
-  console.log("Click on favorite: ", favorite.id);
+  console.log('Click on favorite: ', favorite.id);
   let value = 'false';
   if (!(favorite.classList.contains('app-fab--isfavorite'))) {
     value = 'true';
@@ -301,3 +304,101 @@ window.addEventListener('DOMContentLoaded', (event) => {
     offline.classList.add('show');
   }
 });
+
+/**
+ * Create a new review.
+ */
+function onCreateReview() {
+  const ul = document.getElementById('reviews-list');
+  const li = document.createElement('li');
+  li.classList.add('addReview');
+
+  const form = document.createElement('form');
+
+  const header = document.createElement('div');
+  header.className = 'reviews-header';
+  const title = document.createElement('h3');
+  title.innerText = 'New review';
+  header.appendChild(title);
+
+  const date = document.createElement('p');
+  let reviewDate = new Date().toLocaleDateString();
+  date.innerHTML = reviewDate;
+  date.className = 'reviews-date';
+  header.appendChild(date);
+
+  form.appendChild(header);
+
+  const name = document.createElement('input');
+  name.className = 'reviews-name';
+  name.placeholder = "Insert your name";
+  form.appendChild(name);
+
+  const rating = document.createElement('p');
+  rating.className = 'reviews-rating';
+  rating.innerText = 'Rating: ';
+  const scores = document.createElement('select');
+  scores.classList.add('reviews-rating-score');
+  for (let i = 1; i <= 5; i++) {
+    let score = document.createElement('option')
+    score.id = `score${i}`;
+    score.value = i;
+    score.innerText = i;
+    scores.appendChild(score);
+  };
+  rating.appendChild(scores);
+
+  form.appendChild(rating);
+
+
+
+
+  const comments = document.createElement('textarea');
+  comments.placeholder = 'Type your review here...'
+  comments.className = 'reviews-comments';
+
+  comments.addEventListener('input', (event) => {
+    comments.style.height = 'auto';
+    comments.style.height = `${comments.scrollHeight}px`;
+  });
+
+  form.appendChild(comments);
+
+  // add Save and Delete icons
+  const save = document.createElement('button');
+  save.classList.add('mdc-fab', 'mdc-fab--mini', 'rew-fab--save');
+  const span = document.createElement('span');
+  span.innerText = 'save';
+  span.classList.add('mdc-fab__icon', 'material-icons');
+  save.appendChild(span);
+  form.appendChild(save);
+
+  const delete_btn = document.createElement('button');
+  delete_btn.classList.add('mdc-fab', 'mdc-fab--mini', 'rew-fab--delete');
+  const span_delete = document.createElement('span');
+  span_delete.innerText = 'delete';
+  span_delete.classList.add('mdc-fab__icon', 'material-icons');
+  delete_btn.appendChild(span_delete);
+  form.appendChild(delete_btn);
+
+  li.appendChild(form);
+  ul.insertBefore(li, ul.firstChild);
+  name.focus();
+
+  // disable create and favorite buttons
+  const add_fab = document.getElementById('add-fab');
+  const favorite_fab = document.getElementsByClassName('app-fab--favorite')[0];
+  add_fab.classList.add('app-fab--hide');
+  favorite_fab.classList.add('app-fab--hide');
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    let message = {
+      name: name.textContent,
+      createdAt: date,
+      rating: rating,
+      comments: comments.textContent
+    };
+    console.log(message);
+  });
+}

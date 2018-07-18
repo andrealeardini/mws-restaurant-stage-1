@@ -292,8 +292,9 @@ window.initMap = () => {
   });
   updateRestaurants();
   document.getElementById('map').classList.remove('inactive');
-  document.getElementById('image-blurred').classList.remove('blur');
+  document.getElementById('image-blurred').hidden = true;
   document.getElementById('image-blurred-text').hidden = true;
+
 };
 
 window.googleMapsError = () => {
