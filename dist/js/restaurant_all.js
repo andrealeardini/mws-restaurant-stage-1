@@ -567,17 +567,17 @@ class DBHelper {
 
     return idb.open('restaurants-reviews', 2, upgradeDb => {
       switch (upgradeDb.oldVersion) {
-      case 0:
-        upgradeDb.createObjectStore('restaurants', {
-          keyPath: 'id'
-        });
-      case 1:
-        // do something
-        upgradeDb.createObjectStore('reviews', {
-          keyPath: 'id'
-        });
-        var reviewsStore = upgradeDb.transaction.objectStore('reviews');
-        reviewsStore.createIndex('restaurant', 'restaurant_id');
+        case 0:
+          upgradeDb.createObjectStore('restaurants', {
+            keyPath: 'id'
+          });
+        case 1:
+          // do something
+          upgradeDb.createObjectStore('reviews', {
+            keyPath: 'id'
+          });
+          var reviewsStore = upgradeDb.transaction.objectStore('reviews');
+          reviewsStore.createIndex('restaurant', 'restaurant_id');
       }
     });
 
@@ -834,23 +834,28 @@ class DBHelper {
    * Fetch all reviews from network.
    */
   static fetchReviewsFromNetwork(callback, saveToDB = true) {
-    let xhr = new XMLHttpRequest();
-    xhr.open('GET', DBHelper.DATABASE_REVIEWS_URL);
-    xhr.onload = () => {
-      if (xhr.status === 200) { // Got a success response from server!
-        const reviews = JSON.parse(xhr.responseText);
-        console.log('Reviews lette dal server');
-        callback(null, reviews);
-        // write reviews to db
-        if (saveToDB) {
-          DBHelper.saveReviewsToDB(reviews);
+    let restaurant_id;
+    for (let index = 0; index < 10; index++) {
+      let xhr = new XMLHttpRequest();
+      restaurant_id = index + 1;
+      xhr.open('GET', `${DBHelper.DATABASE_REVIEWS_URL}/?restaurant_id=${restaurant_id}`);
+      xhr.onload = () => {
+        if (xhr.status === 200) { // Got a success response from server!
+          const reviews = JSON.parse(xhr.responseText);
+          console.log('Reviews lette dal server');
+          callback(null, reviews);
+          // write reviews to db
+          if (saveToDB) {
+            DBHelper.saveReviewsToDB(reviews);
+          }
+        } else { // Oops!. Got an error from server.
+          const error = (`Request failed. Returned status of ${xhr.status}`);
+          callback(error, null);
         }
-      } else { // Oops!. Got an error from server.
-        const error = (`Request failed. Returned status of ${xhr.status}`);
-        callback(error, null);
-      }
-    };
-    xhr.send();
+      };
+      xhr.send();
+
+    }
   }
 
   /*
@@ -864,6 +869,7 @@ class DBHelper {
     let tx = DBHelper.dbPromise.transaction('reviews', 'readwrite');
     let reviewsStore = tx.objectStore('reviews');
     data.forEach(function (reviews) {
+      reviews.restaurant_id = parseInt(reviews.restaurant_id);
       reviewsStore.put(reviews);
     });
     console.log('Local reviews DB updated from Network');
