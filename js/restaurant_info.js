@@ -321,17 +321,20 @@ function onCreateReview() {
   title.innerText = 'New review';
   header.appendChild(title);
 
-  const date = document.createElement('p');
-  let reviewDate = new Date().toLocaleDateString();
-  date.innerHTML = reviewDate;
-  date.className = 'reviews-date';
-  header.appendChild(date);
-
   form.appendChild(header);
+
+  const id = document.createElement('input');
+  const favorite_fab = document.getElementsByClassName('app-fab--favorite')[0];
+  id.value = favorite_fab.id;
+  id.name = 'restaurant_id';
+  id.type = 'hidden';
+  form.appendChild(id);
 
   const name = document.createElement('input');
   name.className = 'reviews-name';
-  name.placeholder = "Insert your name";
+  name.placeholder = 'Insert your name';
+  name.required = true;
+  name.name = 'name';
   form.appendChild(name);
 
   const rating = document.createElement('p');
@@ -340,22 +343,22 @@ function onCreateReview() {
   const scores = document.createElement('select');
   scores.classList.add('reviews-rating-score');
   for (let i = 1; i <= 5; i++) {
-    let score = document.createElement('option')
+    let score = document.createElement('option');
     score.id = `score${i}`;
     score.value = i;
     score.innerText = i;
     scores.appendChild(score);
-  };
+    scores.name = 'rating';
+  }
   rating.appendChild(scores);
 
   form.appendChild(rating);
 
-
-
-
   const comments = document.createElement('textarea');
-  comments.placeholder = 'Type your review here...'
+  comments.placeholder = 'Type your review here...';
   comments.className = 'reviews-comments';
+  comments.required = true;
+  comments.name = 'comments';
 
   comments.addEventListener('input', (event) => {
     comments.style.height = 'auto';
@@ -370,6 +373,7 @@ function onCreateReview() {
   const span = document.createElement('span');
   span.innerText = 'save';
   span.classList.add('mdc-fab__icon', 'material-icons');
+  save.type = 'submit';
   save.appendChild(span);
   form.appendChild(save);
 
@@ -380,25 +384,55 @@ function onCreateReview() {
   span_delete.classList.add('mdc-fab__icon', 'material-icons');
   delete_btn.appendChild(span_delete);
   form.appendChild(delete_btn);
+  form.method = 'post';
+  form.action = 'http://localhost:1337/reviews/';
+  form.target = 'formResponse';
 
   li.appendChild(form);
   ul.insertBefore(li, ul.firstChild);
+  delete_btn.focus();
   name.focus();
 
   // disable create and favorite buttons
   const add_fab = document.getElementById('add-fab');
-  const favorite_fab = document.getElementsByClassName('app-fab--favorite')[0];
   add_fab.classList.add('app-fab--hide');
   favorite_fab.classList.add('app-fab--hide');
 
-  form.addEventListener('submit', (event) => {
+  delete_btn.addEventListener('click', (event) => {
     event.preventDefault();
-    let message = {
-      name: name.textContent,
-      createdAt: date,
-      rating: rating,
-      comments: comments.textContent
-    };
-    console.log(message);
+    if ((name.value != '') | (comments.value != '')) {
+      let delConfirm = document.getElementById('delConfirm');
+      let cancelButton = document.getElementById('delConfirm-cancel');
+      let confirmButton = document.getElementById('delConfirm-confirm');
+
+      delConfirm.showModal();
+
+      // Cancel button closes the dialog box and return
+      cancelButton.addEventListener('click', () => {
+        delConfirm.close();
+        return;
+      });
+      // Confirm button closes the dialog box and the review
+      confirmButton.addEventListener('click', () => {
+        delConfirm.close();
+        closeReview();
+      });
+    } else {
+      closeReview();
+    }
+  });
+
+  function closeReview() {
+    console.log('Review closed');
+    add_fab.classList.remove('app-fab--hide');
+    favorite_fab.classList.remove('app-fab--hide');
+    li.remove();
+  }
+
+  form.addEventListener('submit', (event) => {
+    console.log('Review posted');
+    toast('The review is submitted', 3000);
+    // to avoid error: Form submission canceled because the form is not connected
+    setInterval(closeReview, 1000);
   });
 }

@@ -372,7 +372,7 @@ nav #breadcrumb [aria-current="page"] {
   color: white;
   padding: 10px 0 0 20px;
   display: block;
-  float: left;
+  margin: auto;
 }
 
 #reviews-list li.addReview textarea {
