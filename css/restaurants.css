@@ -478,3 +478,7 @@ nav #breadcrumb [aria-current="page"] {
   bottom: 0.5rem;
   right: 1.5rem;
 }
+
+#display-none {
+  display: none;
+}
