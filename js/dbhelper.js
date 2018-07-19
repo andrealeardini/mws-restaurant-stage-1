@@ -255,19 +255,23 @@ class DBHelper {
       return Promise.resolve();
     }
 
-    return idb.open('restaurants-reviews', 2, upgradeDb => {
+    return idb.open('restaurants-reviews', 3, upgradeDb => {
       switch (upgradeDb.oldVersion) {
         case 0:
           upgradeDb.createObjectStore('restaurants', {
             keyPath: 'id'
           });
         case 1:
-          // do something
           upgradeDb.createObjectStore('reviews', {
             keyPath: 'id'
           });
           var reviewsStore = upgradeDb.transaction.objectStore('reviews');
           reviewsStore.createIndex('restaurant', 'restaurant_id');
+        case 2:
+          upgradeDb.createObjectStore('offline-reviews', {
+            keyPath: 'id',
+            autoIncrement: true
+          });
       }
     });
 
@@ -322,16 +326,25 @@ class DBHelper {
   }
 
   /*
-   * add restaurant to offline db (will be synch when online)
+   * add review to offline db (will be synch when online)
    */
-  static addRestaurantToOfflineDB(restaurant) {
+  static addReviewToOfflineDB(review) {
     if (!(DBHelper.dbOpened)) {
       return;
     }
-    let tx = DBHelper.dbPromise.transaction('offline-restaurants', 'readwrite');
-    let restaurantsStore = tx.objectStore('offline-restaurants');
-    restaurantsStore.put(restaurant);
+    let tx = DBHelper.dbPromise.transaction('offline-reviews', 'readwrite');
+    let offlineStore = tx.objectStore('offline-reviews');
+    offlineStore.put(review);
     return tx.complete;
+  }
+
+  /**
+   * Delete review from offline-reviews db.
+   */
+  static deleteRestaurantFromOffline(review) {
+    const tx = DBHelper.dbPromise.transaction('offline-reviews', 'readwrite');
+    const offlineStore = tx.objectStore('offline-reviews');
+    return offlineStore.delete(review.id);
   }
 
   /**
@@ -373,15 +386,6 @@ class DBHelper {
         });
       });
     });
-  }
-
-  /**
-   * Delete restaurant from offline-restaurants db.
-   */
-  static deleteRestaurantFromOffline(restaurant) {
-    const tx = DBHelper.dbPromise.transaction('offline-restaurants', 'readwrite');
-    const restaurantsStore = tx.objectStore('offline-restaurants');
-    return restaurantsStore.delete(restaurant.id);
   }
 
   /**
@@ -431,10 +435,17 @@ class DBHelper {
                 } else { // Restaurant does not exist in the database
                   console.log('Restaurant does not exist');
                 }
-
               });
             }
           }, false);
+          // save the new reviews
+
+          // check for the reviews an update local DB
+          DBHelper.fetchReviewsFromNetwork((error, reviews) => {
+            if (error) {
+              return error;
+            }
+          }, true);
         }).catch(function (error) {
           console.log('Error in sync');
         });
@@ -532,7 +543,7 @@ class DBHelper {
       xhr.onload = () => {
         if (xhr.status === 200) { // Got a success response from server!
           const reviews = JSON.parse(xhr.responseText);
-          console.log('Reviews lette dal server');
+          console.log('Reviews lette dal server:', reviews);
           callback(null, reviews);
           // write reviews to db
           if (saveToDB) {
@@ -558,9 +569,9 @@ class DBHelper {
 
     let tx = DBHelper.dbPromise.transaction('reviews', 'readwrite');
     let reviewsStore = tx.objectStore('reviews');
-    data.forEach(function (reviews) {
-      reviews.restaurant_id = parseInt(reviews.restaurant_id);
-      reviewsStore.put(reviews);
+    data.forEach(function (review) {
+      review.restaurant_id = parseInt(review.restaurant_id);
+      reviewsStore.put(review);
     });
     console.log('Local reviews DB updated from Network');
     return tx.complete;

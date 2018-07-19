@@ -384,9 +384,6 @@ function onCreateReview() {
   span_delete.classList.add('mdc-fab__icon', 'material-icons');
   delete_btn.appendChild(span_delete);
   form.appendChild(delete_btn);
-  form.method = 'post';
-  form.action = 'http://localhost:1337/reviews/';
-  form.target = 'formResponse';
 
   li.appendChild(form);
   ul.insertBefore(li, ul.firstChild);
@@ -430,9 +427,39 @@ function onCreateReview() {
   }
 
   form.addEventListener('submit', (event) => {
-    console.log('Review posted');
-    toast('The review is submitted', 3000);
-    // to avoid error: Form submission canceled because the form is not connected
-    setInterval(closeReview, 1000);
+    event.preventDefault();
+    sendData();
   });
+
+  function sendData() {
+    // Bind the FormData object and the form element
+    let FD = new FormData(form);
+    // Define what happens on successful data submission
+    if (navigator.onLine) {
+      let XHR = new XMLHttpRequest();
+      XHR.addEventListener('load', function (event) {
+        toast('The review is submitted', 3000);
+        closeReview();
+      });
+      // Define what happens in case of error
+      XHR.addEventListener("error", function (event) {
+        toast('Oops! Something went wrong.', 3000);
+      });
+      // Set up our request
+      XHR.open('POST', 'http://localhost:1337/reviews/');
+
+      // The data sent is what the user provided in the form
+      XHR.send(FD);
+    } else {
+      let review = {
+        restaurant_id: FD.get('restaurant_id'),
+        name: FD.get('name'),
+        rating: FD.get('rating'),
+        comments: FD.get('comments')
+      };
+      DBHelper.addReviewToOfflineDB(review);
+      toast('The review is saved. Will be submitted when you are online', 3000);
+      closeReview();
+    }
+  }
 }

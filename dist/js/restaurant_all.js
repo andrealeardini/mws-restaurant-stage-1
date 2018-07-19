@@ -565,19 +565,23 @@ class DBHelper {
       return Promise.resolve();
     }
 
-    return idb.open('restaurants-reviews', 2, upgradeDb => {
+    return idb.open('restaurants-reviews', 3, upgradeDb => {
       switch (upgradeDb.oldVersion) {
         case 0:
           upgradeDb.createObjectStore('restaurants', {
             keyPath: 'id'
           });
         case 1:
-          // do something
           upgradeDb.createObjectStore('reviews', {
             keyPath: 'id'
           });
           var reviewsStore = upgradeDb.transaction.objectStore('reviews');
           reviewsStore.createIndex('restaurant', 'restaurant_id');
+        case 2:
+          upgradeDb.createObjectStore('offline-reviews', {
+            keyPath: 'id',
+            autoIncrement: true
+          });
       }
     });
 
@@ -632,16 +636,25 @@ class DBHelper {
   }
 
   /*
-   * add restaurant to offline db (will be synch when online)
+   * add review to offline db (will be synch when online)
    */
-  static addRestaurantToOfflineDB(restaurant) {
+  static addReviewToOfflineDB(review) {
     if (!(DBHelper.dbOpened)) {
       return;
     }
-    let tx = DBHelper.dbPromise.transaction('offline-restaurants', 'readwrite');
-    let restaurantsStore = tx.objectStore('offline-restaurants');
-    restaurantsStore.put(restaurant);
+    let tx = DBHelper.dbPromise.transaction('offline-reviews', 'readwrite');
+    let offlineStore = tx.objectStore('offline-reviews');
+    offlineStore.put(review);
     return tx.complete;
+  }
+
+  /**
+   * Delete review from offline-reviews db.
+   */
+  static deleteRestaurantFromOffline(review) {
+    const tx = DBHelper.dbPromise.transaction('offline-reviews', 'readwrite');
+    const offlineStore = tx.objectStore('offline-reviews');
+    return offlineStore.delete(review.id);
   }
 
   /**
@@ -683,15 +696,6 @@ class DBHelper {
         });
       });
     });
-  }
-
-  /**
-   * Delete restaurant from offline-restaurants db.
-   */
-  static deleteRestaurantFromOffline(restaurant) {
-    const tx = DBHelper.dbPromise.transaction('offline-restaurants', 'readwrite');
-    const restaurantsStore = tx.objectStore('offline-restaurants');
-    return restaurantsStore.delete(restaurant.id);
   }
 
   /**
@@ -741,10 +745,17 @@ class DBHelper {
                 } else { // Restaurant does not exist in the database
                   console.log('Restaurant does not exist');
                 }
-
               });
             }
           }, false);
+          // save the new reviews
+
+          // check for the reviews an update local DB
+          DBHelper.fetchReviewsFromNetwork((error, reviews) => {
+            if (error) {
+              return error;
+            }
+          }, true);
         }).catch(function (error) {
           console.log('Error in sync');
         });
@@ -842,7 +853,7 @@ class DBHelper {
       xhr.onload = () => {
         if (xhr.status === 200) { // Got a success response from server!
           const reviews = JSON.parse(xhr.responseText);
-          console.log('Reviews lette dal server');
+          console.log('Reviews lette dal server:', reviews);
           callback(null, reviews);
           // write reviews to db
           if (saveToDB) {
@@ -868,9 +879,9 @@ class DBHelper {
 
     let tx = DBHelper.dbPromise.transaction('reviews', 'readwrite');
     let reviewsStore = tx.objectStore('reviews');
-    data.forEach(function (reviews) {
-      reviews.restaurant_id = parseInt(reviews.restaurant_id);
-      reviewsStore.put(reviews);
+    data.forEach(function (review) {
+      review.restaurant_id = parseInt(review.restaurant_id);
+      reviewsStore.put(review);
     });
     console.log('Local reviews DB updated from Network');
     return tx.complete;
@@ -1278,9 +1289,6 @@ function onCreateReview() {
   span_delete.classList.add('mdc-fab__icon', 'material-icons');
   delete_btn.appendChild(span_delete);
   form.appendChild(delete_btn);
-  form.method = 'post';
-  form.action = 'http://localhost:1337/reviews/';
-  form.target = 'formResponse';
 
   li.appendChild(form);
   ul.insertBefore(li, ul.firstChild);
@@ -1324,10 +1332,40 @@ function onCreateReview() {
   }
 
   form.addEventListener('submit', (event) => {
-    console.log('Review posted');
-    toast('The review is submitted', 3000);
-    // to avoid error: Form submission canceled because the form is not connected
-    setInterval(closeReview, 1000);
+    event.preventDefault();
+    sendData();
   });
+
+  function sendData() {
+    // Bind the FormData object and the form element
+    let FD = new FormData(form);
+    // Define what happens on successful data submission
+    if (navigator.onLine) {
+      let XHR = new XMLHttpRequest();
+      XHR.addEventListener('load', function (event) {
+        toast('The review is submitted', 3000);
+        closeReview();
+      });
+      // Define what happens in case of error
+      XHR.addEventListener("error", function (event) {
+        toast('Oops! Something went wrong.', 3000);
+      });
+      // Set up our request
+      XHR.open('POST', 'http://localhost:1337/reviews/');
+
+      // The data sent is what the user provided in the form
+      XHR.send(FD);
+    } else {
+      let review = {
+        restaurant_id: FD.get('restaurant_id'),
+        name: FD.get('name'),
+        rating: FD.get('rating'),
+        comments: FD.get('comments')
+      };
+      DBHelper.addReviewToOfflineDB(review);
+      toast('The review is saved. Will be submitted when you are online', 3000);
+      closeReview();
+    }
+  }
 }
 //# sourceMappingURL=restaurant_all.js.map
