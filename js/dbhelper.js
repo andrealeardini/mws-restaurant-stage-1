@@ -593,6 +593,12 @@ class DBHelper {
    * Sync all changed to the reviews of the current restaurant 
    */
   static syncReviews(restaurant_id) {
+    DBHelper.sendOfflineFavoritesToServer((error, favorites) => {
+      if (error) {
+        console.error('SyncRestaurants: ', error);
+        return error;
+      }
+    });
     // send ALL offline reviews (this one and the others restaurants)
     DBHelper.sendOfflineReviewsToServer((error, reviews) => {
       if (error) {
