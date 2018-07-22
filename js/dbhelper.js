@@ -419,46 +419,6 @@ class DBHelper {
     });
   }
 
-  /**
-   * Update the favorite status of the restaurant
-   */
-  static _updateFavorite(id, value, callback) {
-    return fetch(`${DBHelper.DATABASE_REVIEWS_URL}/restaurants/${id}/?is_favorite=${value}`, {
-      method: 'PUT',
-    }).then(function () {
-      console.log(`Send PUT with favorite=${value}`);
-      return DBHelper.fetchRestaurantById(id, (error, restaurant) => {
-        self.restaurant = restaurant;
-        if (!restaurant) {
-          console.error(error);
-          callback(error, null);
-        }
-        console.log(restaurant);
-        restaurant.is_favorite = value;
-        return DBHelper.updateRestaurantLocalDB(restaurant).then(function () {
-          callback(null, true);
-        });
-      });
-    }).catch(function (error) {
-      console.log('Error when try to fetch data on server... ', error);
-      // save data offline
-      return DBHelper.fetchRestaurantById(id, (error, restaurant) => {
-        self.restaurant = restaurant;
-        if (!restaurant) {
-          console.error(error);
-          callback(error, null);
-        }
-        console.log(restaurant);
-        restaurant.is_favorite = value;
-        // update the date
-        restaurant.updatedAt = new Date();
-        return DBHelper.updateRestaurantLocalDB(restaurant).then(function () {
-          console.log('Restaurant saved on the local DB');
-          callback(null, true);
-        });
-      });
-    });
-  }
 
   /**
    * Send all offline favorites to the server
@@ -505,77 +465,6 @@ class DBHelper {
     });
   }
 
-  /**
-   * Sync all changed to the restaurants 
-   */
-  static _syncRestaurants() {
-    let restaurantsFromServer = [];
-    let restaurantsFromLocalDB = [];
-
-    return DBHelper.openDB().then(function (db) {
-      if (db) {
-        DBHelper.dbPromise = db;
-        console.log(DBHelper.dbPromise);
-        DBHelper.getRestaurantsFromDB().then(restaurants => {
-          if (restaurants.length) {
-            restaurantsFromLocalDB = restaurants;
-          } else {
-            console.log('No restaurants in local DB');
-            return;
-          }
-        }).then(function () {
-          console.log('Restaurants from local DB: ', restaurantsFromLocalDB);
-          DBHelper.fetchRestaurantsFromNetwork((error, restaurants) => {
-            if (error) {
-              return error;
-            }
-            if (restaurants.length) {
-              restaurantsFromServer = restaurants;
-              console.log('Restaurants from server: ', restaurantsFromServer);
-              // 
-              restaurantsFromServer.forEach(function (restaurantFromServer) {
-                const restaurantFromLocalDB = restaurantsFromLocalDB.find(r => r.id == restaurantFromServer.id);
-                if (restaurantFromLocalDB) { // Got the restaurant
-                  const server_updatedAt = new Date(restaurantFromServer.updatedAt);
-                  const localDB_updatedAt = new Date(restaurantFromLocalDB.updatedAt);
-                  // ignore the record with the same date
-                  if (server_updatedAt > localDB_updatedAt) {
-                    DBHelper.updateRestaurantLocalDB(restaurantFromServer);
-                    console.log('Update local DB:', restaurantFromServer);
-                    DBHelper.setFavoriteStatus(restaurantFromServer);
-                  }
-                  if (server_updatedAt < localDB_updatedAt) {
-                    DBHelper.saveFavoriteToNetwork(restaurantFromLocalDB);
-                    console.log('Update network DB:', restaurantFromLocalDB);
-                    DBHelper.setFavoriteStatus(restaurantFromLocalDB);
-                  }
-                } else { // Restaurant does not exist in the database
-                  console.log('Restaurant does not exist');
-                }
-              });
-            }
-          }, false);
-        }).catch(function (error) {
-          console.log('Error in sync');
-        });
-        // save the new reviews
-        // DBHelper.sendOfflineReviewsToServer((error, reviews) => {
-        //   if (error) {
-        //     console.error('Sync error sendOfflineReviews: ', error);
-        //     return error;
-        //   }
-        // }, true);
-        // check for the reviews an update local DB
-        // DBHelper.fetchReviewsFromNetwork((error, reviews) => {
-        //   if (error) {
-        //     console.error('Sync error FetchReviewsFromNetwork: ', error);
-        //     return error;
-        //   }
-        // }, true);
-      }
-    });
-  }
-
 
   /**
    * Sync all changed to the restaurants 
@@ -588,6 +477,7 @@ class DBHelper {
       }
     });
   }
+
 
   /**
    * Sync all changed to the reviews of the current restaurant 
