@@ -311,28 +311,32 @@ function showMap() {
 }
 
 window.addEventListener('load', (event) => {
-  DBHelper.syncRestaurants();
+  // DBHelper.syncRestaurants();
   updateRestaurants();
   document.getElementById('map-container').addEventListener('click', showMap);
 });
 
 function onFavoriteClick(e) {
-  const favorite = e.target.parentElement;
-  // console.log("Click on favorite: ", favorite.id);
-  let value = 'false';
-  if (!(favorite.classList.contains('app-fab--isfavorite'))) {
-    value = 'true';
+  const favoriteHTML = e.target.parentElement;
+  console.log('Click on favorite: ', favoriteHTML.id);
+  let favorite = {
+    id: favoriteHTML.id,
+    value: 'false'
+  };
+  if (!(favoriteHTML.classList.contains('app-fab--isfavorite'))) {
+    favorite.value = 'true';
   }
-  DBHelper.updateFavorite(favorite.id, value, (error, toggle) => {
-    if (value == 'true') {
-      favorite.setAttribute('aria-label', 'The restaurant is marked as favorite');
-    } else {
-      favorite.setAttribute('aria-label', 'Click to mark the restaurant as favorite');
-    }
-    if (toggle) {
-      favorite.classList.toggle('app-fab--isfavorite');
-    }
+
+  DBHelper.updateFavorite(favorite).then(() => {
+    console.log('onFavoriteClick: favorite updated');
   });
+
+  if (favorite.value == 'true') {
+    favoriteHTML.setAttribute('aria-label', 'The restaurant is marked as favorite');
+  } else {
+    favoriteHTML.setAttribute('aria-label', 'Click to mark the restaurant as favorite');
+  }
+  favoriteHTML.classList.toggle('app-fab--isfavorite');
 }
 
 
