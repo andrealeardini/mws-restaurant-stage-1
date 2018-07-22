@@ -409,7 +409,7 @@ class DBHelper {
    * Update the favorite status of the restaurant
    */
   static updateFavorite(favorite) {
-    return fetch(`http://localhost:1337/restaurants/${favorite.id}/?is_favorite=${favorite.value}`, {
+    return fetch(`${DBHelper.DATABASE_REVIEWS_URL}/restaurants/${favorite.id}/?is_favorite=${favorite.value}`, {
       method: 'PUT',
     }).then(function () {
       console.log(`Sended PUT with favorite=${favorite.value}`);
@@ -423,7 +423,7 @@ class DBHelper {
    * Update the favorite status of the restaurant
    */
   static _updateFavorite(id, value, callback) {
-    return fetch(`http://localhost:1337/restaurants/${id}/?is_favorite=${value}`, {
+    return fetch(`${DBHelper.DATABASE_REVIEWS_URL}/restaurants/${id}/?is_favorite=${value}`, {
       method: 'PUT',
     }).then(function () {
       console.log(`Send PUT with favorite=${value}`);
@@ -492,7 +492,7 @@ class DBHelper {
         FD.append('name', review.name);
         FD.append('rating', review.rating);
         FD.append('comments', review.comments);
-        fetch('http://localhost:1337/reviews/', {
+        fetch(`${DBHelper.DATABASE_REVIEWS_URL}/`, {
           method: 'POST',
           body: FD
         }).then(function () {
@@ -580,7 +580,7 @@ class DBHelper {
   /**
    * Sync all changed to the restaurants 
    */
-  static syncRestaurants() {
+  static syncFavorites() {
     DBHelper.sendOfflineFavoritesToServer((error, favorites) => {
       if (error) {
         console.error('SyncRestaurants: ', error);
@@ -593,26 +593,19 @@ class DBHelper {
    * Sync all changed to the reviews of the current restaurant 
    */
   static syncReviews(restaurant_id) {
-    DBHelper.sendOfflineFavoritesToServer((error, favorites) => {
-      if (error) {
-        console.error('SyncRestaurants: ', error);
-        return error;
-      }
-    });
     // send ALL offline reviews (this one and the others restaurants)
     DBHelper.sendOfflineReviewsToServer((error, reviews) => {
       if (error) {
         console.error('SyncReviews: ', error);
         return error;
       }
-    });
-
-    // fetch the reviews (only this restaurants)
-    DBHelper.fetchReviewsFromNetwork(restaurant_id, (error, reviews) => {
-      if (error) {
-        console.error('SyncReviews: ', error);
-        return error;
-      }
+      // fetch the reviews (only this restaurants)
+      DBHelper.fetchReviewsFromNetwork(restaurant_id, (error, reviews) => {
+        if (error) {
+          console.error('SyncReviews: ', error);
+          return error;
+        }
+      });
     });
   }
 
@@ -731,20 +724,22 @@ class DBHelper {
     }
     // delete all reviews of this restaurants
     if (navigator.onLine == true) {
-      DBHelper.deleteReviewsFromDB(restaurant_id);
-      let tx = DBHelper.dbPromise.transaction('reviews', 'readwrite');
-      let reviewsStore = tx.objectStore('reviews');
-      console.log('Local reviews to save: ', data);
-      data.forEach(function (review) {
-        review.restaurant_id = parseInt(review.restaurant_id);
-        reviewsStore.put(review);
-        console.log('Local review DB updated from Network: ', review);
+      DBHelper.deleteReviewsFromDB(restaurant_id).then(() => {
+        let tx = DBHelper.dbPromise.transaction('reviews', 'readwrite');
+        let reviewsStore = tx.objectStore('reviews');
+        console.log('Local reviews to save: ', data);
+        data.forEach(function (review) {
+          review.restaurant_id = parseInt(review.restaurant_id);
+          reviewsStore.put(review);
+          console.log('Local review DB updated from Network: ', review);
+        });
+        return tx.complete;
       });
-      return tx.complete;
     } else {
       return false;
     }
-  }
+  };
+
 
   /**
    * delete all reviews of the restaurant in the local DB
@@ -752,7 +747,7 @@ class DBHelper {
    */
   static deleteReviewsFromDB(restaurant_id) {
     if (!DBHelper.dbPromise) return;
-    DBHelper.getReviewsFromDB(restaurant_id).then(reviews => {
+    return DBHelper.getReviewsFromDB(restaurant_id).then(reviews => {
       const tx = DBHelper.dbPromise.transaction('reviews', 'readwrite');
       const reviewsStore = tx.objectStore('reviews');
       reviews.forEach(review => {

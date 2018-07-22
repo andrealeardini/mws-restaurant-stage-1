@@ -346,7 +346,7 @@ window.addEventListener('online', (event) => {
   offline.classList.remove('show');
   toast('You are online.' + '\n' +
     'All the changes will be synchronized.', 3000);
-  DBHelper.syncRestaurants();
+  DBHelper.syncFavorites();
 });
 
 window.addEventListener('offline', (event) => {

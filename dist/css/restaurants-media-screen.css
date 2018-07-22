@@ -1,2 +1,181 @@
-@media screen and (min-width:420px){#restaurant-name,.restaurant-name_favorite{font-size:1.7em}#restaurant-address,#reviews-container h2{font-size:1.5em}#restaurant-hours td,#reviews-list li.addReview .reviews-comments,#reviews-list li.addReview input.reviews-name,#reviews-list li p{font-size:1.2em}}@media screen and (min-width:550px){nav h1 a{font-size:1.5em;letter-spacing:5px}#breadcrumb li{font-size:2.4vw}#footer{font-size:1.5vw}#restaurant-name,.restaurant-name_favorite{font-size:3vw}#restaurant-cuisine,#reviews-container h2{font-size:2.8vw}#restaurant-address,#reviews-list .reviews-name{font-size:2.5vw}#restaurant-hours td,#reviews-list .reviews-date,#reviews-list li.addReview .reviews-comments,#reviews-list li.addReview input.reviews-name,#reviews-list li p{font-size:2.2vw}#restaurant-container{-webkit-box-orient:horizontal;-webkit-box-direction:normal;-ms-flex-flow:row wrap;flex-flow:row wrap}#restaurant-info{border-right:1px solid #d9d9d9}}@media screen and (min-width:700px){#reviews-list{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:horizontal;-webkit-box-direction:normal;-ms-flex-flow:row wrap;flex-flow:row wrap}#reviews-list li.addReview{width:100%}#breadcrumb li{font-size:1.7vw}#footer{font-size:1.2vw}#restaurant-cuisine,#reviews-container h2{font-size:2vw}#restaurant-address,#reviews-list .reviews-name{font-size:1.9vw}#restaurant-hours td,#reviews-list .reviews-date,#reviews-list li.addReview .reviews-comments,#reviews-list li.addReview input.reviews-name,#reviews-list li p{font-size:1.7vw}}@media screen and (min-width:850px){#maincontent{-webkit-box-orient:horizontal;-webkit-box-direction:normal;-ms-flex-direction:row;flex-direction:row;overflow-y:hidden}#map-container{width:40%;height:100%}#breadcrumb li{font-size:1.6vw}#footer{font-size:1.1vw}#restaurant-cuisine,#reviews-container h2{font-size:1.8vw}#restaurant-address,#reviews-list .reviews-name{font-size:1.7vw}#restaurant-hours td,#reviews-list .reviews-date,#reviews-list li.addReview .reviews-comments,#reviews-list li.addReview input.reviews-name,#reviews-list li p{font-size:1.4vw}.inside #maincontent{-webkit-box-flex:1;-ms-flex:1 1;flex:1 1}#restaurant-container{min-height:50vh;width:100%;overflow-y:scroll}}@media screen and (min-width:1280px){#breadcrumb li{font-size:1.3vw}#footer{font-size:.8vw}#restaurant-cuisine,#reviews-container h2{font-size:1.5vw}#restaurant-address,#reviews-list .reviews-name{font-size:1.4vw}#restaurant-hours td,#reviews-list .reviews-date,#reviews-list li.addReview .reviews-comments,#reviews-list li.addReview input.reviews-name,#reviews-list li p{font-size:1.2vw}#restaurants-list li button{font-size:1vw}}
+@charset "utf-8";
+/* CSS Document */
+
+/* ====================== Media screen ====================== */
+
+@media screen and (min-width: 420px) {
+  #restaurant-name,
+  .restaurant-name_favorite {
+    font-size: 1.7em;
+  }
+  #restaurant-address,
+  #reviews-container h2 {
+    font-size: 1.5em;
+  }
+  #restaurant-hours td,
+  #reviews-list li p,
+  #reviews-list li.addReview input.reviews-name,
+  #reviews-list li.addReview .reviews-comments {
+    font-size: 1.2em;
+  }
+}
+
+@media screen and (min-width: 550px) {
+  nav h1 a {
+    font-size: 1.5em;
+    letter-spacing: 5px;
+  }
+  /* ============== Font =============== */
+  #breadcrumb li {
+    font-size: 2.4vw;
+  }
+  #footer {
+    font-size: 1.5vw;
+  }
+  #restaurant-name,
+  .restaurant-name_favorite {
+    font-size: 3vw;
+  }
+  #restaurant-cuisine,
+  #reviews-container h2 {
+    font-size: 2.8vw;
+  }
+  #restaurant-address,
+  #reviews-list .reviews-name {
+    font-size: 2.5vw
+  }
+  #restaurant-hours td,
+  #reviews-list .reviews-date,
+  #reviews-list li p,
+  #reviews-list li.addReview input.reviews-name,
+  #reviews-list li.addReview .reviews-comments {
+    font-size: 2.2vw;
+  }
+  /* ==================================== */
+  /* ============== Details =============== */
+  #restaurant-container {
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+        -ms-flex-flow: row wrap;
+            flex-flow: row wrap;
+  }
+  #restaurant-info {
+    border-right: 1px solid #d9d9d9;
+  }
+}
+
+@media screen and (min-width: 700px) {
+  /* ============== Details =============== */
+  #reviews-list {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+        -ms-flex-flow: row wrap;
+            flex-flow: row wrap;
+  }
+  #reviews-list li.addReview {
+    width: 100%;
+  }
+  /* ============== Font =============== */
+  #breadcrumb li {
+    font-size: 1.7vw;
+  }
+  #footer {
+    font-size: 1.2vw;
+  }
+  #restaurant-cuisine,
+  #reviews-container h2 {
+    font-size: 2vw;
+  }
+  #restaurant-address,
+  #reviews-list .reviews-name {
+    font-size: 1.9vw
+  }
+  #restaurant-hours td,
+  #reviews-list .reviews-date,
+  #reviews-list li p,
+  #reviews-list li.addReview input.reviews-name,
+  #reviews-list li.addReview .reviews-comments {
+    font-size: 1.7vw;
+  }
+  /* ==================================== */
+}
+
+@media screen and (min-width: 850px) {
+  #maincontent {
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: row;
+            flex-direction: row;
+    overflow-y: hidden;
+  }
+  #map-container {
+    width: 40%;
+    height: 100%;
+  }
+  /* ============== Font =============== */
+  #breadcrumb li {
+    font-size: 1.6vw;
+  }
+  #footer {
+    font-size: 1.1vw;
+  }
+  #restaurant-cuisine,
+  #reviews-container h2 {
+    font-size: 1.8vw;
+  }
+  #restaurant-address,
+  #reviews-list .reviews-name {
+    font-size: 1.7vw
+  }
+  #restaurant-hours td,
+  #reviews-list .reviews-date,
+  #reviews-list li p,
+  #reviews-list li.addReview input.reviews-name,
+  #reviews-list li.addReview .reviews-comments {
+    font-size: 1.4vw;
+  }
+  /* ==================================== */
+  /* ============== Details =============== */
+  .inside #maincontent {
+    -webkit-box-flex: 1;
+        -ms-flex: 1 1;
+            flex: 1 1;
+  }
+  #restaurant-container {
+    min-height: 50vh;
+    width: 100%;
+    overflow-y: scroll;
+  }
+}
+
+@media screen and (min-width: 1280px) {
+  /* ============== Font =============== */
+  #breadcrumb li {
+    font-size: 1.3vw;
+  }
+  #footer {
+    font-size: 0.8vw;
+  }
+  #restaurant-cuisine,
+  #reviews-container h2 {
+    font-size: 1.5vw;
+  }
+  #restaurant-address,
+  #reviews-list .reviews-name {
+    font-size: 1.4vw
+  }
+  #restaurant-hours td,
+  #reviews-list .reviews-date,
+  #reviews-list li p,
+  #reviews-list li.addReview input.reviews-name,
+  #reviews-list li.addReview .reviews-comments {
+    font-size: 1.2vw;
+  }
+  #restaurants-list li button {
+    font-size: 1vw;
+  }
+}
 /*# sourceMappingURL=restaurants-media-screen.css.map */

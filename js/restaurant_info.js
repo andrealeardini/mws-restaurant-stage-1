@@ -266,8 +266,6 @@ window.addEventListener('load', (event) => {
   });
 });
 
-
-
 function onFavoriteClick(e) {
   const favoriteHTML = e.target.parentElement;
   console.log('Click on favorite: ', favoriteHTML.id);
@@ -291,29 +289,16 @@ function onFavoriteClick(e) {
   favoriteHTML.classList.toggle('app-fab--isfavorite');
 }
 
-if (favorite.value == 'true') {
-  favoriteHTML.setAttribute('aria-label', 'The restaurant is marked as favorite');
-} else {
-  favoriteHTML.setAttribute('aria-label', 'Click to mark the restaurant as favorite');
-}
-favoriteHTML.classList.toggle('app-fab--isfavorite');
-}
-
 
 window.addEventListener('online', (event) => {
   // console.log("You are online")
   let offline = document.getElementById('offline');
   offline.classList.remove('show');
   toast('You are online.' + '\n' +
-    'All the changes will be synchronized.', 5000);
+    'All the changes will be synchronized.', 7000);
   // reload the restaurant and update the reviews
-  fetchRestaurantFromURL((error, restaurant) => {
-    if (error) {
-      console.log('Online: error when fetch restaurant from URL');
-    }
-  }, true);
-  // let restaurant_id = getParameterByName('id')
-  // DBHelper.syncReviews(restaurant_id);
+  DBHelper.syncFavorites();
+  DBHelper.syncReviews(getParameterByName('id'));
 });
 
 window.addEventListener('offline', (event) => {
@@ -321,7 +306,7 @@ window.addEventListener('offline', (event) => {
   let offline = document.getElementById('offline');
   offline.classList.add('show');
   toast('You are offine.' + '\n' +
-    'All the changes will be synchronized when you return online.', 5000);
+    'All the changes will be synchronized when you return online.', 7000);
 });
 
 function toast(msg, seconds) {
@@ -496,7 +481,7 @@ function onCreateReview() {
       DBHelper.addReviewToOfflineDB(review).then(() => {
         toast('The review is saved. Will be submitted when you return online', 7000);
         closeReview();
-        fillReviewsHTML(null, true);
+        // fillReviewsHTML(null, true);
       });
     }
   }
