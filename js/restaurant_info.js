@@ -277,7 +277,28 @@ function onFavoriteClick(e) {
     favorite.value = 'true';
   }
 
-  DBHelper.updateFavorite(favorite);
+  function onFavoriteClick(e) {
+    const favoriteHTML = e.target.parentElement;
+    console.log('Click on favorite: ', favoriteHTML.id);
+    let favorite = {
+      id: favoriteHTML.id,
+      value: 'false'
+    };
+    if (!(favoriteHTML.classList.contains('app-fab--isfavorite'))) {
+      favorite.value = 'true';
+    }
+
+    DBHelper.updateFavorite(favorite).then(() => {
+      console.log('onFavoriteClick: favorite updated');
+    });
+
+    if (favorite.value == 'true') {
+      favoriteHTML.setAttribute('aria-label', 'The restaurant is marked as favorite');
+    } else {
+      favoriteHTML.setAttribute('aria-label', 'Click to mark the restaurant as favorite');
+    }
+    favoriteHTML.classList.toggle('app-fab--isfavorite');
+  }
 
   if (favorite.value == 'true') {
     favoriteHTML.setAttribute('aria-label', 'The restaurant is marked as favorite');
