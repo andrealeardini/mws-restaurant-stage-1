@@ -1143,6 +1143,8 @@ function fillReviewsHTML(reviews = self.reviews, offline = false, refresh = fals
     container.appendChild(noReviews);
     return;
   }
+  // sort revies by date (from last to first)
+  reviews.reverse();
   const ul = document.getElementById('reviews-list');
   ul.innerHTML = '';
   reviews.forEach(review => {
