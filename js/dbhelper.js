@@ -409,7 +409,7 @@ class DBHelper {
    * Update the favorite status of the restaurant
    */
   static updateFavorite(favorite) {
-    return fetch(`${DBHelper.DATABASE_REVIEWS_URL}/restaurants/${favorite.id}/?is_favorite=${favorite.value}`, {
+    return fetch(`${DBHelper.DATABASE_URL}/${favorite.id}/?is_favorite=${favorite.value}`, {
       method: 'PUT',
     }).then(function () {
       console.log(`Sended PUT with favorite=${favorite.value}`);
