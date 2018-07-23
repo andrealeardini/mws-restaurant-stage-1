@@ -232,7 +232,6 @@ class DBHelper {
   }
 
 
-
   /**
    * Map marker for a restaurant.
    */
@@ -282,6 +281,9 @@ class DBHelper {
 
   }
 
+  /**
+   * Delete a restaurants from local DB
+   */
   static deleteRestaurantsFromDB(db = DBHelper.db) {
     if (!db) return;
     const tx = db.transaction('restaurants', 'readwrite');
@@ -291,6 +293,9 @@ class DBHelper {
     return tx.complete;
   }
 
+  /**
+   * Save the restaurant in the local DB
+   */
   static addRestaurantToDB(db, data) {
     if (!db) return;
     console.log('Adding record');
@@ -301,6 +306,9 @@ class DBHelper {
     return tx.complete;
   }
 
+  /**
+   * Get all restaurants from local DB
+   */
   static getRestaurantsFromDB() {
     if (!DBHelper.dbPromise) return;
     const tx = DBHelper.dbPromise.transaction('restaurants', 'readonly');
@@ -356,6 +364,9 @@ class DBHelper {
     return tx.complete;
   }
 
+  /**
+   * Get all offline reviews from local DB
+   */
   static getReviewsOffline() {
     if (!DBHelper.dbPromise) return;
     const tx = DBHelper.dbPromise.transaction('offline-reviews', 'readonly');
@@ -452,12 +463,17 @@ class DBHelper {
         FD.append('name', review.name);
         FD.append('rating', review.rating);
         FD.append('comments', review.comments);
-        fetch(`${DBHelper.DATABASE_REVIEWS_URL}/`, {
+        return fetch(`${DBHelper.DATABASE_REVIEWS_URL}/`, {
           method: 'POST',
           body: FD
         }).then(function () {
+          console.log('Review offline submitted');
           toast('Review offline submitted', 5000);
-          DBHelper.deleteReviewFromOffline(review);
+          return DBHelper.fetchReviewsFromNetwork(getParameterByName('id'), (error, reviews) => {
+            console.log('Review sended and fetch data');
+            fillReviewsHTML(reviews, false, true);
+            DBHelper.deleteReviewFromOffline(review);
+          }, true);
         }).catch(function (error) {
           toast('Sending review offline.... Oops! Something went wrong.', 5000);
         });
@@ -484,16 +500,7 @@ class DBHelper {
    */
   static syncReviews(restaurant_id, callback) {
     // send ALL offline reviews (this one and the others restaurants)
-    return DBHelper.sendOfflineReviewsToServer().then(() => {
-      // fetch the reviews (only this restaurants)
-      return DBHelper.fetchReviewsFromNetwork(restaurant_id, (error, reviews) => {
-        if (error) {
-          console.error('SyncReviews: ', error);
-          return error;
-        }
-        return callback(null, reviews);
-      });
-    }).catch((error) => {
+    return DBHelper.sendOfflineReviewsToServer().then(() => {}).then(() => {}).catch((error) => {
       console.log('SyncReviews: ', error);
       return error;
     });

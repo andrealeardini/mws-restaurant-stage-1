@@ -357,14 +357,31 @@ window.addEventListener('offline', (event) => {
     'All the changes will be synchronized when you return online.', 5000);
 });
 
-function toast(msg, seconds) {
-  let toast = document.getElementById('toast');
-  toast.innerText = msg;
-  toast.classList.add('show');
-  // After 5 seconds hide the toast
-  setTimeout(function () {
-    toast.classList.remove('show');
-  }, seconds);
+/**
+ * Show a toast
+ * @msg the message to show
+ * @milliseconds the durate of the toast in millisenconds
+ * @priority set to true to override the previous toast if is still displayed
+ * 
+ * by Andrea Leardini
+ */
+function toast(msg, millisenconds, priority = false) {
+  let toastHTML = document.getElementById('toast');
+  let timer;
+  if ((toastHTML.classList.contains('show') == true) && (priority == false)) {
+    setTimeout(() => {
+      // wait until the previeous message is hide
+      clearTimeout(timer);
+      toast(msg, millisenconds, priority);
+    }, 2000);
+    return;
+  }
+  toastHTML.innerText = msg;
+  toastHTML.classList.add('show');
+  // After x milliseconds hide the toast
+  timer = setTimeout(() => {
+    toastHTML.classList.remove('show');
+  }, millisenconds);
 }
 
 window.addEventListener('DOMContentLoaded', (event) => {

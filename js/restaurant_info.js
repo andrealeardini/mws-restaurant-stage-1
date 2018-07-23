@@ -300,16 +300,15 @@ window.addEventListener('online', (event) => {
   let offline = document.getElementById('offline');
   offline.classList.remove('show');
   toast('You are online.' + '\n' +
-    'All the changes will be synchronized.', 7000, true);
+    'All the changes will be synchronized.', 5000, true);
   // reload the restaurant and update the reviews
   DBHelper.syncFavorites();
   let restaurant_id = getParameterByName('id');
-  DBHelper.syncReviews(restaurant.id, (error, reviews) => {
+  DBHelper.syncReviews(restaurant.id, (error, reviewsDB) => {
     if (error) {
       console.log(error);
       return error;
     }
-    fillReviewsHTML(reviews, false, true);
   });
 });
 
@@ -318,26 +317,34 @@ window.addEventListener('offline', (event) => {
   let offline = document.getElementById('offline');
   offline.classList.add('show');
   toast('You are offine.' + '\n' +
-    'All the changes will be synchronized when you return online.', 7000, true);
+    'All the changes will be synchronized when you return online.', 5000, true);
 });
 
-function toast(msg, seconds, priority = false) {
+/**
+ * Show a toast
+ * @msg the message to show
+ * @milliseconds the durate of the toast in millisenconds
+ * @priority set to true to override the previous toast if is still displayed
+ * 
+ * by Andrea Leardini
+ */
+function toast(msg, millisenconds, priority = false) {
   let toastHTML = document.getElementById('toast');
   let timer;
   if ((toastHTML.classList.contains('show') == true) && (priority == false)) {
     setTimeout(() => {
       // wait until the previeous message is hide
       clearTimeout(timer);
-      toast(msg, seconds, priority);
+      toast(msg, millisenconds, priority);
     }, 2000);
     return;
   }
   toastHTML.innerText = msg;
   toastHTML.classList.add('show');
-  // After x seconds hide the toast
+  // After x milliseconds hide the toast
   timer = setTimeout(() => {
     toastHTML.classList.remove('show');
-  }, seconds);
+  }, millisenconds);
 }
 
 window.addEventListener('DOMContentLoaded', (event) => {
