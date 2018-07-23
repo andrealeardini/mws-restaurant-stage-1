@@ -490,7 +490,7 @@ class DBHelper {
         if (error) {
           console.error('SyncReviews: ', error);
           return error;
-        };
+        }
         return callback(null, reviews);
       });
     }).catch((error) => {
@@ -599,7 +599,7 @@ class DBHelper {
         });
       } else {
         return callback(null, reviews);
-      };
+      }
     }).catch(function (error) {
       return callback(error, null);
     });
@@ -630,7 +630,7 @@ class DBHelper {
     } else {
       return false;
     }
-  };
+  }
 
 
   /**

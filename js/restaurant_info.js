@@ -67,7 +67,7 @@ function fetchRestaurantFromURL(callback, syncro = false) {
       });
     });
   }
-};
+}
 
 /**
  * Create restaurant HTML and add it to the webpage
@@ -171,7 +171,7 @@ function fillReviewsHTML(reviews = self.reviews, offline = false, refresh = fals
     ul.appendChild(createReviewHTML(review, offline));
   });
   container.appendChild(ul);
-};
+}
 
 /**
  * Create review HTML and add it to the webpage.
