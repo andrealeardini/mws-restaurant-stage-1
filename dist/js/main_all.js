@@ -794,13 +794,13 @@ class DBHelper {
    */
   static syncReviews(restaurant_id) {
     // send ALL offline reviews (this one and the others restaurants)
-    DBHelper.sendOfflineReviewsToServer((error, reviews) => {
+    return DBHelper.sendOfflineReviewsToServer((error, reviews) => {
       if (error) {
         console.error('SyncReviews: ', error);
         return error;
       }
       // fetch the reviews (only this restaurants)
-      DBHelper.fetchReviewsFromNetwork(restaurant_id, (error, reviews) => {
+      return DBHelper.fetchReviewsFromNetwork(restaurant_id, (error, reviews) => {
         if (error) {
           console.error('SyncReviews: ', error);
           return error;
@@ -895,24 +895,26 @@ class DBHelper {
     // JSON responses are cached using the IndexedDB API.
     // Any data PREVIOUSLY accessed while connected is reachable while offline.
 
-    let xhr = new XMLHttpRequest();
-    xhr.open('GET', `${DBHelper.DATABASE_REVIEWS_URL}/?restaurant_id=${restaurant_id}`);
-    xhr.onload = () => {
-      if (xhr.status === 200) { // Got a success response from server!
-        const reviews = JSON.parse(xhr.responseText);
-        console.log(`Restaurant: ${restaurant_id} Reviews lette dal server: `, reviews);
-        // write reviews to db
-        if (saveToDB) {
-          DBHelper.saveReviewsToDB(restaurant_id, reviews);
-        }
+    return fetch(`${DBHelper.DATABASE_REVIEWS_URL}/?restaurant_id=${restaurant_id}`, {
+      method: 'GET'
+    }).then(function (response) {
+      return response.json();
+    }).then(function (json) {
+      let reviews = json;
+      console.log(`Restaurant: ${restaurant_id} Reviews lette dal server: `, reviews);
+      // write reviews to db
+      if (saveToDB) {
+        DBHelper.saveReviewsToDB(restaurant_id, reviews).then(() => {
+          callback(null, reviews);
+        });
+      } else {
         callback(null, reviews);
-      } else { // Oops!. Got an error from server.
-        const error = (`Request failed. Returned status of ${xhr.status}`);
-        callback(error, null);
-      }
-    };
-    xhr.send();
+      };
+    }).catch(function (error) {
+      callback(error, null);
+    });
   }
+
 
 
   /*
@@ -924,7 +926,7 @@ class DBHelper {
     }
     // delete all reviews of this restaurants
     if (navigator.onLine == true) {
-      DBHelper.deleteReviewsFromDB(restaurant_id).then(() => {
+      return DBHelper.deleteReviewsFromDB(restaurant_id).then(() => {
         let tx = DBHelper.dbPromise.transaction('reviews', 'readwrite');
         let reviewsStore = tx.objectStore('reviews');
         console.log('Local reviews to save: ', data);

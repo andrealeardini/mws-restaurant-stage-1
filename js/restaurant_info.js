@@ -139,11 +139,13 @@ const fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hour
 /**
  * Create all reviews HTML and add them to the webpage.
  */
-const fillReviewsHTML = (reviews = self.reviews, offline = false) => {
+function fillReviewsHTML(reviews = self.reviews, offline = false, refresh = false) {
   const container = document.getElementById('reviews-container');
-  const title = document.createElement('h2');
-  title.innerHTML = 'Reviews';
-  container.appendChild(title);
+  if (refresh == false) {
+    const title = document.createElement('h2');
+    title.innerHTML = 'Reviews';
+    container.appendChild(title);
+  }
 
   // if offline flagged reads the reviews from offline db
   // used to add a new review when the user is offline
@@ -164,6 +166,7 @@ const fillReviewsHTML = (reviews = self.reviews, offline = false) => {
     return;
   }
   const ul = document.getElementById('reviews-list');
+  ul.innerHTML = '';
   reviews.forEach(review => {
     ul.appendChild(createReviewHTML(review, offline));
   });
@@ -461,13 +464,17 @@ function onCreateReview() {
       XHR.addEventListener('load', function (event) {
         toast('The review is submitted', 5000);
         closeReview();
+        DBHelper.fetchReviewsFromNetwork(getParameterByName('id'), (error, reviews) => {
+          console.log('Review sended and fetch data');
+          fillReviewsHTML(reviews, false, true);
+        }, true);
       });
       // Define what happens in case of error
       XHR.addEventListener('error', function (event) {
         toast('Oops! Something went wrong.', 5000);
       });
       // Set up our request
-      XHR.open('POST', 'http://localhost:1337/reviews/');
+      XHR.open('POST', `${DBHelper.DATABASE_REVIEWS_URL}/`);
 
       // The data sent is what the user provided in the form
       XHR.send(FD);
