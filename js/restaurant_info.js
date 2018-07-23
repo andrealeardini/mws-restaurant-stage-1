@@ -301,7 +301,14 @@ window.addEventListener('online', (event) => {
     'All the changes will be synchronized.', 7000);
   // reload the restaurant and update the reviews
   DBHelper.syncFavorites();
-  DBHelper.syncReviews(getParameterByName('id'));
+  let restaurant_id = getParameterByName('id');
+  DBHelper.syncReviews(restaurant.id, (error, reviews) => {
+    if (error) {
+      console.log(error);
+      return error;
+    }
+    fillReviewsHTML(reviews, false, true);
+  });
 });
 
 window.addEventListener('offline', (event) => {

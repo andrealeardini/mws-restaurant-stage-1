@@ -751,7 +751,7 @@ class DBHelper {
   /**
    * Send all offline reviews to the server
    */
-  static sendOfflineReviewsToServer(callback) {
+  static sendOfflineReviewsToServer() {
     // read all offline reviews
     return DBHelper.getReviewsOffline().then(reviews => {
       // send reviews to the server
@@ -792,20 +792,20 @@ class DBHelper {
   /**
    * Sync all changed to the reviews of the current restaurant 
    */
-  static syncReviews(restaurant_id) {
+  static syncReviews(restaurant_id, callback) {
     // send ALL offline reviews (this one and the others restaurants)
-    return DBHelper.sendOfflineReviewsToServer((error, reviews) => {
-      if (error) {
-        console.error('SyncReviews: ', error);
-        return error;
-      }
+    return DBHelper.sendOfflineReviewsToServer().then(() => {
       // fetch the reviews (only this restaurants)
       return DBHelper.fetchReviewsFromNetwork(restaurant_id, (error, reviews) => {
         if (error) {
           console.error('SyncReviews: ', error);
           return error;
-        }
+        };
+        return callback(null, reviews);
       });
+    }).catch((error) => {
+      console.log('SyncReviews: ', error);
+      return error;
     });
   }
 
@@ -904,14 +904,14 @@ class DBHelper {
       console.log(`Restaurant: ${restaurant_id} Reviews lette dal server: `, reviews);
       // write reviews to db
       if (saveToDB) {
-        DBHelper.saveReviewsToDB(restaurant_id, reviews).then(() => {
-          callback(null, reviews);
+        return DBHelper.saveReviewsToDB(restaurant_id, reviews).then(() => {
+          return callback(null, reviews);
         });
       } else {
-        callback(null, reviews);
+        return callback(null, reviews);
       };
     }).catch(function (error) {
-      callback(error, null);
+      return callback(error, null);
     });
   }
 
