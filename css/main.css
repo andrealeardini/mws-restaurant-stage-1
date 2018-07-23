@@ -294,6 +294,7 @@ nav h1 a {
   color: whitesmoke;
   text-align: left;
   font-weight: 400;
+  font-size: 4vw;
   border-radius: 2px;
   padding: 16px;
   position: fixed;

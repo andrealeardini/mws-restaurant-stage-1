@@ -298,7 +298,7 @@ window.addEventListener('online', (event) => {
   let offline = document.getElementById('offline');
   offline.classList.remove('show');
   toast('You are online.' + '\n' +
-    'All the changes will be synchronized.', 7000);
+    'All the changes will be synchronized.', 7000, true);
   // reload the restaurant and update the reviews
   DBHelper.syncFavorites();
   let restaurant_id = getParameterByName('id');
@@ -316,16 +316,25 @@ window.addEventListener('offline', (event) => {
   let offline = document.getElementById('offline');
   offline.classList.add('show');
   toast('You are offine.' + '\n' +
-    'All the changes will be synchronized when you return online.', 7000);
+    'All the changes will be synchronized when you return online.', 7000, true);
 });
 
-function toast(msg, seconds) {
-  let toast = document.getElementById('toast');
-  toast.innerText = msg;
-  toast.classList.add('show');
+function toast(msg, seconds, priority = false) {
+  let toastHTML = document.getElementById('toast');
+  let timer;
+  if ((toastHTML.classList.contains('show') == true) && (priority == false)) {
+    setTimeout(() => {
+      // wait until the previeous message is hide
+      clearTimeout(timer);
+      toast(msg, seconds, priority);
+    }, 2000);
+    return;
+  }
+  toastHTML.innerText = msg;
+  toastHTML.classList.add('show');
   // After x seconds hide the toast
-  setTimeout(function () {
-    toast.classList.remove('show');
+  timer = setTimeout(() => {
+    toastHTML.classList.remove('show');
   }, seconds);
 }
 
