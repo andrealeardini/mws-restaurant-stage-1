@@ -67,8 +67,8 @@
     display: flex;
     flex-flow: row wrap;
   }
-  #reviews-list li.addReview {
-    width: 100%;
+  #reviews-list li {
+    flex: 1 0 80%
   }
   /* ============== Font =============== */
   #breadcrumb li {
@@ -82,7 +82,8 @@
     font-size: 2vw;
   }
   #restaurant-address,
-  #reviews-list .reviews-name {
+  #reviews-list .reviews-name,
+  #image-blurred-text h3 {
     font-size: 1.9vw
   }
   #restaurant-hours td,
