@@ -138,21 +138,16 @@ const fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hour
 
 /**
  * Create all reviews HTML and add them to the webpage.
+ * @reviews the reviews to fill in the container
+ * @add_offline true to add the reviews from offline db without clear the container
+ * @refresh true if the container is already filled, refresh only the reviews
  */
-function fillReviewsHTML(reviews = self.reviews, offline = false, refresh = false) {
+function fillReviewsHTML(reviews = self.reviews, add_offline = false, refresh = false) {
   const container = document.getElementById('reviews-container');
   if (refresh == false) {
     const title = document.createElement('h2');
     title.innerHTML = 'Reviews';
     container.appendChild(title);
-  }
-
-  // if offline flagged reads the reviews from offline db
-  // used to add a new review when the user is offline
-  if (offline == true) {
-    DBHelper.getReviewsOffline().then(data => {
-      reviews = data;
-    });
   }
 
   if (!reviews) {
@@ -168,17 +163,25 @@ function fillReviewsHTML(reviews = self.reviews, offline = false, refresh = fals
   // sort revies by date (from last to first)
   reviews.reverse();
   const ul = document.getElementById('reviews-list');
-  ul.innerHTML = '';
+  if (add_offline == false) {
+    ul.innerHTML = '';
+  }
   reviews.forEach(review => {
-    ul.appendChild(createReviewHTML(review, offline));
+    if (add_offline == true) {
+      ul.insertBefore(createReviewHTML(review, add_offline), ul.firstChild);
+      ul.firstChild.focus();
+    } else {
+      ul.appendChild(createReviewHTML(review, add_offline));
+    }
   });
   container.appendChild(ul);
+
 }
 
 /**
  * Create review HTML and add it to the webpage.
  */
-const createReviewHTML = (review, offline) => {
+const createReviewHTML = (review, add_offline) => {
   const li = document.createElement('li');
 
   const header = document.createElement('div');
@@ -188,7 +191,7 @@ const createReviewHTML = (review, offline) => {
   name.className = 'reviews-name';
   header.appendChild(name);
 
-  if (offline == false) {
+  if (add_offline == false) {
     const date = document.createElement('p');
     let reviewDate = new Date(review.updatedAt).toLocaleDateString();
     date.innerHTML = reviewDate;
@@ -197,9 +200,8 @@ const createReviewHTML = (review, offline) => {
   } else {
     const offline_icon = document.createElement('i');
     offline_icon.innerText = 'offline_bolt';
-    offline_icon.classList.add = 'material-icons';
-    // add a class to easy hide all offline review after the syncro
-    li.classList.add = 'offline-review';
+    offline_icon.classList.add('material-icons');
+    offline_icon.classList.add('review-offline');
     header.appendChild(offline_icon);
   }
 
@@ -316,7 +318,7 @@ window.addEventListener('offline', (event) => {
   // console.log("You are offline")
   let offline = document.getElementById('offline');
   offline.classList.add('show');
-  toast('You are offine.' + '\n' +
+  toast('You are offline.' + '\n' +
     'All the changes will be synchronized when you return online.', 5000, true);
 });
 
@@ -331,13 +333,19 @@ window.addEventListener('offline', (event) => {
 function toast(msg, millisenconds, priority = false) {
   let toastHTML = document.getElementById('toast');
   let timer;
-  if ((toastHTML.classList.contains('show') == true) && (priority == false)) {
-    setTimeout(() => {
-      // wait until the previeous message is hide
-      clearTimeout(timer);
-      toast(msg, millisenconds, priority);
-    }, 2000);
-    return;
+  if ((toastHTML.classList.contains('show') == true) {
+      // avoid to display the same messagere multiple times
+      if (msg == toastHTML.innerText) {
+        return;
+      }
+      if (priority == false)) {
+      setTimeout(() => {
+        // wait until the previeous message is hide
+        clearTimeout(timer);
+        toast(msg, millisenconds, priority);
+      }, 2000);
+      return;
+    }
   }
   toastHTML.innerText = msg;
   toastHTML.classList.add('show');
@@ -512,8 +520,11 @@ function onCreateReview() {
       };
       DBHelper.addReviewToOfflineDB(review).then(() => {
         toast('The review is saved. Will be submitted when you return online', 7000);
-        closeReview();
-        // fillReviewsHTML(null, true);
+        DBHelper.getReviewsOffline().then(reviews => {
+          closeReview();
+          reviews.reverse();
+          fillReviewsHTML(reviews, true, true);
+        })
       });
     }
   }

@@ -483,3 +483,12 @@ nav #breadcrumb [aria-current="page"] {
 #display-none {
   display: none;
 }
+
+#reviews-list li i.review-offline {
+  display: block;
+  font-size: 7vw;
+  text-align: right;
+  color: white;
+  padding: 6px 13px 0px;
+  margin: 0;
+}
