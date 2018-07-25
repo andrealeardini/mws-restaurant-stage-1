@@ -548,18 +548,6 @@ class DBHelper {
   }
 
 
-
-  /*
-   * Save favorite to network
-   */
-  static saveFavoriteToNetwork(restaurant) {
-    return DBHelper.updateFavorite(restaurant.id, restaurant.is_favorite, (error, updated) => {
-      if (updated) {
-        console.log('Favorite Updated from LocalDB');
-      }
-    });
-  }
-
   /**
    * Fetch all reviews.
    * @restaurant_id : if specified fetch only the reviews of this restaurants

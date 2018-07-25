@@ -322,8 +322,13 @@ window.addEventListener('load', (event) => {
 });
 
 function onFavoriteClick(e) {
-  const favoriteHTML = e.target.parentElement;
-  console.log('Click on favorite: ', favoriteHTML.id);
+  let favoriteHTML;
+  if (e.target.nodeName == 'SPAN') {
+    favoriteHTML = e.target.parentElement;
+  } else {
+    favoriteHTML = e.target;
+  }
+  console.log('Click on favorite: ', favoriteHTML.value);
   let favorite = {
     id: favoriteHTML.id,
     value: 'false'

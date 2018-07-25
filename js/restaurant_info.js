@@ -77,6 +77,7 @@ const fillRestaurantHTML = (restaurant = self.restaurant) => {
     name.innerHTML = restaurant.name;
 
     const favorite_fab = document.getElementById('favorite-fab');
+    favorite_fab.value = restaurant.id;
     if (favorites.length) {
       const results = favorites.filter(r => r.id == restaurant.id);
       if (results.length) {
@@ -84,8 +85,6 @@ const fillRestaurantHTML = (restaurant = self.restaurant) => {
       }
     }
 
-    // will use restaurant id to set field in DB
-    favorite_fab.id = restaurant.id;
     if (restaurant.is_favorite) {
       if ((restaurant.is_favorite == true) || (restaurant.is_favorite == 'true')) {
         favorite_fab.classList.add('app-fab--isfavorite');
@@ -293,10 +292,15 @@ window.addEventListener('load', (event) => {
 });
 
 function onFavoriteClick(e) {
-  const favoriteHTML = e.target.parentElement;
-  console.log('Click on favorite: ', favoriteHTML.id);
+  let favoriteHTML;
+  if (e.target.nodeName == 'SPAN') {
+    favoriteHTML = e.target.parentElement;
+  } else {
+    favoriteHTML = e.target;
+  }
+  console.log('Click on favorite: ', favoriteHTML.value);
   let favorite = {
-    id: favoriteHTML.id,
+    id: favoriteHTML.value,
     value: 'false'
   };
   if (!(favoriteHTML.classList.contains('app-fab--isfavorite'))) {
@@ -393,8 +397,7 @@ function onCreateReview() {
   form.appendChild(header);
 
   const id = document.createElement('input');
-  const favorite_fab = document.getElementsByClassName('app-fab--favorite')[0];
-  id.value = favorite_fab.id;
+  id.value = getParameterByName('id');
   id.name = 'restaurant_id';
   id.type = 'hidden';
   form.appendChild(id);
@@ -462,6 +465,7 @@ function onCreateReview() {
   // disable create and favorite buttons
   const add_fab = document.getElementById('add-fab');
   add_fab.classList.add('app-fab--hide');
+  const favorite_fab = document.getElementsByClassName('app-fab--favorite')[0];
   favorite_fab.classList.add('app-fab--hide');
 
   delete_btn.addEventListener('click', (event) => {
