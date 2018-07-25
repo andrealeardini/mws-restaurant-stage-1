@@ -42,7 +42,7 @@ self.addEventListener('install', function (event) {
   event.waitUntil(
     caches.open(CACHE_NAME)
     .then(function (cache) {
-      console.log('Opened cache');
+      void 0;
       return cache.addAll(urlsToCache);
     })
   );
@@ -90,7 +90,7 @@ self.addEventListener('fetch', function (event) {
     );
   } else {
     if (requestUrl.origin = restaurantsUrl.toString) {
-      console.log('Fetch from/to restaurants DB');
+      void 0;
     }
   }
 });
