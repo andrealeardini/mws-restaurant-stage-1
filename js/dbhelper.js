@@ -41,14 +41,14 @@ class DBHelper {
   static fetchRestaurants(callback) {
 
     // open DB and set dbPromise
-    return DBHelper.openDB().then(function (db) {
+    DBHelper.openDB().then(function (db) {
       if (db) {
         DBHelper.dbPromise = db;
         console.log(DBHelper.dbPromise);
         // Read restaurants from DB;
-        return DBHelper.getRestaurantsFromDB().then(restaurants => {
+        DBHelper.getRestaurantsFromDB().then(restaurants => {
           if (restaurants.length) {
-            return callback(null, restaurants);
+            callback(null, restaurants);
           } else {
             console.log('No restaurants in db');
             DBHelper.fetchRestaurantsFromNetwork(callback);
@@ -424,6 +424,11 @@ class DBHelper {
       method: 'PUT',
     }).then(function () {
       console.log(`Sended PUT with favorite=${favorite.value}`);
+      DBHelper.fetchRestaurantsFromNetwork((error, restaurants) => {
+        if (error) {
+          console.log(error);
+        }
+      }, true)
     }).catch(function (error) {
       console.log('Error when try to fetch data on server. Favorite saved offline.', error);
       DBHelper.addFavoriteToOfflineDB(favorite);
@@ -469,10 +474,13 @@ class DBHelper {
         }).then(function () {
           console.log('Review offline submitted');
           toast('Review offline submitted', 5000);
-          return DBHelper.fetchReviewsFromNetwork(getParameterByName('id'), (error, reviews) => {
+          DBHelper.deleteReviewFromOffline(review);
+          return DBHelper.fetchReviewsFromNetwork(review.restaurant_id, (error, reviews) => {
             console.log('Review sended and fetch data');
-            fillReviewsHTML(reviews, false, true);
-            DBHelper.deleteReviewFromOffline(review);
+            let pageURL = window.location.href;
+            if (pageURL.includes('/restaurant.html?id=')) {
+              fillReviewsHTML(reviews, false, true);
+            }
           }, true);
         }).catch(function (error) {
           toast('Sending review offline.... Oops! Something went wrong.', 5000);
@@ -483,7 +491,7 @@ class DBHelper {
 
 
   /**
-   * Sync all changed to the restaurants 
+   * Sync all changes to the restaurants 
    */
   static syncFavorites() {
     DBHelper.sendOfflineFavoritesToServer((error, favorites) => {
@@ -496,14 +504,33 @@ class DBHelper {
 
 
   /**
-   * Sync all changed to the reviews of the current restaurant 
+   * Sync all changes to the reviews
    */
-  static syncReviews(restaurant_id, callback) {
+  static syncReviews(callback) {
     // send ALL offline reviews (this one and the others restaurants)
-    return DBHelper.sendOfflineReviewsToServer().then(() => {}).then(() => {}).catch((error) => {
+    return DBHelper.sendOfflineReviewsToServer().then(() => {
+      return callback(null)
+    }).catch((error) => {
       console.log('SyncReviews: ', error);
-      return error;
+      return callback(error, null);
     });
+  }
+
+  /**
+   * Sync all changes
+   */
+  static syncAll() {
+    if (navigator.onLine == true) {
+      setTimeout(() => {
+        DBHelper.syncFavorites();
+        DBHelper.syncReviews((error) => {
+          if (error) {
+            console.log(error);
+            return error;
+          }
+        });
+      }, 2000);
+    }
   }
 
   /*
@@ -540,26 +567,26 @@ class DBHelper {
   static fetchReviews(restaurant_id, callback) {
 
     // open DB and set dbPromise
-    return DBHelper.openDB().then(function (db) {
+    DBHelper.openDB().then(function (db) {
       if (db) {
         DBHelper.dbPromise = db;
         console.log(DBHelper.dbPromise);
         // Read reviews from DB;
-        return DBHelper.getReviewsFromDB(restaurant_id).then(reviews => {
+        DBHelper.getReviewsFromDB(restaurant_id).then(reviews => {
           if (reviews.length) {
             return callback(null, reviews);
           } else {
             console.log('No reviews in db');
-            return DBHelper.fetchReviewsFromNetwork(restaurant_id, callback);
+            DBHelper.fetchReviewsFromNetwork(restaurant_id, callback);
           }
         });
       } else {
         console.log('db not found');
-        return DBHelper.fetchReviewsFromNetwork(restaurant_id, callback);
+        DBHelper.fetchReviewsFromNetwork(restaurant_id, callback);
       }
     }).then(function () {}).catch(function () {
-      console.log('Catch the promise error');
-      return DBHelper.fetchReviewsFromNetwork(restaurant_id, callback);
+      console.log('Fetch reviews: ', error);
+      DBHelper.fetchReviewsFromNetwork(restaurant_id, callback);
     });
   }
 

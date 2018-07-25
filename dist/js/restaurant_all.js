@@ -351,14 +351,14 @@ class DBHelper {
   static fetchRestaurants(callback) {
 
     // open DB and set dbPromise
-    return DBHelper.openDB().then(function (db) {
+    DBHelper.openDB().then(function (db) {
       if (db) {
         DBHelper.dbPromise = db;
         console.log(DBHelper.dbPromise);
         // Read restaurants from DB;
-        return DBHelper.getRestaurantsFromDB().then(restaurants => {
+        DBHelper.getRestaurantsFromDB().then(restaurants => {
           if (restaurants.length) {
-            return callback(null, restaurants);
+            callback(null, restaurants);
           } else {
             console.log('No restaurants in db');
             DBHelper.fetchRestaurantsFromNetwork(callback);
@@ -734,6 +734,11 @@ class DBHelper {
       method: 'PUT',
     }).then(function () {
       console.log(`Sended PUT with favorite=${favorite.value}`);
+      DBHelper.fetchRestaurantsFromNetwork((error, restaurants) => {
+        if (error) {
+          console.log(error);
+        }
+      }, true)
     }).catch(function (error) {
       console.log('Error when try to fetch data on server. Favorite saved offline.', error);
       DBHelper.addFavoriteToOfflineDB(favorite);
@@ -779,10 +784,13 @@ class DBHelper {
         }).then(function () {
           console.log('Review offline submitted');
           toast('Review offline submitted', 5000);
-          return DBHelper.fetchReviewsFromNetwork(getParameterByName('id'), (error, reviews) => {
+          DBHelper.deleteReviewFromOffline(review);
+          return DBHelper.fetchReviewsFromNetwork(review.restaurant_id, (error, reviews) => {
             console.log('Review sended and fetch data');
-            fillReviewsHTML(reviews, false, true);
-            DBHelper.deleteReviewFromOffline(review);
+            let pageURL = window.location.href;
+            if (pageURL.includes('/restaurant.html?id=')) {
+              fillReviewsHTML(reviews, false, true);
+            }
           }, true);
         }).catch(function (error) {
           toast('Sending review offline.... Oops! Something went wrong.', 5000);
@@ -793,7 +801,7 @@ class DBHelper {
 
 
   /**
-   * Sync all changed to the restaurants 
+   * Sync all changes to the restaurants 
    */
   static syncFavorites() {
     DBHelper.sendOfflineFavoritesToServer((error, favorites) => {
@@ -806,14 +814,33 @@ class DBHelper {
 
 
   /**
-   * Sync all changed to the reviews of the current restaurant 
+   * Sync all changes to the reviews
    */
-  static syncReviews(restaurant_id, callback) {
+  static syncReviews(callback) {
     // send ALL offline reviews (this one and the others restaurants)
-    return DBHelper.sendOfflineReviewsToServer().then(() => {}).then(() => {}).catch((error) => {
+    return DBHelper.sendOfflineReviewsToServer().then(() => {
+      return callback(null)
+    }).catch((error) => {
       console.log('SyncReviews: ', error);
-      return error;
+      return callback(error, null);
     });
+  }
+
+  /**
+   * Sync all changes
+   */
+  static syncAll() {
+    if (navigator.onLine == true) {
+      setTimeout(() => {
+        DBHelper.syncFavorites();
+        DBHelper.syncReviews((error) => {
+          if (error) {
+            console.log(error);
+            return error;
+          }
+        });
+      }, 2000);
+    }
   }
 
   /*
@@ -850,26 +877,26 @@ class DBHelper {
   static fetchReviews(restaurant_id, callback) {
 
     // open DB and set dbPromise
-    return DBHelper.openDB().then(function (db) {
+    DBHelper.openDB().then(function (db) {
       if (db) {
         DBHelper.dbPromise = db;
         console.log(DBHelper.dbPromise);
         // Read reviews from DB;
-        return DBHelper.getReviewsFromDB(restaurant_id).then(reviews => {
+        DBHelper.getReviewsFromDB(restaurant_id).then(reviews => {
           if (reviews.length) {
             return callback(null, reviews);
           } else {
             console.log('No reviews in db');
-            return DBHelper.fetchReviewsFromNetwork(restaurant_id, callback);
+            DBHelper.fetchReviewsFromNetwork(restaurant_id, callback);
           }
         });
       } else {
         console.log('db not found');
-        return DBHelper.fetchReviewsFromNetwork(restaurant_id, callback);
+        DBHelper.fetchReviewsFromNetwork(restaurant_id, callback);
       }
     }).then(function () {}).catch(function () {
-      console.log('Catch the promise error');
-      return DBHelper.fetchReviewsFromNetwork(restaurant_id, callback);
+      console.log('Fetch reviews: ', error);
+      DBHelper.fetchReviewsFromNetwork(restaurant_id, callback);
     });
   }
 
@@ -1038,7 +1065,6 @@ function fetchRestaurantFromURL(callback, syncro = false) {
     const error = 'No restaurant id in URL';
     callback(error, null);
   } else {
-
     DBHelper.fetchReviews(id, (error, reviews) => {
       self.reviews = reviews;
       DBHelper.fetchRestaurantById(id, (error, restaurant) => {
@@ -1058,46 +1084,64 @@ function fetchRestaurantFromURL(callback, syncro = false) {
  * Create restaurant HTML and add it to the webpage
  */
 const fillRestaurantHTML = (restaurant = self.restaurant) => {
-  const name = document.getElementById('restaurant-name');
-  name.innerHTML = restaurant.name;
+  DBHelper.getFavoritesOffline().then(favorites => {
+    const name = document.getElementById('restaurant-name');
+    name.innerHTML = restaurant.name;
 
-  const favorite_fab = document.getElementById('favorite-fab');
-  // will use restaurant id to set field in DB
-  favorite_fab.id = restaurant.id;
-  if (restaurant.is_favorite) {
-    if ((restaurant.is_favorite == true) || (restaurant.is_favorite == 'true')) {
-      favorite_fab.classList.add('restaurant-name_isfavorite');
+    const favorite_fab = document.getElementById('favorite-fab');
+    if (favorites.length) {
+      const results = favorites.filter(r => r.id == restaurant.id);
+      if (results.length) {
+        restaurant.is_favorite = results[0].value;
+      }
     }
-  }
 
-  favorite_fab.addEventListener('click', onFavoriteClick);
+    // will use restaurant id to set field in DB
+    favorite_fab.id = restaurant.id;
+    if (restaurant.is_favorite) {
+      if ((restaurant.is_favorite == true) || (restaurant.is_favorite == 'true')) {
+        favorite_fab.classList.add('app-fab--isfavorite');
+      }
+    }
 
-  const add_fab = document.getElementById('add-fab');
-  add_fab.addEventListener('click', onCreateReview);
+    favorite_fab.addEventListener('click', onFavoriteClick);
 
-  const address = document.getElementById('restaurant-address');
-  address.innerHTML = restaurant.address;
+    const add_fab = document.getElementById('add-fab');
+    add_fab.addEventListener('click', onCreateReview);
 
-  const picture = document.getElementById('restaurant-picture');
-  const picture_source = document.createElement('source');
-  picture_source.setAttribute('type', 'image/webp');
-  picture_source.setAttribute('srcset', `${DBHelper.imageUrlForRestaurant(restaurant)}.webp`);
-  picture.append(picture_source);
-  const image = document.createElement('img');
-  image.id = 'restaurant-img';
-  image.alt = DBHelper.imageDescriptionForRestaurant(restaurant);
-  image.src = `${DBHelper.imageUrlForRestaurant(restaurant)}.jpg`;
-  picture.append(image);
+    const address = document.getElementById('restaurant-address');
+    address.innerHTML = restaurant.address;
 
-  const cuisine = document.getElementById('restaurant-cuisine');
-  cuisine.innerHTML = restaurant.cuisine_type;
+    const picture = document.getElementById('restaurant-picture');
+    const picture_source = document.createElement('source');
+    picture_source.setAttribute('type', 'image/webp');
+    picture_source.setAttribute('srcset', `${DBHelper.imageUrlForRestaurant(restaurant)}.webp`);
+    picture.append(picture_source);
+    const image = document.createElement('img');
+    image.id = 'restaurant-img';
+    image.alt = DBHelper.imageDescriptionForRestaurant(restaurant);
+    image.src = `${DBHelper.imageUrlForRestaurant(restaurant)}.jpg`;
+    picture.append(image);
 
-  // fill operating hours
-  if (restaurant.operating_hours) {
-    fillRestaurantHoursHTML();
-  }
-  // fill reviews
-  fillReviewsHTML();
+    const cuisine = document.getElementById('restaurant-cuisine');
+    cuisine.innerHTML = restaurant.cuisine_type;
+
+    // fill operating hours
+    if (restaurant.operating_hours) {
+      fillRestaurantHoursHTML();
+    }
+    // fill reviews
+    fillReviewsHTML();
+
+    // add reviews offline
+    DBHelper.getReviewsOffline().then(reviews => {
+      const review_thisRestaurant = reviews.filter(r => r.restaurant_id == restaurant.id);
+      review_thisRestaurant.reverse();
+      fillReviewsHTML(review_thisRestaurant, true, true);
+    })
+  }).catch((error) => {
+    console.log('FillRestaurantHTML: ', error);
+  });
 };
 
 /**
@@ -1145,12 +1189,14 @@ function fillReviewsHTML(reviews = self.reviews, add_offline = false, refresh = 
     container.appendChild(noReviews);
     return;
   }
-  // sort revies by date (from last to first)
-  reviews.reverse();
+
   const ul = document.getElementById('reviews-list');
   if (add_offline == false) {
     ul.innerHTML = '';
   }
+
+  // sort reviews by date (from last to first)
+  reviews.reverse()
   reviews.forEach(review => {
     if (add_offline == true) {
       ul.insertBefore(createReviewHTML(review, add_offline), ul.firstChild);
@@ -1160,7 +1206,6 @@ function fillReviewsHTML(reviews = self.reviews, add_offline = false, refresh = 
     }
   });
   container.appendChild(ul);
-
 }
 
 /**
@@ -1248,6 +1293,7 @@ function gm_authFailure() {
 }
 
 window.addEventListener('load', (event) => {
+  DBHelper.syncAll();
   fetchRestaurantFromURL((error, restaurant) => {
     if (error) { // Got an error!
       console.error(error);
@@ -1289,14 +1335,7 @@ window.addEventListener('online', (event) => {
   toast('You are online.' + '\n' +
     'All the changes will be synchronized.', 5000, true);
   // reload the restaurant and update the reviews
-  DBHelper.syncFavorites();
-  let restaurant_id = getParameterByName('id');
-  DBHelper.syncReviews(restaurant.id, (error, reviewsDB) => {
-    if (error) {
-      console.log(error);
-      return error;
-    }
-  });
+  DBHelper.syncAll();
 });
 
 window.addEventListener('offline', (event) => {
@@ -1318,12 +1357,12 @@ window.addEventListener('offline', (event) => {
 function toast(msg, millisenconds, priority = false) {
   let toastHTML = document.getElementById('toast');
   let timer;
-  if ((toastHTML.classList.contains('show') == true) {
-      // avoid to display the same messagere multiple times
-      if (msg == toastHTML.innerText) {
-        return;
-      }
-      if (priority == false)) {
+  if (toastHTML.classList.contains('show') == true) {
+    // avoid to display the same messagere multiple times
+    if (msg == toastHTML.innerText) {
+      return;
+    }
+    if (priority == false) {
       setTimeout(() => {
         // wait until the previeous message is hide
         clearTimeout(timer);
@@ -1505,11 +1544,9 @@ function onCreateReview() {
       };
       DBHelper.addReviewToOfflineDB(review).then(() => {
         toast('The review is saved. Will be submitted when you return online', 7000);
-        DBHelper.getReviewsOffline().then(reviews => {
-          closeReview();
-          reviews.reverse();
-          fillReviewsHTML(reviews, true, true);
-        })
+        closeReview();
+        let reviews = [review];
+        fillReviewsHTML(reviews, true, true);
       });
     }
   }

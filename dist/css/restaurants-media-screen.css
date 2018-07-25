@@ -51,6 +51,10 @@
   #reviews-list li.addReview .reviews-comments {
     font-size: 2.2vw;
   }
+  #toast,
+  #offline {
+    font-size: 3.5vw;
+  }
   /* ==================================== */
   /* ============== Details =============== */
   #restaurant-container {
@@ -94,7 +98,7 @@
   #restaurant-address,
   #reviews-list .reviews-name,
   #image-blurred-text h3 {
-    font-size: 1.9vw
+    font-size: 2vw
   }
   #restaurant-hours td,
   #reviews-list .reviews-date,
@@ -102,6 +106,10 @@
   #reviews-list li.addReview input.reviews-name,
   #reviews-list li.addReview .reviews-comments {
     font-size: 1.7vw;
+  }
+  #toast,
+  #offline {
+    font-size: 3vw;
   }
   /* ==================================== */
 }
@@ -139,6 +147,10 @@
   #reviews-list li.addReview input.reviews-name,
   #reviews-list li.addReview .reviews-comments {
     font-size: 1.4vw;
+  }
+  #toast,
+  #offline {
+    font-size: 2.7vw;
   }
   /* ==================================== */
   /* ============== Details =============== */
@@ -179,6 +191,17 @@
   }
   #restaurants-list li button {
     font-size: 1vw;
+  }
+  #toast,
+  #offline {
+    font-size: 2.4vw;
+  }
+}
+
+@media screen and (min-width: 1920px) {
+  #toast,
+  #offline {
+    font-size: 1.8vw;
   }
 }
 /*# sourceMappingURL=restaurants-media-screen.css.map */

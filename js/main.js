@@ -54,10 +54,10 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {
     navigator.serviceWorker.register('/sw.js').then(function (registration) {
       // Registration was successful
-      // console.log('ServiceWorker registration successful with scope: ', registration.scope);
+      console.log('ServiceWorker registration successful with scope: ', registration.scope);
     }, function (err) {
       // registration failed :(
-      // console.log('ServiceWorker registration failed: ', err);
+      console.log('ServiceWorker registration failed: ', err);
     });
   });
 }
@@ -185,6 +185,7 @@ const fillRestaurantsHTML = (restaurants = self.restaurants) => {
  */
 const createRestaurantHTML = (restaurant) => {
 
+
   const li = document.createElement('li');
 
   const picture = document.createElement('picture');
@@ -235,30 +236,34 @@ const createRestaurantHTML = (restaurant) => {
   });
   li.append(more);
 
-
-  const favorite_btn = document.createElement('button');
-  favorite_btn.classList.add('mdc-fab', 'mdc-fab--mini', 'app-fab--favorite');
-
-  const favorite_fab = document.createElement('span');
-  favorite_fab.classList.add('mdc-fab__icon', 'material-icons');
-  favorite_fab.innerText = 'favorite';
-  favorite_btn.append(favorite_fab);
-  li.append(favorite_btn);
-
-
-  if (restaurant.is_favorite) {
-    if ((restaurant.is_favorite == true) || (restaurant.is_favorite == 'true')) {
-      favorite_btn.classList.add('app-fab--isfavorite');
-      favorite_btn.setAttribute('aria-label', 'The restaurant is marked as favorite');
-    } else {
-      favorite_btn.setAttribute('aria-label', 'Click to mark the restaurant as favorite');
+  DBHelper.getFavoritesOffline().then(favorites => {
+    if (favorites.length) {
+      const results = favorites.filter(r => r.id == restaurant.id);
+      if (results.length) {
+        restaurant.is_favorite = results[0].value;
+      }
     }
-  }
-  // will use restaurant id to set field in DB
-  favorite_btn.id = restaurant.id;
 
+    const favorite_btn = document.createElement('button');
+    favorite_btn.classList.add('mdc-fab', 'mdc-fab--mini', 'app-fab--favorite');
 
-  favorite_btn.addEventListener('click', onFavoriteClick);
+    const favorite_fab = document.createElement('span');
+    favorite_fab.classList.add('mdc-fab__icon', 'material-icons');
+    favorite_fab.innerText = 'favorite';
+    favorite_btn.append(favorite_fab);
+    li.append(favorite_btn);
+    if (restaurant.is_favorite) {
+      if ((restaurant.is_favorite == true) || (restaurant.is_favorite == 'true')) {
+        favorite_btn.classList.add('app-fab--isfavorite');
+        favorite_btn.setAttribute('aria-label', 'The restaurant is marked as favorite');
+      } else {
+        favorite_btn.setAttribute('aria-label', 'Click to mark the restaurant as favorite');
+      }
+    }
+    // will use restaurant id to set field in DB
+    favorite_btn.id = restaurant.id;
+    favorite_btn.addEventListener('click', onFavoriteClick);
+  });
 
   return li;
 };
@@ -311,9 +316,9 @@ function showMap() {
 }
 
 window.addEventListener('load', (event) => {
-  // DBHelper.syncRestaurants();
   updateRestaurants();
   document.getElementById('map-container').addEventListener('click', showMap);
+  DBHelper.syncAll();
 });
 
 function onFavoriteClick(e) {
@@ -346,7 +351,7 @@ window.addEventListener('online', (event) => {
   offline.classList.remove('show');
   toast('You are online.' + '\n' +
     'All the changes will be synchronized.', 3000);
-  DBHelper.syncFavorites();
+  DBHelper.syncAll();
 });
 
 window.addEventListener('offline', (event) => {
@@ -368,13 +373,19 @@ window.addEventListener('offline', (event) => {
 function toast(msg, millisenconds, priority = false) {
   let toastHTML = document.getElementById('toast');
   let timer;
-  if ((toastHTML.classList.contains('show') == true) && (priority == false)) {
-    setTimeout(() => {
-      // wait until the previeous message is hide
-      clearTimeout(timer);
-      toast(msg, millisenconds, priority);
-    }, 2000);
-    return;
+  if (toastHTML.classList.contains('show') == true) {
+    // avoid to display the same messagere multiple times
+    if (msg == toastHTML.innerText) {
+      return;
+    }
+    if (priority == false) {
+      setTimeout(() => {
+        // wait until the previeous message is hide
+        clearTimeout(timer);
+        toast(msg, millisenconds, priority);
+      }, 2000);
+      return;
+    }
   }
   toastHTML.innerText = msg;
   toastHTML.classList.add('show');
