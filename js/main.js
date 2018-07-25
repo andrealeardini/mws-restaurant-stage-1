@@ -350,7 +350,7 @@ window.addEventListener('online', (event) => {
   let offline = document.getElementById('offline');
   offline.classList.remove('show');
   toast('You are online.' + '\n' +
-    'All the changes will be synchronized.', 3000);
+    'All changes will be synchronized.', 3000);
   DBHelper.syncAll();
 });
 
@@ -359,7 +359,7 @@ window.addEventListener('offline', (event) => {
   let offline = document.getElementById('offline');
   offline.classList.add('show');
   toast('You are offine.' + '\n' +
-    'All the changes will be synchronized when you return online.', 5000);
+    'All changes will be synchronized when you return online.', 5000);
 });
 
 /**

@@ -321,7 +321,7 @@ window.addEventListener('online', (event) => {
   let offline = document.getElementById('offline');
   offline.classList.remove('show');
   toast('You are online.' + '\n' +
-    'All the changes will be synchronized.', 5000, true);
+    'All changes will be synchronized.', 5000, true);
   // reload the restaurant and update the reviews
   DBHelper.syncAll();
 });
@@ -331,7 +331,7 @@ window.addEventListener('offline', (event) => {
   let offline = document.getElementById('offline');
   offline.classList.add('show');
   toast('You are offline.' + '\n' +
-    'All the changes will be synchronized when you return online.', 5000, true);
+    'All changes will be synchronized when you return online.', 5000, true);
 });
 
 /**
