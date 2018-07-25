@@ -51,6 +51,7 @@
   #reviews-list li.addReview .reviews-comments {
     font-size: 2.2vw;
   }
+  #reviews-list li i.review-offline,
   #toast,
   #offline {
     font-size: 3.5vw;
@@ -97,9 +98,10 @@
   #reviews-list li.addReview .reviews-comments {
     font-size: 1.7vw;
   }
+  #reviews-list li i.review-offline,
   #toast,
   #offline {
-    font-size: 3vw;
+    font-size: 2vw;
   }
   /* ==================================== */
 }
@@ -135,9 +137,10 @@
   #reviews-list li.addReview .reviews-comments {
     font-size: 1.4vw;
   }
+  #reviews-list li i.review-offline,
   #toast,
   #offline {
-    font-size: 2.7vw;
+    font-size: 2.2vw;
   }
   /* ==================================== */
   /* ============== Details =============== */
@@ -177,15 +180,17 @@
   #restaurants-list li button {
     font-size: 1vw;
   }
+  #reviews-list li i.review-offline,
   #toast,
   #offline {
-    font-size: 2.4vw;
+    font-size: 1.5vw;
   }
 }
 
 @media screen and (min-width: 1920px) {
+  #reviews-list li i.review-offline,
   #toast,
   #offline {
-    font-size: 1.8vw;
+    font-size: 1.2vw;
   }
 }

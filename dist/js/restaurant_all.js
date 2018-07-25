@@ -1088,6 +1088,7 @@ const fillRestaurantHTML = (restaurant = self.restaurant) => {
     if (restaurant.is_favorite) {
       if ((restaurant.is_favorite == true) || (restaurant.is_favorite == 'true')) {
         favorite_fab.classList.add('app-fab--isfavorite');
+        favorite_fab.firstElementChild.innerText = 'favorite';
       }
     }
 
@@ -1168,6 +1169,7 @@ function fillReviewsHTML(reviews = self.reviews, add_offline = false, refresh = 
 
   if (!reviews) {
     const noReviews = document.createElement('p');
+    noReviews.id = 'no-reviews';
     if (navigator.onLine == true) {
       noReviews.innerHTML = 'No reviews yet!';
     } else {
@@ -1313,8 +1315,10 @@ function onFavoriteClick(e) {
 
   if (favorite.value == 'true') {
     favoriteHTML.setAttribute('aria-label', 'The restaurant is marked as favorite');
+    favoriteHTML.firstElementChild.innerText = 'favorite'
   } else {
     favoriteHTML.setAttribute('aria-label', 'Click to mark the restaurant as favorite');
+    favoriteHTML.firstElementChild.innerText = 'favorite_border'
   }
   favoriteHTML.classList.toggle('app-fab--isfavorite');
 }

@@ -1249,15 +1249,17 @@ const createRestaurantHTML = (restaurant) => {
 
     const favorite_fab = document.createElement('span');
     favorite_fab.classList.add('mdc-fab__icon', 'material-icons');
-    favorite_fab.innerText = 'favorite';
+    favorite_fab.innerText = 'favorite_border';
     favorite_btn.append(favorite_fab);
     li.append(favorite_btn);
     if (restaurant.is_favorite) {
       if ((restaurant.is_favorite == true) || (restaurant.is_favorite == 'true')) {
         favorite_btn.classList.add('app-fab--isfavorite');
         favorite_btn.setAttribute('aria-label', 'The restaurant is marked as favorite');
+        favorite_fab.innerText = 'favorite';
       } else {
         favorite_btn.setAttribute('aria-label', 'Click to mark the restaurant as favorite');
+        favorite_fab.innerText = 'favorite_border';
       }
     }
     // will use restaurant id to set field in DB
@@ -1343,8 +1345,10 @@ function onFavoriteClick(e) {
 
   if (favorite.value == 'true') {
     favoriteHTML.setAttribute('aria-label', 'The restaurant is marked as favorite');
+    favoriteHTML.firstElementChild.innerText = 'favorite';
   } else {
     favoriteHTML.setAttribute('aria-label', 'Click to mark the restaurant as favorite');
+    favoriteHTML.firstElementChild.innerText = 'favorite_border';
   }
   favoriteHTML.classList.toggle('app-fab--isfavorite');
 }

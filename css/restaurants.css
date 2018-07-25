@@ -323,6 +323,12 @@ nav #breadcrumb [aria-current="page"] {
   padding: 0;
 }
 
+#no-reviews {
+  margin: 15px;
+  color: black;
+  font-size: 2vw;
+}
+
 #reviews-list li {
   border-top-left-radius: 25px;
   background-color: #fff;

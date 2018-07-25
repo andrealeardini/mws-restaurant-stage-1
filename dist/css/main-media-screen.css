@@ -45,6 +45,7 @@
   #reviews-container h2 {
     font-size: 2.8vw;
   }
+  #reviews-list li i.review-offline,
   #toast,
   #offline {
     font-size: 3.5vw;
@@ -63,9 +64,10 @@
   #footer {
     font-size: 1.2vw;
   }
+  #reviews-list li i.review-offline,
   #toast,
   #offline {
-    font-size: 3vw;
+    font-size: 2vw;
   }
   #image-blurred-text h3 {
     font-size: 2vw
@@ -99,9 +101,10 @@
   #footer {
     font-size: 1.1vw;
   }
+  #reviews-list li i.review-offline,
   #toast,
   #offline {
-    font-size: 2.7vw;
+    font-size: 2.2vw;
   }
   /* ==================================== */
   #restaurant-container {
@@ -131,9 +134,10 @@
   #footer {
     font-size: 0.8vw;
   }
+  #reviews-list li i.review-offline,
   #toast,
   #offline {
-    font-size: 2.4vw;
+    font-size: 1.5vw;
   }
   #restaurants-list li button.button {
     font-size: 1vw;
@@ -149,9 +153,10 @@
   #restaurants-list li {
     width: calc((100% / 4) - 86px);
   }
+  #reviews-list li i.review-offline,
   #toast,
   #offline {
-    font-size: 1.8vw;
+    font-size: 1.2vw;
   }
 }
 /*# sourceMappingURL=main-media-screen.css.map */
