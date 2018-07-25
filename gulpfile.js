@@ -124,6 +124,7 @@ gulp.task('scripts-build', () => {
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest('./dist/js'));
   gulp.src('sw.js')
+    .pipe(stripDebug())
     .pipe(gulp.dest('./dist'));
 });
 
